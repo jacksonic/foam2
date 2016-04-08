@@ -1,0 +1,15 @@
+{
+  "name": "foam2",
+  "version": "0.0.1",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/foam-framework/foam2",
+  "devDependencies": {
+    "istanbul": "^0.4.2",
+    "jasmine": "^2.4.1",
+    "jshint": "^2.9.1"
+  },
+  "scripts": {
+    "test": "JASMINE_CONFIG_PATH=jasmine_node.json jasmine",
+    "coverage": "JASMINE_CONFIG_PATH=jasmine_node.json istanbul cover -- jasmine \n istanbul instrument ./src/ -o ./tmp_cov___/ \n rm -rf ./tmp_cov___"
+  }
+}
