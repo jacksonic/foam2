@@ -1,0 +1,14 @@
+{
+  "linters": {
+    "jscs": {
+      "type": "jscs",
+      "include": "(.*\\.js$)",
+      "exclude": "(^node_modules/)"
+    },
+    "jshint": {
+      "type": "jshint",
+      "include": "(.*\\.js$)",
+      "exclude": "(^node_modules/)"
+    }
+  }
+}
