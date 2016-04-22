@@ -20,6 +20,12 @@ favorite front end framework.
 While Foam is written in Javascript, it can be used to generate code for any
 language or platform. Android and iOS Swift support are on the way.
 
-### Contributing
+# Development
+
+## Style Guide
+
+All code should folow the [style guide.](doc/guides/StyleGuide.md)
+
+# Contributing
 
 Before contributing code to FOAM, you must complete the [Google Individual Contributor License Agreement](https://cla.developers.google.com/about/google-individual?csw=1).
