@@ -29,3 +29,25 @@ All code should folow the [style guide.](doc/guides/StyleGuide.md)
 # Contributing
 
 Before contributing code to FOAM, you must complete the [Google Individual Contributor License Agreement](https://cla.developers.google.com/about/google-individual?csw=1).
+
+We are using codereview.cc to manage code reveiws, CI, etc. To get set up, 
+[follow the directions](http://codereview.cc/w/getting_started/)
+to install arcanist, and then visit the 
+[apitokens page](http://codereview.cc/settings/panel/apitokens/)
+to manually generate a token.
+
+Once you have your API token, create `~/.arcrc`:
+```
+{
+ "config": {
+   "default": "http://codereview.cc/"
+ },
+ "hosts": {
+   "http://codereview.cc/api/": {
+     "token": "YOUR_TOKEN_HERE"
+   }
+ }
+}
+```
+
+`arc list` should then tell you that you have no open revisions.
