@@ -1,0 +1,6 @@
+{
+  "load": [
+    "tools/unit"
+  ],
+  "unit.engine": "NodeTestEngine"
+}
