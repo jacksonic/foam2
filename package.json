@@ -11,7 +11,7 @@
   },
   "scripts": {
     "test": "JASMINE_CONFIG_PATH=jasmine_node.json jasmine",
-    "coverage": "rm -f ./coverage_success___ \nJASMINE_CONFIG_PATH=jasmine_node.json istanbul cover -- jasmine && touch ./coverage_success___\n istanbul instrument ./src/ -o ./tmp_cov___/ \n rm -rf ./tmp_cov___ \n rm ./coverage_success___",
+    "coverage": "JASMINE_CONFIG_PATH=jasmine_node.json istanbul cover -- jasmine && istanbul check-coverage",
     "lint": "jshint -c .jshintrc  ./src/ && jscs -c .jscsrc ./src/"
   }
 }
