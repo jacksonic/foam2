@@ -16,3 +16,4 @@
  */
 
 require('../../src/core/lib.js');
+require('../../src/core/context.js');
