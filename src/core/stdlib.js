@@ -55,8 +55,8 @@ foam.LIB({
     foam.Function.setName(function() {}, '');
   } catch (x) {
     console.warn('foam.Function.setName is not supported on your platform. ' +
-                 'Stack traces will be harder to decipher, but no functionaly' +
-                 ' will be lost');
+                 'Stack traces will be harder to decipher, but no ' +
+                 'functionality will be lost');
     foam.LIB({
       name: 'foam.Function',
       methods: [
