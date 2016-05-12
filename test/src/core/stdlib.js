@@ -92,3 +92,92 @@ describe('foam.String', function() {
     }).toThrow();
   });
 });
+
+describe('foam.package', function() {
+  it('registerClass', function() {
+    var cls = {
+      package: 'some.test.package',
+      name: 'Class'
+    };
+
+    foam.package.registerClass(cls);
+    expect(global.some.test.package.Class).toBe(cls);
+  });
+
+  it('registerClass validates arguments', function() {
+    expect(function() {
+      foam.package.registerClass(123123);
+    }).toThrow();
+
+    expect(function() {
+      // Name must be non-empty
+      foam.package.registerClass({
+        name: '',
+        package: 'foo'
+      });
+    }).toThrow();
+  });
+
+  it('ensurePackage returns root for null/undefined paths', function() {
+    var foo = {};
+
+    expect(foam.package.ensurePackage(foo, null)).toBe(foo);
+    expect(foam.package.ensurePackage(foo, undefined)).toBe(foo);
+  });
+
+  it('ensurePackage validates path is string/null/undefined', function() {
+    expect(function() {
+      foam.package.ensurePackage({}, 0);
+    }).toThrow();
+
+    expect(function() {
+      foam.package.ensurePackage({}, false);
+    }).toThrow();
+
+    expect(function() {
+      foam.package.ensurePackage({}, new Date());
+    }).toThrow();
+
+    expect(function() {
+      foam.package.ensurePackage({}, 3);
+    }).toThrow();
+  });
+
+  it('registerClass overwrites previous classes', function() {
+    var obj1 = {
+      name: 'foo',
+      package: 'some.test.package'
+    };
+    var obj2 = {
+      name: 'foo',
+      package: 'some.test.package'
+    };
+
+    foam.package.registerClass(obj1);
+    expect(global.some.test.package.foo).toBe(obj1);
+
+    foam.package.registerClass(obj2);
+    expect(global.some.test.package.foo).toBe(obj2);
+  });
+
+  it('Can change package after registration', function() {
+    var obj = {
+      name: 'Foo',
+      package: 'some.test.package'
+    };
+
+    foam.package.registerClass(obj);
+
+    expect(global.some.test.package.Foo).toBe(obj);
+
+    // Change the package property of a registered object
+    // doesn't actually change where it appears in the package path.
+    //
+    // You shouldn't change the package of an object after registration.
+    obj.package = 'some.other.package';
+
+    expect(function() {
+      global.some.other.package.Foo;
+    }).toThrow();
+  });
+});
