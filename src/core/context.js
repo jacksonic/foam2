@@ -43,14 +43,11 @@
      * @param opt_suppress Suppress throwing an error.
      **/
     lookup: function(id, opt_suppress) {
-      console.assert(typeof id === 'string',
-                     'id parameter must be a string');
-
-      var ret = this.__cache__[id];
+      var ret = typeof id === 'string' && this.__cache__[id];
 
       if ( ! opt_suppress ) {
         console.assert(ret,
-                       'Could not find any registered class class for ' + id);
+                       'Could not find any registered class for ' + id);
       }
 
       return ret;
@@ -123,7 +120,9 @@
 
   // Create short-cuts for foam.__context__.[createSubContext, register, lookup]
   // in foam.
-  foam.lookup = function(id) { return foam.__context__.lookup(id); };
+  foam.lookup = function(id, opt_suppress) {
+    return foam.__context__.lookup(id, opt_suppress);
+  };
   foam.register = function(cls) { foam.__context__.register(cls); };
   foam.createSubContext = function(opt_args, opt_name) {
     return foam.__context__.createSubContext(opt_args, opt_name);

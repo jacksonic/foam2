@@ -74,6 +74,9 @@ describe('Context object', function() {
 
     // Can only look up string values.
     expect(function() { context.lookup(213123); }).toThrow();
+
+    // Lookup up non string values returns false if opt_suppress is true.
+    expect(context.lookup(123123, true)).toBe(false);
   });
 
   it('createSubContext', function() {
