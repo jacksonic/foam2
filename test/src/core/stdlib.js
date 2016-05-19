@@ -62,10 +62,17 @@ describe('foam.Function', function() {
 
   describe('setName', function() {
     it('sets the name and is configurable', function() {
-      var f = function() {};
-      foam.Function.setName(f, 'hello');
+      var called = false;
+      var f = function() { called = true; };
+
+      var ret = foam.Function.setName(f, 'hello');
 
       expect(f.name).toBe('hello');
+
+      // Check that it returns a function which calls through to the
+      // original argument.
+      ret();
+      expect(called).toBe(true);
 
       foam.Function.setName(f, 'world');
 

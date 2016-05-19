@@ -29,21 +29,26 @@ foam.LIB({
         'Cannot apply memoize to something that is not a function.');
 
       var cache = {};
-      var g = function(key) {
-        console.assert(
-          arguments.length === 1,
-          "Memoize1'ed functions must take exactly one argument.");
+      return foam.Function.setName(
+          function(key) {
+            console.assert(
+                arguments.length === 1,
+                "Memoize1'ed functions must take exactly one argument.");
 
-        if ( ! cache.hasOwnProperty(key) ) cache[key] = f.call(this, key);
-        return cache[key];
-      };
-      foam.Function.setName(g, 'memoize1(' + f.name + ')');
-      return g;
+            if ( ! cache.hasOwnProperty(key) ) cache[key] = f.call(this, key);
+            return cache[key];
+          },
+          'memoize1(' + f.name + ')');
     },
 
+    /**
+     * Set a function's name for improved debugging and profiling
+     *
+     * Returns the given function.
+     */
     function setName(f, name) {
-      /** Set a function's name for improved debugging and profiling **/
       Object.defineProperty(f, 'name', { value: name, configurable: true });
+      return f;
     }
   ]
 });
@@ -60,7 +65,7 @@ foam.LIB({
     foam.LIB({
       name: 'foam.Function',
       methods: [
-        function setName() { /* NOP */ }
+        function setName(f) { return f; }
       ]
     });
   }
@@ -75,7 +80,7 @@ foam.LIB({
         console.assert(typeof str === 'string',
                        'Cannot constantize non-string values.');
 
-        // switchFromCamelCaseToConstantFormat to SWITCH_FROM_CAMEL_CASE_TO_CONSTANT_FORMAT
+        // switches from from camelCase to CAMEL_CASE
         return str.replace(/([a-z])([^0-9a-z_])/g, '$1_$2').toUpperCase();
       })
     }
