@@ -49,4 +49,38 @@ Line lengths should be 80 characters or less, except for embedded data, like tem
  * Do not leave trailing unnecessary commas (this is implicit in the Google
    style guide).
 
+## Ordering
+We have two different rules when it comes to ordering methods/helper methods
+
+### Order within a file
+When writing a new file, we order code more or less in the excution order, or "bottom-up."  Libraries, classes and global functions are defined before the code that uses them.
+```
+foam = {
+  next$UID: function() { return 1; }
+};
+...
+function alertMe() {
+  alert(foam.next$UID());
+}
+```
+
+### Order within a CLASS
+When defining a CLASS, methods should be ordered in a top-down fashion when possible.  Public interface methods, and methods which call other helper methods should come first.  The implementation of helper methods comes after the methods that call them.
+```
+foam.CLASS({
+  name: 'Abc',
+  methods: [
+    function someMethod() {
+      return this.someHelperMethod();
+    },
+    function someOtherMethod() {
+      return 12 * this.someHelperMethod();
+    },
+    function someHelperMethod() {
+      return 4;
+    }
+  ]
+});
+```
+
 ## Comments
