@@ -125,6 +125,11 @@ describe('foam.package', function() {
     expect(foam.package.ensurePackage(foo, undefined)).toBe(foo);
   });
 
+  it('ensurePackage works with empty string', function() {
+    var foo = {};
+    expect(foam.package.ensurePackage(foo, '')).toBe(foo);
+  });
+
   it('ensurePackage validates path is string/null/undefined', function() {
     expect(function() {
       foam.package.ensurePackage({}, 0);
