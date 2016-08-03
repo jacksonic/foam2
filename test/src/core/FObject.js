@@ -142,4 +142,37 @@ describe('FObject features', function() {
       obj.clearProperty('asdfasdfasdfasdf');
     }).toThrow();
   });
+
+  it('private_ support', function() {
+    foam.CLASS({
+      name: 'SomeClass',
+      methods: [
+        function testPrivates() {
+          // Clearing unknown private doesn't break anything.
+          // Privates are not modeled like properties, its a
+          // free for all key/value store.
+          expect(this.clearPrivate_('asdfasdf'));
+
+          expect(this.getPrivate_('foo')).toBe(undefined);
+
+          expect(this.hasOwnPrivate_('foo')).toBeFalsy();
+
+          expect(this.setPrivate_('foo', 'bar')).toBe('bar');
+
+          expect(this.hasOwnPrivate_('foo')).toBeTruthy();
+
+          expect(this.getPrivate_('foo')).toBe('bar');
+
+          this.clearPrivate_('foo');
+
+          expect(this.hasOwnPrivate_('foo')).toBeFalsy();
+
+          expect(this.getPrivate_('foo')).toBe(undefined);
+        }
+      ]
+    });
+
+    var obj = SomeClass.create();
+    obj.testPrivates();
+  });
 });

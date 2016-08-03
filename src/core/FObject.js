@@ -60,6 +60,27 @@ foam.CLASS({
       }
     },
 
+    /**
+      Private support is used to store per-object values that are not
+      instance variables.  Things like listeners and topics.
+    */
+    function setPrivate_(name, value) {
+      ( this.private_ || ( this.private_ = {} ) )[name] = value;
+      return value;
+    },
+
+    function getPrivate_(name) {
+      return this.private_ && this.private_[name];
+    },
+
+    function hasOwnPrivate_(name) {
+      return this.private_ && typeof this.private_[name] !== 'undefined';
+    },
+
+    function clearPrivate_(name) {
+      if ( this.private_ ) this.private_[name] = undefined;
+    },
+
     function validate() {
       var as = this.cls_.getAxioms();
       for ( var i = 0 ; i < as.length ; i++ ) {
