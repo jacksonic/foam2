@@ -15,15 +15,12 @@
  * limitations under the License.
  */
 
-require('../../src/core/lib.js');
-require('../../src/core/context.js');
-require('../../src/core/stdlib.js');
-require('../../src/core/AbstractClass.js');
-require('../../src/core/Boot.js');
-require('../../src/core/FObject.js');
-require('../../src/core/Model.js');
-require('../../src/core/Property.js');
-require('../../src/core/Method.js');
-require('../../src/core/phase2.js');
-require('../../src/core/AxiomArray.js');
-require('../../src/core/EndBoot.js');
+describe('Bootstrap invariants', function() {
+  it('Check that all recursive relationships are properly set', function() {
+    expect(foam.core.Model.isInstance(foam.core.Model.model_)).toBe(true);
+    expect(foam.core.Model.isInstance(foam.core.FObject.model_)).toBe(true);
+    expect(foam.core.Model.isInstance(foam.core.Property.model_)).toBe(true);
+    expect(foam.core.Model.isInstance(foam.core.Method.model_)).toBe(true);
+    expect(foam.core.Model.isInstance(foam.core.AxiomArray.model_)).toBe(true);
+  });
+});

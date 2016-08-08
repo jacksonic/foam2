@@ -15,15 +15,4 @@
  * limitations under the License.
  */
 
-require('../../src/core/lib.js');
-require('../../src/core/context.js');
-require('../../src/core/stdlib.js');
-require('../../src/core/AbstractClass.js');
-require('../../src/core/Boot.js');
-require('../../src/core/FObject.js');
-require('../../src/core/Model.js');
-require('../../src/core/Property.js');
-require('../../src/core/Method.js');
-require('../../src/core/phase2.js');
-require('../../src/core/AxiomArray.js');
-require('../../src/core/EndBoot.js');
+foam.boot.phase2();

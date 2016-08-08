@@ -1,4 +1,4 @@
-/**
+/*
  * @license
  * Copyright 2016 Google Inc. All Rights Reserved.
  *
@@ -15,15 +15,38 @@
  * limitations under the License.
  */
 
-require('../../src/core/lib.js');
-require('../../src/core/context.js');
-require('../../src/core/stdlib.js');
-require('../../src/core/AbstractClass.js');
-require('../../src/core/Boot.js');
-require('../../src/core/FObject.js');
-require('../../src/core/Model.js');
-require('../../src/core/Property.js');
-require('../../src/core/Method.js');
-require('../../src/core/phase2.js');
-require('../../src/core/AxiomArray.js');
-require('../../src/core/EndBoot.js');
+/**
+<p>
+  Methods are only installed on the prototype.
+
+<p>
+  Ex.
+<pre>
+  foam.CLASS({
+    name: 'Parent',
+    methods: [
+      // short-form
+      function sayHello() { console.log('hello'); },
+
+      // long-form
+      {
+        name: 'sayGoodbye',
+        code: function() { console.log('goodbye'); }
+      }
+    ]
+  });
+</pre>
+*/
+foam.CLASS({
+  package: 'foam.core',
+  name: 'Method',
+  extends: 'FObject',
+
+  properties: [ 'name', 'code' ],
+
+  methods: [
+    function installInProto(proto) {
+      proto[this.name] = this.code;
+    }
+  ]
+});

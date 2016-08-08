@@ -15,15 +15,18 @@
  * limitations under the License.
  */
 
-require('../../src/core/lib.js');
-require('../../src/core/context.js');
-require('../../src/core/stdlib.js');
-require('../../src/core/AbstractClass.js');
-require('../../src/core/Boot.js');
-require('../../src/core/FObject.js');
-require('../../src/core/Model.js');
-require('../../src/core/Property.js');
-require('../../src/core/Method.js');
-require('../../src/core/phase2.js');
-require('../../src/core/AxiomArray.js');
-require('../../src/core/EndBoot.js');
+// Replace the global foam context between every test.
+// This allows different tests to define classes in the same
+// package without conflicting.
+
+(function() {
+  var oldContext;
+
+  beforeEach(function() {
+    oldContext = foam.__context__;
+    foam.__context__ = foam.createSubContext();
+  });
+  afterEach(function() {
+    foam.__context__ = oldContext;
+  });
+})();
