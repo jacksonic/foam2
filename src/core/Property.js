@@ -143,6 +143,10 @@ foam.CLASS({
       copying undefined values from parent Property, if it exists.
     */
     function installInClass(c) {
+      console.assert(
+        this.name[this.name.length - 1] !== '$',
+        'Property names must not end with $');
+
       var prop = this;
       var superProp = c.__proto__.getAxiomByName(prop.name);
 
@@ -180,6 +184,31 @@ foam.CLASS({
       var factory     = prop.factory;
       var value       = prop.value;
       var hasValue    = typeof value !== 'undefined';
+      var slotName    = foam.String.toSlotName(name);
+
+      // Property Slot
+      // This costs us about 4% of our boot time.
+      // If not in debug mode we should share implementations like in FOAM1.
+      //
+      // Define a PropertySlot accessor (see Slot.js) for this Property.
+      // If the property is named 'name' then 'name$' will access a Slot
+      // for this Property. The Slot is created when first accessed and then
+      // cached.
+      // If the Slot is set (to another slot) the two Slots are link()'ed
+      // together, meaning they will now dynamically share the same value.
+      Object.defineProperty(proto, slotName, {
+        get: function propertySlotGetter() {
+          return prop.toSlot(this);
+        },
+        set: function propertySlotSetter(slot2) {
+          // TODO: Add support for linking slots here once Slots
+          // have .linkTo/.linkFrom support.
+          throw 'Property slot setters currently unsupported.';
+        },
+        configurable: true,
+        enumerable: false
+      });
+
 
       // Define Property getter and setter based on Property properties.
       // By default, getter and setter stores instance value for property
@@ -283,6 +312,26 @@ foam.CLASS({
       }
 
       return prop;
+    },
+
+    /**
+     * Converts this axiom to a slot that represents the value
+     * of this slot on object "obj".  Since this axiom is a Property
+     * it will be converted to a PropertySlot which represents
+     * the value of the property as stored on obj.
+     */
+    function toSlot(obj) {
+      var slotName = foam.String.toSlotName(this.name);
+      var slot     = obj.getPrivate_(slotName);
+
+      if ( ! slot ) {
+        slot = foam.core.internal.PropertySlot.create();
+        slot.obj  = obj;
+        slot.prop = this;
+        obj.setPrivate_(slotName, slot);
+      }
+
+      return slot;
     },
 
     function cloneProperty(

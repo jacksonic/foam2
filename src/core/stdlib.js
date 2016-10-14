@@ -83,6 +83,18 @@ foam.LIB({
         // switches from from camelCase to CAMEL_CASE
         return str.replace(/([a-z])([^0-9a-z_])/g, '$1_$2').toUpperCase();
       })
+    },
+    /**
+     * Takes a key and creates a slot name for it.  Generally key -> key + '$'.
+     *
+     * For example, if an object has a property called myProperty, the slot
+     * name for that will be myProperty$.
+     */
+    {
+      name: 'toSlotName',
+      code: foam.Function.memoize1(function toSlotName(key) {
+        return key + '$';
+      })
     }
   ]
 });

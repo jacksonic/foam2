@@ -54,4 +54,19 @@ describe('Property', function() {
       prop.validate();
     }).toThrow();
   });
+
+  it('validate names', function() {
+    expect(function() {
+      foam.CLASS({
+        name: 'SomeClass',
+        properties: [
+          {
+            name: 'illegalName$'
+          }
+        ]
+      });
+
+      var obj = SomeClass.create();
+    }).toThrow();
+  });
 });

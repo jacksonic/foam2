@@ -477,4 +477,33 @@ describe('FObject features', function() {
     expect(wasCalled1).toBe(true);
     expect(wasCalled2).toBe(true);
   });
+
+  it('property slot support', function() {
+    foam.CLASS({
+      name: 'SomeClass',
+      properties: [
+        'abc'
+      ]
+    });
+
+    var obj = SomeClass.create({
+      abc: 12
+    });
+    var slot = obj.abc$;
+
+    // Fetching the slot twice returns the same object.
+    expect(slot).toBe(obj.abc$);
+
+    expect(slot.get()).toBe(12);
+    slot.set(100);
+
+    expect(obj.abc).toBe(100);
+
+    var objB = SomeClass.create();
+
+    expect(function() {
+      // Currently unsupported.
+      obj.abc$ = objB.abc$;
+    }).toThrow();
+  });
 });
