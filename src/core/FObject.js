@@ -46,9 +46,6 @@ foam.CLASS({
       The value will revert to either the Property's 'value' or
       'expression' value, if they're defined or undefined if they aren't.
       A propertyChange event will be fired, even if the value doesn't change.
-
-      If the given name is not a property of this object, it will do nothing and
-      return silently.
     */
     function clearProperty(name) {
       var prop = this.cls_.getAxiomByName(name);
@@ -56,7 +53,13 @@ foam.CLASS({
                     'Attempted to clear non-property', name);
 
       if ( this.hasOwnProperty(name) ) {
+        var oldValue = this[name];
         this.instance_[name] = undefined;
+
+        // Avoid creating slot and publishing event if nobody is listening.
+        if ( this.hasListeners('propertyChange', name) ) {
+          this.pub('propertyChange', name, prop.toSlot(this), oldValue);
+        }
       }
     },
 
@@ -161,7 +164,6 @@ foam.CLASS({
           case 6: l(s, a[0], a[1], a[2], a[3], a[4], a[5]); break;
           case 7: l(s, a[0], a[1], a[2], a[3], a[4], a[5], a[6]); break;
           case 8: l(s, a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7]); break;
-          case 9: l(s, a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8]); break;
           default: l.apply(l, [ s ].concat(Array.from(a)));
         }
         count++;
@@ -204,7 +206,7 @@ foam.CLASS({
 
       Returns the number of listeners notified.
     */
-    function pub(a1, a2, a3, a4, a5, a6, a7, a8, a9) {
+    function pub(a1, a2, a3, a4, a5, a6, a7, a8) {
       // This method prevents this function not being JIT-ed because
       // of the use of 'arguments'. Doesn't generate any garbage ([]'s
       // don't appear to be garbage in V8).
@@ -219,7 +221,6 @@ foam.CLASS({
         case 6:  return this.pub_([ a1, a2, a3, a4, a5, a6 ]);
         case 7:  return this.pub_([ a1, a2, a3, a4, a5, a6, a7 ]);
         case 8:  return this.pub_([ a1, a2, a3, a4, a5, a6, a7, a8 ]);
-        case 9:  return this.pub_([ a1, a2, a3, a4, a5, a6, a7, a8, a9 ]);
         default: return this.pub_(arguments);
       }
     },
@@ -318,6 +319,17 @@ foam.CLASS({
         }
         node = node.next;
       }
+    },
+
+    /**
+     * Publish to this.propertyChange topic if oldValue and newValue are
+     * different.
+     */
+    function pubPropertyChange_(prop, oldValue, newValue) {
+      if ( Object.is(oldValue, newValue) ) return;
+      if ( ! this.hasListeners('propertyChange', prop.name) ) return;
+
+      this.pub('propertyChange', prop.name, prop.toSlot(this), oldValue);
     },
 
     /** Create a deep copy of this object. **/

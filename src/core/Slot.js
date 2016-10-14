@@ -37,7 +37,6 @@
 foam.CLASS({
   package: 'foam.core.internal',
   name: 'PropertySlot',
-  extends: null,
   properties: [
     {
       name: 'obj'

@@ -506,4 +506,161 @@ describe('FObject features', function() {
       obj.abc$ = objB.abc$;
     }).toThrow();
   });
+
+  it('property change events', function() {
+    foam.CLASS({
+      name: 'SomeClass',
+      properties: [
+        'propertyA',
+        'propertyB'
+      ]
+    });
+
+    var obj = SomeClass.create();
+
+    // Set the property once with no listeners added to ensure
+    // coverage of that case.
+    obj.propertyA = 1;
+
+    var propertyAChangedWasCalled = false;
+    var aSub = obj.sub('propertyChange', 'propertyA', function() {
+      propertyAChangedWasCalled = true;
+    });
+
+    var anyPropertyChangedWasCalled = false;
+    var allSub = obj.sub('propertyChange', function() {
+      anyPropertyChangedWasCalled = true;
+    });
+
+    expect(anyPropertyChangedWasCalled).toBe(false);
+    expect(propertyAChangedWasCalled).toBe(false);
+
+    obj.propertyA = 12;
+
+    expect(anyPropertyChangedWasCalled).toBe(true);
+    expect(propertyAChangedWasCalled).toBe(true);
+
+    anyPropertyChangedWasCalled = false;
+    propertyAChangedWasCalled = false;
+
+    obj.propertyB = 24;
+
+    expect(anyPropertyChangedWasCalled).toBe(true);
+    expect(propertyAChangedWasCalled).toBe(false);
+
+    anyPropertyChangedWasCalled = false;
+    propertyAChangedWasCalled = false;
+
+    // Property change not published if the property is set
+    // to its current value.
+    obj.propertyB = 24;
+
+    expect(anyPropertyChangedWasCalled).toBe(false);
+    expect(propertyAChangedWasCalled).toBe(false);
+
+
+    anyPropertyChangedWasCalled = false;
+    propertyAChangedWasCalled = false;
+
+    obj.clearProperty('propertyA');
+
+    expect(anyPropertyChangedWasCalled).toBe(true);
+    expect(propertyAChangedWasCalled).toBe(true);
+  });
+
+  it('propertyChange event arguments', function() {
+    foam.CLASS({
+      name: 'SomeClass',
+      properties: [
+        {
+          name: 'abc'
+        }
+      ]
+    });
+
+    var obj = SomeClass.create({ abc: 12 });
+
+    var wasCalled = false;
+    obj.sub('propertyChange', 'abc', function(s, pc, abc, slot, oldValue) {
+      wasCalled = true;
+
+      expect(pc).toBe('propertyChange');
+      expect(abc).toBe('abc');
+
+      expect(slot.get()).toBe(100);
+
+      expect(oldValue).toBe(12);
+    });
+
+    obj.abc = 100;
+
+    expect(wasCalled).toBe(true);
+  });
+
+  it('no property change from factory', function() {
+    foam.CLASS({
+      name: 'SomeClass',
+      properties: [
+        {
+          name: 'abc',
+          factory: function() {
+            return 12;
+          }
+        }
+      ]
+    });
+
+    var obj = SomeClass.create();
+
+    var wasCalled = false;
+    obj.sub('propertyChange', function() {
+      wasCalled = true;
+    });
+
+    // Trigger the factory
+    expect(obj.abc).toBe(12);
+
+    // Event was not published because the value
+    // was "set" from a factory.
+    expect(wasCalled).toBe(false);
+  });
+
+  it('clearProperty propertyChange events', function() {
+    foam.CLASS({
+      name: 'SomeClass',
+      properties: [
+        {
+          name: 'abc',
+          factory: function() {
+            return 12;
+          }
+        }
+      ]
+    });
+
+    var obj = SomeClass.create();
+
+    var wasCalled = false;
+    obj.sub('propertyChange', 'abc', function() {
+      wasCalled = true;
+    });
+
+    expect(obj.abc).toBe(12);
+
+    expect(wasCalled).toBe(false);
+
+    // Clearing the property will fire a property change event
+    // even if the value of the property will be the same
+    // because it came from a factory
+    obj.clearProperty('abc');
+
+    expect(wasCalled).toBe(true);
+
+    wasCalled = false;
+
+    expect(obj.abc).toBe(12);
+
+    // But the factory still won't trigger a property change event.
+    expect(wasCalled).toBe(false);
+  });
 });
