@@ -15,16 +15,34 @@
  * limitations under the License.
  */
 
-require('../../src/core/lib.js');
-require('../../src/core/context.js');
-require('../../src/core/stdlib.js');
-require('../../src/core/AbstractClass.js');
-require('../../src/core/Boot.js');
-require('../../src/core/FObject.js');
-require('../../src/core/Model.js');
-require('../../src/core/Property.js');
-require('../../src/core/Method.js');
-require('../../src/core/phase2.js');
-require('../../src/core/AxiomArray.js');
-require('../../src/core/EndBoot.js');
-require('../../src/core/Slot.js');
+// jshint undef:false
+describe('PropertySlot', function() {
+  it('basics', function() {
+    foam.CLASS({
+      name: 'Abc',
+      properties: [
+        'a'
+      ]
+    });
+
+    var obj = Abc.create({ a: 1 });
+
+    var slot = foam.core.internal.PropertySlot.create();
+    slot.obj = obj;
+    slot.prop = Abc.A;
+
+    expect(slot.get()).toBe(1);
+
+    slot.set(12);
+
+    expect(slot.get()).toBe(12);
+    expect(obj.a).toBe(12);
+
+    expect(slot.isDefined()).toBe(true);
+    slot.clear();
+    expect(slot.isDefined()).toBe(false);
+
+
+    expect(slot.toString()).toBe('PropertySlot(Abc.a)');
+  });
+});
