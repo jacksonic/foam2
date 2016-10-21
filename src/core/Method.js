@@ -18,6 +18,8 @@
 /**
 <p>
   Methods are only installed on the prototype.
+  If the method is overriding a method from a parent class,
+  then SUPER support is added.
 
 <p>
   Ex.
@@ -35,18 +37,98 @@
       }
     ]
   });
+
+  // Create a subclass of Parent and override the 'sayHello' method.
+  // The parent classes 'sayHello' methold is called with 'this.SUPER()'
+  foam.CLASS({
+    name: 'Child',
+    extends: 'Parent',
+    methods: [
+      function sayHello() { this.SUPER(); console.log('world'); }
+    ]
+  });
+
+  Child.create().sayHello();
+  >> hello
+  >> world
 </pre>
 */
 foam.CLASS({
   package: 'foam.core',
-  name: 'Method',
+  name: 'AbstractMethod',
   extends: 'FObject',
 
-  properties: [ 'name', 'code' ],
+  properties: [
+    // FUTURE(braden): Tag these as required: true once that's supported.
+    'name',
+    'code',
+    {
+      name: 'usesSuper',
+      factory: function() {
+        return this.code.toString().indexOf('SUPER') >= 0;
+      }
+    }
+  ],
+
+  methods: [
+    {
+      /**
+       * Decorates a method so that it can call the method it overrides with
+       * this.SUPER().
+       */
+      name: 'override_',
+      usesSuper: false,
+      code: function override_(proto, method) {
+        // Not using SUPER, so just return the original method.
+        if ( ! this.usesSuper ) return method;
+
+        var superMethod_ = proto.cls_.__proto__.getAxiomByName(this.name);
+        var super_;
+
+        if ( ! superMethod_ ) {
+          throw 'Attempted to use SUPER() in ' + this.name + ' on ' +
+              proto.cls_.id + ' but no parent method exists. If the method ' +
+              'does not actually call this.SUPER(), set usesSuper: false on ' +
+              'the Method.';
+        } else {
+          console.assert(foam.core.AbstractMethod.isInstance(superMethod_),
+            'Attempt to override non-method', this.name, 'on', proto.cls_.id);
+
+          // Fetch the super method from the proto, as the super method axiom
+          // may have decorated the code before installing it.
+          super_ = proto.__proto__[this.name];
+        }
+
+        function SUPER() { return super_.apply(this, arguments); }
+
+        var f = function superWrapper() {
+          var oldSuper = this.SUPER;
+          this.SUPER = SUPER;
+
+          try {
+            return method.apply(this, arguments);
+          } finally {
+            this.SUPER = oldSuper;
+          }
+        };
+
+        foam.Function.setName(f, this.name);
+        f.toString = function() { return method.toString(); };
+
+        return f;
+      }
+    }
+  ]
+});
+
+foam.CLASS({
+  package: 'foam.core',
+  name: 'Method',
+  extends: 'foam.core.AbstractMethod',
 
   methods: [
     function installInProto(proto) {
-      proto[this.name] = this.code;
+      proto[this.name] = this.override_(proto, this.code);
     }
   ]
 });
