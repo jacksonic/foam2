@@ -62,6 +62,20 @@ foam.LIB({
     },
 
     /**
+      Used to create a sub-class of this class.  Sets up the appropriate
+      prototype chains for the class, class.prototype and axiomMap_
+     */
+    function createSubClass() {
+      var cls = Object.create(this);
+
+      cls.prototype = Object.create(this.prototype);
+      cls.axiomMap_ = Object.create(this.axiomMap_);
+      cls.private_  = { axiomCache: {} };
+
+      return cls;
+    },
+
+    /**
       Install an Axiom into the class and prototype.
       Invalidate the axiom-cache, used by getAxiomsByName().
 

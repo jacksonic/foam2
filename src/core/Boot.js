@@ -137,12 +137,9 @@ foam.LIB({
           context.lookup(this.extends) :
           foam.AbstractClass;
 
-        cls                  = Object.create(parent);
-        cls.prototype        = Object.create(parent.prototype);
+        cls                  = parent.createSubClass();
         cls.prototype.cls_   = cls;
         cls.prototype.model_ = this;
-        cls.private_         = { axiomCache: {} };
-        cls.axiomMap_        = Object.create(parent.axiomMap_);
         cls.id               = this.id;
         cls.package          = this.package;
         cls.name             = this.name;
