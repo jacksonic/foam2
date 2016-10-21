@@ -296,7 +296,7 @@ foam.CLASS({
     },
 
     function hasOwnProperty(name) {
-      return typeof this.instance_[name] !== 'undefined';
+      return ! foam.Undefined.isInstance(this.instance_[name]);
     },
 
     /**
@@ -335,7 +335,7 @@ foam.CLASS({
     },
 
     function hasOwnPrivate_(name) {
-      return this.private_ && typeof this.private_[name] !== 'undefined';
+      return this.private_ && ! foam.Undefined.isInstance(this.private_[name]);
     },
 
     function clearPrivate_(name) {
@@ -525,7 +525,8 @@ foam.CLASS({
     function sub() { /* args..., l */
       var l = arguments[arguments.length - 1];
 
-      console.assert(typeof l === 'function', 'Listener must be a function');
+      console.assert(foam.Function.isInstance(l),
+        'Listener must be a function');
 
       var listeners = this.listeners_();
 

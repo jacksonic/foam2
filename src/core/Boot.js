@@ -211,7 +211,7 @@ foam.LIB({
         // when axioms are actually run. This avoids some ordering issues.
         for ( var i = 0 ; i < m.axioms_.length ; i++ ) {
           var a = m.axioms_[i];
-          console.assert(a !== null && typeof a === 'object',
+          console.assert(foam.Object.isInstance(a),
                          'Axiom is not an object.');
           console.assert(a.installInClass || a.installInProto,
                          'Axiom amust define one of installInClass or ' +

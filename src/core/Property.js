@@ -183,7 +183,7 @@ foam.CLASS({
       var postSet     = prop.postSet;
       var factory     = prop.factory;
       var value       = prop.value;
-      var hasValue    = typeof value !== 'undefined';
+      var hasValue    = ! foam.Undefined.isInstance(value);
       var slotName    = foam.String.toSlotName(name);
 
       // Property Slot
@@ -228,7 +228,7 @@ foam.CLASS({
         } :
         hasValue ? function valueGetter() {
           var v = this.instance_[name];
-          return typeof v !== 'undefined' ? v : value ;
+          return foam.Undefined.isInstance(v) ? value : v;
         } :
         function simpleGetter() { return this.instance_[name]; };
 

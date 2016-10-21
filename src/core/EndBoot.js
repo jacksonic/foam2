@@ -39,13 +39,13 @@ foam.CLASS({
              The long-form will support many options, but only 'name' is
              mandatory.
          */
-        if ( typeof o === 'string' ) {
+        if ( foam.String.isInstance(o) ) {
           var p = foam.core.Property.create();
           p.name = o;
           return p;
         }
 
-        if ( Array.isArray(o) ) {
+        if ( foam.Array.isInstance(o) ) {
           // TODO(adamvy): Ensure that name is typechecked and validated
           // when model validation becomes a thing.
           var p = foam.core.Property.create();
@@ -85,7 +85,7 @@ foam.CLASS({
              The long-form will support many options, but only 'name' and 'code'
              are mandatory.
          */
-        if ( typeof o === 'function' ) {
+        if ( foam.Function.isInstance(o) ) {
           // TODO(adamvy): Ensure that name and code are typechecked and validated
           // when model validation becomes a thing.
           var m = foam.core.Method.create();

@@ -43,7 +43,7 @@
      * @param opt_suppress Suppress throwing an error.
      **/
     lookup: function(id, opt_suppress) {
-      var ret = typeof id === 'string' && this.__cache__[id];
+      var ret = foam.String.isInstance(id) && this.__cache__[id];
 
       if ( ! opt_suppress ) {
         console.assert(ret,
@@ -61,10 +61,10 @@
      */
     register: function(cls) {
       console.assert(
-        typeof cls === 'object',
+        foam.Object.isInstance(cls),
         'Cannot register non-objects into a context.');
       console.assert(
-        typeof cls.id === 'string',
+        foam.String.isInstance(cls.id),
         'Must have an .id property to be registered in a context.');
 
       function doRegister(cache, name) {
@@ -85,7 +85,7 @@
      *     Currently unused.
      */
     createSubContext: function createSubContext(opt_args, opt_name) {
-      console.assert(opt_name === undefined || typeof opt_name === 'string',
+      console.assert(opt_name === undefined || foam.String.isInstance(opt_name),
                      'opt_name must be left undefined or be a string.');
 
       var sub = {};
