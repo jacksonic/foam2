@@ -24,16 +24,13 @@
  This self-modeling system requires some care to bootstrap, but results
  in a very compact, uniform, and powerful system.
 <pre>
-            Abstract Class
-                  ^
-                  |
+
  FObject -> FObject Class                     Prototype
     ^                        +-.prototype---------^
     |                        |                    |
   Model  -> buildClass()  -> Class -> create() -> instance
 </pre>
-  FObject is the root model/class of all other classes, including Model.
-  Abstract Class is the prototype of FObject's Class, which makes it the root of all Classes.
+  FObject is the root model/class of all classes, including Model.
   From a Model we call buildClass() to create a Class (or the previously created Class) object.
   From the Class we call create() to create new instances of that class.
   New instances extend the classes prototype object, which is stored on the class as .prototype.
@@ -135,7 +132,7 @@ foam.LIB({
 
         var parent = this.extends      ?
           context.lookup(this.extends) :
-          foam.AbstractClass;
+          foam.core.FObject;
 
         cls                  = parent.createSubClass();
         cls.prototype.cls_   = cls;
@@ -205,9 +202,9 @@ foam.LIB({
     },
 
     function phase3() {
-      // Substitute AbstractClass.installModel() ( defined in AbstractClass.js ) with
+      // Substitute FObject.installModel() ( defined in FObject.js ) with
       // the final version.  A simpler axiom-only verion.
-      foam.AbstractClass.installModel = function installModel(m) {
+      foam.core.FObject.installModel = function installModel(m) {
         this.private_.axiomCache = {};
 
         // Install Axioms in first pass so that they're available in the second-pass

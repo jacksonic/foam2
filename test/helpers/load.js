@@ -18,7 +18,6 @@
 require('../../src/core/lib.js');
 require('../../src/core/context.js');
 require('../../src/core/stdlib.js');
-require('../../src/core/AbstractClass.js');
 require('../../src/core/Boot.js');
 require('../../src/core/FObject.js');
 require('../../src/core/Model.js');
