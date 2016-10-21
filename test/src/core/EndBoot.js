@@ -23,4 +23,10 @@ describe('Bootstrap invariants', function() {
     expect(foam.core.Model.isInstance(foam.core.Method.model_)).toBe(true);
     expect(foam.core.Model.isInstance(foam.core.AxiomArray.model_)).toBe(true);
   });
+
+  it('Check bootstrap methods have been upgraded to real methods', function() {
+    var method = foam.core.FObject.getAxiomByName('sub');
+
+    expect(foam.core.Method.isInstance(method)).toBe(true);
+  });
 });

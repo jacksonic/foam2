@@ -138,7 +138,7 @@ foam.LIB({
       directly, regardless of what parent classes define.
     */
     function hasOwnAxiom(name) {
-      return this.axiomMap_.hasOwnProperty(name);
+      return Object.hasOwnProperty.call(this.axiomMap_, name);
     },
 
     /** Returns all axioms defined on this class or its parent classes. */
@@ -196,7 +196,16 @@ foam.LIB({
           if ( typeof a === 'function' ) {
             m.methods[i] = a = { name: a.name, code: a };
           }
-          this.prototype[a.name] = a.code;
+          if ( foam.core.Method ) {
+            console.assert(a.cls_ !== foam.core.Method,
+              'Method', a.name, 'on', m.name,
+              'has already been upgraded to a Method');
+
+            a = foam.core.Method.create(a);
+            this.installAxiom(a);
+          } else {
+            this.prototype[a.name] = a.code;
+          }
         }
       }
       /*
