@@ -15,18 +15,20 @@
  * limitations under the License.
  */
 
+foam.CLASS({
+  package: 'foam.core',
+  name: 'Int',
+  extends: 'Property',
 
-require('../../src/foam/core/lib.js');
-require('../../src/foam/core/context.js');
-require('../../src/foam/core/stdlib.js');
-require('../../src/foam/core/Boot.js');
-require('../../src/foam/core/FObject.js');
-require('../../src/foam/core/Model.js');
-require('../../src/foam/core/Property.js');
-require('../../src/foam/core/Method.js');
-require('../../src/foam/core/phase2.js');
-require('../../src/foam/core/AxiomArray.js');
-require('../../src/foam/core/EndBoot.js');
-require('../../src/foam/core/Slot.js');
-require('../../src/foam/core/Boolean.js');
-require('../../src/foam/core/Int.js');
+  properties: [
+    [ 'value', 0 ],
+    [ 'adapt', function adaptInt(_, v) {
+      console.assert(foam.Number.isInstance(v),
+        'Cannot convert type', typeof v, 'to int');
+      console.assert(Math.trunc(v) === v,
+        'Attempted to set int to float value');
+
+      return v;
+    } ]
+  ]
+});
