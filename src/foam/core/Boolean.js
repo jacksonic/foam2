@@ -15,16 +15,19 @@
  * limitations under the License.
  */
 
-require('../../src/foam/core/lib.js');
-require('../../src/foam/core/context.js');
-require('../../src/foam/core/stdlib.js');
-require('../../src/foam/core/Boot.js');
-require('../../src/foam/core/FObject.js');
-require('../../src/foam/core/Model.js');
-require('../../src/foam/core/Property.js');
-require('../../src/foam/core/Method.js');
-require('../../src/foam/core/phase2.js');
-require('../../src/foam/core/AxiomArray.js');
-require('../../src/foam/core/EndBoot.js');
-require('../../src/foam/core/Slot.js');
-require('../../src/foam/core/Boolean.js');
+foam.CLASS({
+  package: 'foam.core',
+  name: 'Boolean',
+  extends: 'Property',
+
+  properties: [
+    [ 'value', false ],
+    [ 'adapt', function adaptBoolean(_, v) {
+      console.assert(
+        foam.Boolean.isInstance(v),
+        'Cannot convert non-boolean type', typeof v, 'to boolean');
+
+      return v;
+    } ]
+  ]
+});
