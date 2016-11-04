@@ -455,3 +455,129 @@ describe('PropertySlot', function() {
     expect(slot2.get()).toBe(1);
   });
 });
+
+describe('ExpressionSlot', function() {
+  it('basics', function() {
+    foam.CLASS({
+      package: 'test.slot.expr',
+      name: 'Person',
+      properties: [
+        'name', 'age'
+      ]
+    });
+
+    var person = foam.lookup('test.slot.expr.Person').create({
+      name: 'Jeff',
+      age: 22
+    });
+
+    var isAdult = foam.lookup('foam.core.ExpressionSlot').create({
+      code: function(age) { return age >= 18; },
+      args: [ person.age$ ]
+    });
+
+    expect(isAdult.get()).toBe(true);
+    person.age = 16;
+    expect(isAdult.get()).toBe(false);
+
+    // set() is ignored
+    isAdult.set(true);
+    expect(isAdult.get()).toBe(false);
+
+    isAdult.destroy();
+  });
+
+  it('is integrated as Property.expression', function() {
+    foam.CLASS({
+      package: 'test.slot.expr',
+      name: 'Person',
+      properties: [
+        'firstName',
+        'lastName',
+        {
+          name: 'fullName',
+          expression: function(firstName, lastName) {
+            this.count_++;
+            return firstName + ' ' + lastName;
+          }
+        },
+        [ 'count_', 0 ]
+      ]
+    });
+
+    var person = foam.lookup('test.slot.expr.Person').create({
+      firstName: 'John',
+      lastName: 'Smith'
+    });
+
+    expect(person.count_).toBe(0);
+    // fullName should work.
+    expect(person.fullName).toBe('John Smith');
+    // And accessing it will bump the count.
+    expect(person.count_).toBe(1);
+
+    // But accessing it again won't change the count.
+    expect(person.fullName).toBe('John Smith');
+    expect(person.count_).toBe(1);
+
+    // Changing one of the dependencies will invalidate, but not recompute.
+    person.lastName = 'Cooper';
+    expect(person.count_).toBe(1);
+
+    // And I can cause it to recompute.
+    expect(person.fullName).toBe('John Cooper');
+    expect(person.count_).toBe(2);
+
+    // Setting the expression property works, and it sticks even if depencies
+    // change.
+    person.fullName = 'Jim Brown';
+    expect(person.fullName).toBe('Jim Brown');
+    expect(person.count_).toBe(2);
+    person.firstName = 'Paul';
+    expect(person.fullName).toBe('Jim Brown');
+    expect(person.count_).toBe(2);
+
+    // Now if I clear the property, the expression takes over again.
+    person.clearProperty('fullName');
+    expect(person.count_).toBe(2);
+    expect(person.fullName).toBe('Paul Cooper');
+    expect(person.count_).toBe(3);
+
+    // Expressions do fire propertyChange when someone is listening.
+    var callCount = 0;
+    person.fullName$.sub(function() { callCount++; });
+    expect(callCount).toBe(0);
+    person.lastName = 'Davis';
+
+    // Note that listeners are called even before anyone accesses the value.
+    expect(callCount).toBe(1);
+    expect(person.count_).toBe(3);
+    expect(person.fullName).toBe('Paul Davis');
+    expect(person.count_).toBe(4);
+    expect(callCount).toBe(1);
+
+    // On a completely other topic: I can use this.slot(function...) to make an
+    // ad-hoc expression.
+    var slot = person.slot(function(fullName) { return fullName.length; });
+    expect(slot.get()).toBe(10); // Paul Davis
+    person.firstName = 'Ben';
+    expect(slot.get()).toBe(9); // Ben Davis
+
+    // I can also just specify arguments as Slots, and then the parameter names
+    // are arbitrary.
+    var slot2 = person.slot(function(f) { return f.length; },
+        person.firstName$);
+    expect(slot2.get()).toBe(3);
+    person.firstName = 'James';
+    expect(slot2.get()).toBe(5);
+
+    // Finally, if I sub to an ExpressionSlot, I get notified when it changes.
+    callCount = 0;
+    slot2.sub(function() { callCount++; });
+    expect(callCount).toBe(0);
+    person.firstName = 'Paul';
+    expect(callCount).toBe(1);
+    person.firstName = 'Alan';
+    expect(callCount).toBe(1); // Length doesn't change!
+  });
+});

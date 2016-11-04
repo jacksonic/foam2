@@ -591,6 +591,28 @@ foam.CLASS({
       this.pub('propertyChange', prop.name, prop.toSlot(this), oldValue);
     },
 
+    /**
+     * Creates a Slot for an Axiom.
+     */
+    function slot(obj) {
+      if ( typeof obj === 'function' ) {
+        return foam.core.ExpressionSlot.create(
+            arguments.length === 1 ?
+                { code: obj, obj: this } :
+                {
+                  code: obj,
+                  obj: this,
+                  args: Array.prototype.slice.call(arguments, 1)
+                });
+      }
+
+      var axiom = this.cls_.getAxiomByName(obj);
+      console.assert(axiom, 'Unknown axiom:', obj);
+      console.assert(axiom.toSlot, 'Called slot() on unslottable axiom:', obj);
+
+      return axiom.toSlot(this);
+    },
+
     /** Returns true iff destroy() has been called on this object. */
     function isDestroyed() {
       return ! this.instance_;

@@ -175,10 +175,8 @@ foam.CLASS({
         feedbackCounter--;
       };
 
-      // FUTURE(braden): Once onDestroy is supported, pass these inner
-      // subscriptions to sub.onDestroy.
-      this.sub(l1);
-      other.sub(l2);
+      sub.onDestroy(this.sub(l1));
+      sub.onDestroy(other.sub(l2));
 
       l1();
 
@@ -237,6 +235,127 @@ foam.CLASS({
 
     function toString() {
       return 'PropertySlot(' + this.obj.cls_.id + '.' + this.prop.name + ')';
+    }
+  ]
+});
+
+/**
+  Tracks the dependencies of a dynamic function, and invalidates the Slot if
+  they change.
+
+  Any slots that depend on this slot get invalidated too, recursively. However,
+  values are only recomputed on-demand, when someone calls get().
+
+<pre>
+  foam.CLASS({name: 'Person', properties: ['fname', 'lname']});
+  var p = Person.create({fname: 'John', lname: 'Smith'});
+  var e = foam.core.ExpressionSlot.create({
+    args: [ p.fname$, p.lname$ ],
+    code: function(f, l) { return f + ' ' + l; }
+  });
+  log(e.get());
+  e.sub(log);
+  p.fname = 'Steve';
+  p.lname = 'Jones';
+  log(e.get());
+
+  Output:
+   > John Smith
+   > [object Object] propertyChange value [object Object]
+   > [object Object] propertyChange value [object Object]
+   > Steve Jones
+
+  var p = foam.CLASS({name: 'Person', properties: [ 'f', 'l' ]}).create({f:'John', l: 'Doe'});
+  var e = foam.core.ExpressionSlot.create({
+    obj: p,
+    code: function(f, l) { return f + ' ' + l; }
+  });
+</pre>
+*/
+foam.CLASS({
+  package: 'foam.core',
+  name: 'ExpressionSlot',
+  // FUTURE(braden): Switch this back to 'implements', once that's supported.
+  extends: 'foam.core.Slot',
+
+  properties: [
+    'obj',
+    'code',
+    {
+      name: 'args',
+      expression: function(obj) {
+        console.assert(obj, 'ExpressionSlot: "obj" or "args" required.');
+
+        var args = foam.Function.formalArgs(this.code);
+        for ( var i = 0 ; i < args.length ; i++ ) {
+          args[i] = obj.slot(args[i]);
+        }
+
+        // this.invalidate(); // ???: Is this needed?
+        this.subToArgs_(args);
+
+        return args;
+      },
+      postSet: function(_, args) {
+        this.subToArgs_(args);
+      }
+    },
+    {
+      name: 'value',
+      factory: function() {
+        return this.code.apply(this.obj || this, this.args.map(function(a) {
+          return a.get();
+        }));
+      }
+    },
+    {
+      /** Destroyable to clean up old subs when obj changes. */
+      name: 'cleanup_',
+      factory: function() {
+        return foam.core.FObject.create();
+      }
+    }
+  ],
+
+  methods: [
+    /** Always call cleanup when this expression is destroyed. */
+    function init() {
+      var self = this;
+      this.onDestroy(function() {
+        self.cleanup_.destroy();
+      });
+    },
+
+    /**
+     * Returns the previously computed value of this expression.
+     * If the expression has been invalidated, this will trigger value.factory
+     * and recompute the value.
+     */
+    function get() {
+      return this.value;
+    },
+
+    /** Does nothing. Setting expressions is a no-op. */
+    function set() {
+    },
+
+    function sub(l) {
+      return arguments.length === 1 ?
+        this.SUPER('propertyChange', 'value', l) :
+        this.SUPER.apply(this,arguments);
+    },
+
+    /** Helper function that subscribes to each argument of the expression. */
+    function subToArgs_(args) {
+      this.cleanup_.destroy();
+      this.cleanup_ = foam.core.FObject.create();
+
+      var self = this;
+      for ( var i = 0 ; i < args.length ; i++ ) {
+        this.cleanup_.onDestroy(args[i].sub(function() {
+          self.clearProperty('value');
+        }));
+      }
     }
   ]
 });

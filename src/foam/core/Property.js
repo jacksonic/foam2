@@ -116,6 +116,19 @@ foam.CLASS({
     'postSet',
 
     /**
+     * A dynamic function which defines this Property's value.
+     * Similar to a 'factory', except that the function takes arguments which
+     * are named the same as other properties of this object.
+     *
+     * Whenever the values of any of the argument properties change, the value
+     * of this Property is invalidated. Like a regular factory, an invalidated
+     * property will be recalculated by calling the provided expression function
+     * when accessed. This makes expressions very efficient, because their
+     * values are only recomputed on demand.
+     */
+    'expression',
+
+    /**
       A getter function which completely replaces the normal
       Property getter process. Whenever the property is accessed, getter is
       called and its value is returned.
@@ -185,6 +198,7 @@ foam.CLASS({
       var value       = prop.value;
       var hasValue    = ! foam.Undefined.isInstance(value);
       var slotName    = foam.String.toSlotName(name);
+      var eFactory    = this.exprFactory(prop.expression);
 
       // Property Slot
       // This costs us about 4% of our boot time.
@@ -217,14 +231,19 @@ foam.CLASS({
 
       // Getter
       // Call 'getter' if provided, else return value from instance_ if set.
-      // If not set, return value from 'factory' or (default) 'value', if
-      // provided.
+      // If not set, return value from 'factory', 'expression' or
+      // (default) 'value', if provided.
       var getter =
         prop.getter ? prop.getter :
         factory ? function factoryGetter() {
           return this.hasOwnProperty(name) ?
             this.instance_[name] :
             this[name] = factory.call(this) ;
+        } :
+        eFactory ? function eFactoryGetter() {
+          return this.hasOwnProperty(name) ? this.instance_[name] :
+              this.hasOwnPrivate_(name) ? this.getPrivate_(name)  :
+              this.setPrivate_(name, eFactory.call(this));
         } :
         hasValue ? function valueGetter() {
           var v = this.instance_[name];
@@ -243,9 +262,17 @@ foam.CLASS({
           // Factories can be expensive to generate, and if the value
           // has been explicitly set to some value, then it isn't worth
           // the expense of computing the old stale value.
+          console.assert(! this.hasOwnPrivate_(name) || eFactory,
+              'hasOwnPrivate_ should only be true when there is an expression');
           var oldValue =
-            factory  ? ( this.hasOwnProperty(name) ? this[name] : undefined ) :
-            this[name] ;
+              this.hasOwnProperty(name) ? this[name] :
+              this.hasOwnPrivate_(name) ? this[name] :
+              factory || eFactory ? undefined :
+              this[name];
+
+          if ( eFactory && this.hasOwnPrivate_(name) ) {
+            this.clearPrivate_(name);
+          }
 
           if ( adapt )  newValue = adapt.call(this, oldValue, newValue, prop);
 
@@ -281,6 +308,45 @@ foam.CLASS({
             o.cls_.id + '.' + this.name +
             ' not defined.';
       }
+    },
+
+    /**
+     * Create a factory function from an expression function.
+     */
+    function exprFactory(e) {
+      if ( ! e ) return null;
+      console.assert(foam.Function.isInstance(e),
+          'Argument to exprFactory must be a function.');
+
+      var argNames = foam.Function.formalArgs(e);
+      var name = this.name;
+
+      // FUTURE: Determine how often the value is being invalidated, and if it's
+      // happening often, then don't unsubscribe.
+      return function exportedFactory() {
+        var self = this;
+        var args = new Array(argNames.length);
+        var subs = new Array(argNames.length);
+        var l = function() {
+          if ( ! self.hasOwnProperty(name) ) {
+            var oldValue = self[name];
+            self.clearPrivate_(name);
+
+            // Avoid creating a slot and publishing the event if there are no
+            // listeners.
+            if ( self.hasListeners('propertyChange', name) ) {
+              self.pub('propertyChange', name, self.slot(name));
+            }
+          }
+          for ( var i = 0; i < subs.length; i++ ) subs[i].destroy();
+        };
+
+        for ( var i = 0; i < argNames.length; i++ ) {
+          subs[i] = this.slot(argNames[i]).sub(l);
+          args[i] = this[argNames[i]];
+        }
+        return e.apply(this, args);
+      };
     },
 
     /** Returns a developer-readable description of this Property. **/
