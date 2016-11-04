@@ -663,6 +663,56 @@ describe('FObject features', function() {
     // But the factory still won't trigger a property change event.
     expect(wasCalled).toBe(false);
   });
+
+  it('supports destroy and onDestroy', function() {
+    var obj1 = foam.lookup('foam.core.FObject').create();
+    expect(obj1.isDestroyed()).toBe(false);
+    obj1.destroy();
+    expect(obj1.instance_).toBe(null);
+    expect(obj1.isDestroyed()).toBe(true);
+
+    var obj2 = foam.lookup('foam.core.FObject').create();
+    var simpleCalled = false;
+    var destroyableCalled = false;
+    obj2.onDestroy(function() {
+      simpleCalled = true;
+      // At this point, the object hasn't actually been destroyed.
+      expect(obj2.instance_).toBeDefined();
+      expect(obj2.isDestroyed()).toBe(false);
+
+      // Destroy() is protected from infinite recursion.
+      expect(function() {
+        obj2.destroy();
+      }).not.toThrow();
+    });
+    obj2.onDestroy({
+      destroy: function() { destroyableCalled = true; }
+    });
+
+    // onDestroy should ignore empty values.
+    obj2.onDestroy(null);
+
+    // onDestroy should throw if the input is not a destroyable.
+    expect(function() {
+      obj2.onDestroy({ destroy: 7 });
+    }).toThrow();
+    expect(function() {
+      obj2.onDestroy(7);
+    }).toThrow();
+
+    expect(simpleCalled).toBe(false);
+    expect(destroyableCalled).toBe(false);
+    expect(obj2.isDestroyed()).toBe(false);
+    obj2.destroy();
+    expect(simpleCalled).toBe(true);
+    expect(destroyableCalled).toBe(true);
+    expect(obj2.isDestroyed()).toBe(true);
+
+    // Destroying again should be safe.
+    expect(function() {
+      obj2.destroy();
+    }).not.toThrow();
+  });
 });
 
 describe('Library level FObject methods', function() {

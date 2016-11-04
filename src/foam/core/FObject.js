@@ -591,6 +591,44 @@ foam.CLASS({
       this.pub('propertyChange', prop.name, prop.toSlot(this), oldValue);
     },
 
+    /** Returns true iff destroy() has been called on this object. */
+    function isDestroyed() {
+      return ! this.instance_;
+    },
+
+    /**
+     * Register a function or a destroyable to be called when this object is
+     * destroyed.
+     *
+     * A destroyable is any object with a destroy() method.
+     *
+     * Does nothing is the argument is falsy.
+     *
+     * Returns the input object, which can be useful for chaining.
+     */
+    function onDestroy(d) {
+      console.assert(! d || foam.Function.isInstance(d.destroy) ||
+          foam.Function.isInstance(d),
+          'Argument to onDestroy() must be callable or destroyable.');
+      if ( d ) this.sub('destroy', d.destroy ? d.destroy.bind(d) : d);
+      return d;
+    },
+
+    /**
+     * Destroy this object.
+     * Free any referenced objects and destroy any registered destroyables.
+     * This object is completely unusable after being destroyed.
+     */
+    function destroy() {
+      if ( this.isDestroyed() || this.instance_.destroying_ ) return;
+
+      // Record that we're currently destroying this object,
+      // to prevent infinite recursion.
+      this.instance_.destroying_ = true;
+      this.pub('destroy');
+      this.instance_ = this.private_ = null;
+    },
+
     /** Create a deep copy of this object. **/
     function clone() {
       var m = {};
