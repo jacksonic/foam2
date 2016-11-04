@@ -15,15 +15,15 @@
  * limitations under the License.
  */
 
-require('../../src/core/lib.js');
-require('../../src/core/context.js');
-require('../../src/core/stdlib.js');
-require('../../src/core/Boot.js');
-require('../../src/core/FObject.js');
-require('../../src/core/Model.js');
-require('../../src/core/Property.js');
-require('../../src/core/Method.js');
-require('../../src/core/phase2.js');
-require('../../src/core/AxiomArray.js');
-require('../../src/core/EndBoot.js');
-require('../../src/core/Slot.js');
+require('../../src/foam/core/lib.js');
+require('../../src/foam/core/context.js');
+require('../../src/foam/core/stdlib.js');
+require('../../src/foam/core/Boot.js');
+require('../../src/foam/core/FObject.js');
+require('../../src/foam/core/Model.js');
+require('../../src/foam/core/Property.js');
+require('../../src/foam/core/Method.js');
+require('../../src/foam/core/phase2.js');
+require('../../src/foam/core/AxiomArray.js');
+require('../../src/foam/core/EndBoot.js');
+require('../../src/foam/core/Slot.js');
