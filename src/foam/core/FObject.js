@@ -99,7 +99,7 @@ foam.LIB({
       better startup performance.
     */
     function installAxiom(a) {
-      console.assert(a !== null && typeof a === 'object',
+      console.assert(foam.Object.isInstance(a),
                      'Axiom is not an object.');
 
       console.assert(a.installInClass || a.installInProto,
@@ -221,7 +221,7 @@ foam.LIB({
       if ( m.methods ) {
         for ( var i = 0 ; i < m.methods.length ; i++ ) {
           var a = m.methods[i];
-          if ( typeof a === 'function' ) {
+          if ( foam.Function.isInstance(a) ) {
             m.methods[i] = a = { name: a.name, code: a };
           }
           if ( foam.core.Method ) {
@@ -254,7 +254,7 @@ foam.LIB({
 
           if ( Array.isArray(a) ) {
             m.properties[i] = a = { name: a[0], value: a[1] };
-          } else if ( typeof a === 'string' ) {
+          } else if ( foam.String.isInstance(a) ) {
             m.properties[i] = a = { name: a };
           }
 
