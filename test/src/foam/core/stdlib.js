@@ -789,6 +789,22 @@ describe('foam.Date', function() {
 });
 
 
+describe('foam.Context', function() {
+  it('isInstance', function() {
+    expect(foam.Context.isInstance(foam.__context__)).toBe(true);
+
+    var sub = foam.__context__.createSubContext({});
+
+    expect(foam.Context.isInstance(sub)).toBe(true);
+
+    expect(foam.Context.isInstance({})).toBe(false);
+    expect(foam.Context.isInstance(null)).toBe(false);
+
+    expect(foam.typeOf(sub)).toBe(foam.Context);
+  });
+});
+
+
 describe('foam.Object', function() {
 
   it('forEach', function() {
@@ -934,5 +950,3 @@ describe('foam.uuid', function() {
     expect(foam.uuid.randomGUID()).not.toEqual(foam.uuid.randomGUID());
   });
 });
-
-

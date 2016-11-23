@@ -813,4 +813,63 @@ describe('Library level FObject methods', function() {
       });
     }).toThrow();
   });
+
+  it('__context__ and __subContext___', function() {
+    foam.CLASS({
+      name: 'SomeClass'
+    });
+
+    var obja = SomeClass.create();
+    var objb = SomeClass.create(null, obja);
+
+    // Can also pass the context directly
+    var objc = SomeClass.create(null, obja.__context__);
+
+    // Defaults to global context
+    expect(obja.__context__).toBe(foam.__context__);
+
+    expect(objb.__context__).toBe(obja.__subContext__);
+
+    expect(objc.__context__).toBe(obja.__subContext__);
+
+    // Can only set __context__ to a parent object or a context
+    expect(function() {
+      // Boolean is not a context.
+      SomeClass.create(null, true);
+    }).toThrow();
+
+    expect(function() {
+      // Nor is an empty object
+      SomeClass.create(null, {});
+    }).toThrow();
+
+    expect(function() {
+      // Nor is a Date
+      SomeClass.create(null, new Date());
+    }).toThrow();
+
+    // You should never mutate __context__ or __subContext__
+    // __subContext__ will throw if you mutate it
+    expect(function() {
+      obja.__subContext__ = {};
+    }).toThrow();
+
+    // Object creation will throw if you pass a non-context or non-parent
+    // object as the parent parameter.
+    expect(function() {
+      // Plain JS objects are not contexts
+      SomeClass.create(null, {});
+    }).toThrow();
+
+    expect(function() {
+      // Neither are booleans
+      SomeClass.create(null, true);
+    }).toThrow();
+
+    // Attempting to change the __context__ of a created object will also throw
+    // even if setting it to a valid context.
+    expect(function() {
+      obja.__context__ = foam.__context__;
+    }).toThrow();
+  });
 });

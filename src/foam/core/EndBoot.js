@@ -108,12 +108,75 @@ foam.CLASS({
 
   // documentation: 'Upgrade FObject to fully bootstrapped form.',
 
+  axioms: [
+    {
+      name: '__context__',
+      installInProto: function(p) {
+        Object.defineProperty(p, '__context__', {
+          get: function() {
+            var x = this.getPrivate_('__context__');
+            if ( ! x ) {
+              var contextParent = this.getPrivate_('contextParent');
+              if ( contextParent ) {
+                this.setPrivate_(
+                    '__context__',
+                    x = contextParent.__subContext__);
+                this.setPrivate_('contextParent', undefined);
+              } else {
+                // Default to the global context if none was provided
+                return this.__context__ = foam.__context__;
+              }
+            }
+            return x;
+          },
+          set: function(x) {
+            console.assert(
+                ! this.hasOwnPrivate_('contextParent') &&
+                ! this.hasOwnPrivate_('__context__'),
+                '__context__ has already been initialized.');
+
+            console.assert(
+                foam.core.FObject.isInstance(x) ||
+                foam.Context.isInstance(x),
+                'Tried to set __context__ to non-context');
+
+            this.setPrivate_(
+                foam.core.FObject.isInstance(x) ?
+                    'contextParent' :
+                    '__context__',
+                x);
+          }
+        });
+
+        // By default the __subContext__ of an FObject is the same as its,
+        // __context__.  Later when exports support is added we will refine FObject
+        // such that __subContext__ is truly a sub-context of __context__ that
+        // contains anything FObject exports.
+        //
+        // TODO(adamvy): Link to exports definition of __subContext__ when that
+        // code is added.
+        Object.defineProperty(
+            p,
+            '__subContext__',
+            {
+              get: function() { return this.__context__; },
+              set: function() {
+                throw new Error(
+                    'Attempted to set unsettable __subContext__ in ' +
+                    this.cls_.id);
+              }
+            });
+      }
+    }
+  ],
+
   methods: [
     /**
       Called to process constructor arguments.
       Replaces simpler version defined in original FObject definition.
     */
-    function initArgs(args) {
+    function initArgs(args, opt_parent) {
+      if ( opt_parent ) this.__context__ = opt_parent;
       if ( ! args ) return;
 
       // If args are just a simple {} map, just copy

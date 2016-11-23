@@ -30,3 +30,4 @@ require('../../src/foam/core/EndBoot.js');
 require('../../src/foam/core/Slot.js');
 require('../../src/foam/core/Boolean.js');
 require('../../src/foam/core/Int.js');
+require('../../src/foam/core/debug.js');

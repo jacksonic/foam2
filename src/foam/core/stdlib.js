@@ -502,6 +502,19 @@ foam.LIB({
 });
 
 
+// Flyweight type information for FOAM contexts, which are
+// a special type of JS Object that is not an FObject.
+// For more information see Context.js
+foam.LIB({
+  name: 'foam.Context',
+  methods: [
+    function isInstance(obj) {
+      return foam.__context__ === obj || foam.__context__.isPrototypeOf(obj);
+    }
+  ]
+});
+
+
 // An FObject is a FOAM-Object, the root class for all modeled classes.
 // FUTURE: Make FObject available during this phase of boot'
 // foam.LIB({
@@ -562,6 +575,7 @@ foam.typeOf = (function() {
   //         and capture here.
   //var tFObject   = foam.core.FObject;
   var tFunction  = foam.Function;
+  var tContext   = foam.Context;
   var tObject    = foam.Object;
 
   return function typeOf(o) {
@@ -573,6 +587,7 @@ foam.typeOf = (function() {
     if ( tArray.isInstance(o) )     return tArray;
     if ( tDate.isInstance(o) )      return tDate;
     if ( tFunction.isInstance(o) )  return tFunction;
+    if ( tContext.isInstance(o) )   return tContext;
     // FUTURE: tFObject here
     //if ( tFObject.isInstance(o) )   return tFObject;
     return tObject;

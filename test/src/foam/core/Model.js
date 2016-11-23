@@ -437,3 +437,40 @@ describe('Model inheritance', function() {
     }).toThrow();
   });
 });
+
+
+describe('Model validation checks', function() {
+  it('Property names', function() {
+    expect(function() {
+      foam.CLASS({
+        name: 'SomeClass',
+        properties: [
+          'illegal$'
+        ]
+      });
+    }).toThrow();
+
+    expect(function() {
+      foam.CLASS({
+        name: 'SomeClass',
+        properties: [
+          '__illegal'
+        ]
+      });
+    }).toThrow();
+  });
+
+  it('extends and refines are mutually exclusive', function() {
+    expect(function() {
+      foam.CLASS({
+        name: 'TargetClass'
+      });
+
+      foam.CLASS({
+        name: 'IllegalClass',
+        extends: 'TargetClass',
+        refines: 'TargetClass'
+      });
+    }).toThrow();
+  });
+});
