@@ -1,4 +1,5 @@
 {
+  "excludeFiles": [ "third_party/**" ],
   "preset": "google",
   "disallowSpaceAfterPrefixUnaryOperators": ["++", "--", "+", "-", "~"],
   "requireSpaceAfterPrefixUnaryOperators": ["!"],

@@ -20,7 +20,6 @@ if ( ! found ) ...
 * One-statement `if`, `while`, and `for` statements that can fit on a single line (less than 80 characters) do not need braces:
 ```javascript
 if ( ! found ) return false;
-
 for ( var i = 0 ; i < a.length ; i++ ) a[i] = '';
 ```
 * The rules about using Closure's `goog.provide`, `goog.require` and similar are

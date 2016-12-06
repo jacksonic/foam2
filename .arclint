@@ -3,12 +3,12 @@
     "jscs": {
       "type": "jscs",
       "include": "(.*\\.js$)",
-      "exclude": "(^node_modules/)"
+      "exclude": "(^node_modules/|^third_party/|^doc/gen/)"
     },
     "jshint": {
       "type": "jshint",
       "include": "(.*\\.js$)",
-      "exclude": "(^node_modules/)"
+      "exclude": "(^node_modules/|^third_party/|^doc/gen/)"
     }
   }
 }

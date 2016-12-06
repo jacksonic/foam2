@@ -7,11 +7,13 @@
     "istanbul": "^0.4.2",
     "jasmine": "^2.4.1",
     "jshint": "^2.9.1",
-    "jscs": "^2.11.0"
+    "jscs": "^2.11.0",
+    "jsdoc": "^3.4.0"
   },
   "scripts": {
     "test": "JASMINE_CONFIG_PATH=jasmine_node.json jasmine",
     "coverage": "JASMINE_CONFIG_PATH=jasmine_node.json istanbul cover -- jasmine && istanbul check-coverage",
-    "lint": "jshint -c .jshintrc  ./src/ && jscs -c .jscsrc ./src/"
+    "lint": "jshint -c .jshintrc  ./src/ && jscs -c .jscsrc ./src/",
+    "doc": "rm -rf doc/gen && jsdoc -c jsdoc.conf -r -t ./third_party/jsdoc/customTemplate -d ./doc/gen ./src/"
   }
 }
