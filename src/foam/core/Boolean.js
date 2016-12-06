@@ -23,7 +23,7 @@ foam.CLASS({
   properties: [
     [ 'value', false ],
     [ 'adapt', function adaptBoolean(_, v) {
-      console.assert(
+      foam.assert(
         foam.Boolean.isInstance(v),
         'Cannot convert non-boolean type', typeof v, 'to boolean');
 

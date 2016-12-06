@@ -125,10 +125,10 @@ foam.LIB({
 
       if ( this.refines ) {
         cls = context.lookup(this.refines);
-        console.assert(cls, 'Unknown refinement class: ' + this.refines);
+        foam.assert(cls, 'Unknown refinement class: ' + this.refines);
       } else {
-        console.assert(this.id, 'Missing id name.', this.name);
-        console.assert(this.name, 'Missing class name.');
+        foam.assert(this.id, 'Missing id name.', this.name);
+        foam.assert(this.name, 'Missing class name.');
 
         var parent = this.extends      ?
           context.lookup(this.extends) :
@@ -158,7 +158,7 @@ foam.LIB({
         m.id = m.package + '.' + m.name;
         var cls = buildClass.call(m);
 
-        console.assert(
+        foam.assert(
           ! m.refines,
           'Refines is not supported in early bootstrap');
 
@@ -211,9 +211,9 @@ foam.LIB({
         // when axioms are actually run. This avoids some ordering issues.
         for ( var i = 0 ; i < m.axioms_.length ; i++ ) {
           var a = m.axioms_[i];
-          console.assert(foam.Object.isInstance(a),
+          foam.assert(foam.Object.isInstance(a),
                          'Axiom is not an object.');
-          console.assert(a.installInClass || a.installInProto,
+          foam.assert(a.installInClass || a.installInProto,
                          'Axiom amust define one of installInClass or ' +
                          'installInProto');
 

@@ -23,9 +23,9 @@ foam.CLASS({
   properties: [
     [ 'value', 0 ],
     [ 'adapt', function adaptInt(_, v) {
-      console.assert(foam.Number.isInstance(v),
+      foam.assert(foam.Number.isInstance(v),
         'Cannot convert type', typeof v, 'to int');
-      console.assert(Math.trunc(v) === v,
+      foam.assert(Math.trunc(v) === v,
         'Attempted to set int to float value');
 
       return v;

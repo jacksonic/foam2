@@ -118,14 +118,14 @@ foam.LIB({
      *
      */
     function memoize1(f) {
-      console.assert(
+      foam.assert(
         typeof f === 'function',
         'Cannot apply memoize to something that is not a function.');
 
       var cache = {};
       return foam.Function.setName(
           function(key) {
-            console.assert(
+            foam.assert(
                 arguments.length === 1,
                 'Memoize1\'ed functions must take exactly one argument.');
 
@@ -156,7 +156,7 @@ foam.LIB({
     function argsStr(f) {
       var match = f.
           toString().
-          replace(/(\r\n|\n|\r)/gm,'').
+          replace(/(\r\n|\n|\r)/gm, '').
           match(/^function(\s+[_$\w]+|\s*)\((.*?)\)/);
       if ( ! match ) {
         throw new TypeError(
@@ -280,7 +280,7 @@ foam.LIB({
     {
       name: 'constantize',
       code: foam.Function.memoize1(function(str) {
-        console.assert(typeof str === 'string',
+        foam.assert(typeof str === 'string',
             'Cannot constantize non-string values.');
 
         // switches from from camelCase to CAMEL_CASE
@@ -291,7 +291,7 @@ foam.LIB({
     {
       name: 'labelize',
       code: foam.Function.memoize1(function(str) {
-        console.assert(typeof str === 'string',
+        foam.assert(typeof str === 'string',
             'Cannot labelize non-string values.');
         if ( str === '' ) return str;
         return this.capitalize(str.replace(/[a-z][A-Z]/g, function(a) {
@@ -303,7 +303,7 @@ foam.LIB({
     {
       name: 'capitalize',
       code: foam.Function.memoize1(function(str) {
-        console.assert(typeof str === 'string',
+        foam.assert(typeof str === 'string',
             'Cannot capitalize non-string values.');
         // switchFromProperyName to //SwitchFromPropertyName
         return str[0].toUpperCase() + str.substring(1);
@@ -318,7 +318,7 @@ foam.LIB({
        */
       name: 'toSlotName',
       code: foam.Function.memoize1(function toSlotName(key) {
-        console.assert(typeof key === 'string',
+        foam.assert(typeof key === 'string',
             'Cannot toSlotName non-string values.');
 
         return key + '$';
@@ -327,7 +327,7 @@ foam.LIB({
     {
       name: 'toUpperCase',
       code: foam.Function.memoize1(function(str) {
-        console.assert(typeof str === 'string',
+        foam.assert(typeof str === 'string',
             'Cannot toUpperCase non-string values.');
 
         return str.toUpperCase();
@@ -337,7 +337,7 @@ foam.LIB({
     {
       name: 'cssClassize',
       code: foam.Function.memoize1(function(str) {
-        console.assert(typeof str === 'string',
+        foam.assert(typeof str === 'string',
             'Cannot cssClassize non-string values.');
         // Turns foam.u2.Foo into foam-u2-Foo
         return str.replace(/\./g, '-');
@@ -345,7 +345,7 @@ foam.LIB({
     },
 
     function pad(str, size) {
-      console.assert(typeof str === 'string',
+      foam.assert(typeof str === 'string',
           'Cannot constantize non-string values.');
 
       // Right pads to size if size > 0, Left pads to -size if size < 0
@@ -364,7 +364,7 @@ foam.LIB({
       return ( start >= 0 && end >= 0 ) ? s.substring(start + 2, end) : '';
     },
     function startsWithIC(a, b) {
-      console.assert(typeof a === 'string' && typeof b === 'string',
+      foam.assert(typeof a === 'string' && typeof b === 'string',
           'Cannot startsWithIC non-string values.');
 
       return a.toUpperCase().startsWith(b.toUpperCase());
@@ -624,9 +624,9 @@ foam.LIB({
      * global.some.package.MyClass.
      */
     function registerClass(cls) {
-      console.assert(typeof cls === 'object',
+      foam.assert(typeof cls === 'object',
           'cls must be an object');
-      console.assert(typeof cls.name === 'string' && cls.name !== '',
+      foam.assert(typeof cls.name === 'string' && cls.name !== '',
           'cls must have a non-empty string name');
 
       var pkg = foam.package.ensurePackage(global, cls.package);
@@ -650,7 +650,7 @@ foam.LIB({
         return root;
       }
 
-      console.assert(typeof path === 'string',
+      foam.assert(typeof path === 'string',
           'Cannot make a package path of a non-string');
 
       path = path.split('.');

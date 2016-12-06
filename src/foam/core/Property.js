@@ -156,7 +156,7 @@ foam.CLASS({
       copying undefined values from parent Property, if it exists.
     */
     function installInClass(c) {
-      console.assert(
+      foam.assert(
         this.name[this.name.length - 1] !== '$',
         'Property names must not end with $');
 
@@ -262,7 +262,7 @@ foam.CLASS({
           // Factories can be expensive to generate, and if the value
           // has been explicitly set to some value, then it isn't worth
           // the expense of computing the old stale value.
-          console.assert(! this.hasOwnPrivate_(name) || eFactory,
+          foam.assert(! this.hasOwnPrivate_(name) || eFactory,
               'hasOwnPrivate_ should only be true when there is an expression');
           var oldValue =
               this.hasOwnProperty(name) ? this[name] :
@@ -315,7 +315,7 @@ foam.CLASS({
      */
     function exprFactory(e) {
       if ( ! e ) return null;
-      console.assert(foam.Function.isInstance(e),
+      foam.assert(foam.Function.isInstance(e),
           'Argument to exprFactory must be a function.');
 
       var argNames = foam.Function.formalArgs(e);

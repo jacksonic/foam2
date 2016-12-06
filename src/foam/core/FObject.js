@@ -99,10 +99,10 @@ foam.LIB({
       better startup performance.
     */
     function installAxiom(a) {
-      console.assert(foam.Object.isInstance(a),
+      foam.assert(foam.Object.isInstance(a),
                      'Axiom is not an object.');
 
-      console.assert(a.installInClass || a.installInProto,
+      foam.assert(a.installInClass || a.installInProto,
                      'Axiom amust define one of installInClass or ' +
                      'installInProto');
 
@@ -225,7 +225,7 @@ foam.LIB({
             m.methods[i] = a = { name: a.name, code: a };
           }
           if ( foam.core.Method ) {
-            console.assert(a.cls_ !== foam.core.Method,
+            foam.assert(a.cls_ !== foam.core.Method,
               'Method', a.name, 'on', m.name,
               'has already been upgraded to a Method');
 
@@ -259,7 +259,7 @@ foam.LIB({
           }
 
           var type = foam.lookup(a.class, true) || foam.core.Property;
-          console.assert(
+          foam.assert(
             type !== a.cls_,
             'Property', a.name, 'on', m.name,
             'has already been upgraded to a Property.');
@@ -307,7 +307,7 @@ foam.CLASS({
     */
     function clearProperty(name) {
       var prop = this.cls_.getAxiomByName(name);
-      console.assert(prop && foam.core.Property.isInstance(prop),
+      foam.assert(prop && foam.core.Property.isInstance(prop),
                     'Attempted to clear non-property', name);
 
       if ( this.hasOwnProperty(name) ) {
@@ -525,7 +525,7 @@ foam.CLASS({
     function sub() { /* args..., l */
       var l = arguments[arguments.length - 1];
 
-      console.assert(foam.Function.isInstance(l),
+      foam.assert(foam.Function.isInstance(l),
         'Listener must be a function');
 
       var listeners = this.listeners_();
@@ -607,8 +607,8 @@ foam.CLASS({
       }
 
       var axiom = this.cls_.getAxiomByName(obj);
-      console.assert(axiom, 'Unknown axiom:', obj);
-      console.assert(axiom.toSlot, 'Called slot() on unslottable axiom:', obj);
+      foam.assert(axiom, 'Unknown axiom:', obj);
+      foam.assert(axiom.toSlot, 'Called slot() on unslottable axiom:', obj);
 
       return axiom.toSlot(this);
     },
@@ -629,7 +629,7 @@ foam.CLASS({
      * Returns the input object, which can be useful for chaining.
      */
     function onDestroy(d) {
-      console.assert(! d || foam.Function.isInstance(d.destroy) ||
+      foam.assert(! d || foam.Function.isInstance(d.destroy) ||
           foam.Function.isInstance(d),
           'Argument to onDestroy() must be callable or destroyable.');
       if ( d ) this.sub('destroy', d.destroy ? d.destroy.bind(d) : d);

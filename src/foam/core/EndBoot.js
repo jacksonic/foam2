@@ -130,12 +130,12 @@ foam.CLASS({
             return x;
           },
           set: function(x) {
-            console.assert(
+            foam.assert(
                 ! this.hasOwnPrivate_('contextParent') &&
                 ! this.hasOwnPrivate_('__context__'),
                 '__context__ has already been initialized.');
 
-            console.assert(
+            foam.assert(
                 foam.core.FObject.isInstance(x) ||
                 foam.Context.isInstance(x),
                 'Tried to set __context__ to non-context');

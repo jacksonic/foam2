@@ -91,7 +91,7 @@ foam.CLASS({
               'does not actually call this.SUPER(), set usesSuper: false on ' +
               'the Method.';
         } else {
-          console.assert(foam.core.AbstractMethod.isInstance(superMethod_),
+          foam.assert(foam.core.AbstractMethod.isInstance(superMethod_),
             'Attempt to override non-method', this.name, 'on', proto.cls_.id);
 
           // Fetch the super method from the proto, as the super method axiom

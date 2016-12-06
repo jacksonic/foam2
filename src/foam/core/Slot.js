@@ -39,7 +39,7 @@ foam.CLASS({
       then copies the value back in case the target slot rejected the value.
     */
     function linkFrom(s2) {
-      console.assert(s2 && this.cls_.isInstance(s2),
+      foam.assert(s2 && this.cls_.isInstance(s2),
           'Slot.linkFrom: argument is not a Slot');
 
       var s1        = this;
@@ -102,7 +102,7 @@ foam.CLASS({
       Returns a Destroyable which can be used to cancel the binding.
     */
     function follow(other) {
-      console.assert(other && this.cls_.isInstance(other),
+      foam.assert(other && this.cls_.isInstance(other),
           'Slot.follow requires Slot argument.');
       var self = this;
       var l = function() {
@@ -120,9 +120,9 @@ foam.CLASS({
      * @param f maps values from srcValue to dstValue
      */
     function mapFrom(other, f) {
-      console.assert(other && this.cls_.isInstance(other),
+      foam.assert(other && this.cls_.isInstance(other),
           'Slot.mapFrom: first argument is not a Slot');
-      console.assert(typeof f === 'function',
+      foam.assert(typeof f === 'function',
           'Slot.mapFrom: second argument is not a function');
 
       var self = this;
@@ -144,11 +144,11 @@ foam.CLASS({
      *    Otherwise an error is generated on divergence.
      */
     function relateTo(other, f, fPrime, expectUnstable) {
-      console.assert(other && this.cls_.isInstance(other),
+      foam.assert(other && this.cls_.isInstance(other),
           'Slot.relateTo: first argument is not a Slot');
-      console.assert(typeof f === 'function',
+      foam.assert(typeof f === 'function',
           'Slot.relateTo: second argument is not a function');
-      console.assert(typeof fPrime === 'function',
+      foam.assert(typeof fPrime === 'function',
           'Slot.relateTo: third argument is not a function');
 
       var self     = this;
@@ -284,7 +284,7 @@ foam.CLASS({
     {
       name: 'args',
       expression: function(obj) {
-        console.assert(obj, 'ExpressionSlot: "obj" or "args" required.');
+        foam.assert(obj, 'ExpressionSlot: "obj" or "args" required.');
 
         var args = foam.Function.formalArgs(this.code);
         for ( var i = 0 ; i < args.length ; i++ ) {
@@ -342,7 +342,7 @@ foam.CLASS({
     function sub(l) {
       return arguments.length === 1 ?
         this.SUPER('propertyChange', 'value', l) :
-        this.SUPER.apply(this,arguments);
+        this.SUPER.apply(this, arguments);
     },
 
     /** Helper function that subscribes to each argument of the expression. */

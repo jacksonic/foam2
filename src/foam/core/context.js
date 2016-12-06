@@ -46,7 +46,7 @@
       var ret = foam.String.isInstance(id) && this.__cache__[id];
 
       if ( ! opt_suppress ) {
-        console.assert(ret,
+        foam.assert(ret,
                        'Could not find any registered class for ' + id);
       }
 
@@ -60,15 +60,15 @@
      * @param cls The class to register.
      */
     register: function(cls) {
-      console.assert(
+      foam.assert(
         foam.Object.isInstance(cls),
         'Cannot register non-objects into a context.');
-      console.assert(
+      foam.assert(
         foam.String.isInstance(cls.id),
         'Must have an .id property to be registered in a context.');
 
       function doRegister(cache, name) {
-        console.assert(
+        foam.assert(
           cache.hasOwnProperty(name) === false,
           cls.id + ' is already registerd in this context.');
 
@@ -85,7 +85,7 @@
      *     Currently unused.
      */
     createSubContext: function createSubContext(opt_args, opt_name) {
-      console.assert(opt_name === undefined || foam.String.isInstance(opt_name),
+      foam.assert(opt_name === undefined || foam.String.isInstance(opt_name),
                      'opt_name must be left undefined or be a string.');
 
       var sub = {};

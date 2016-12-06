@@ -211,12 +211,12 @@ describe('Model properties', function() {
             return '[' + old + '],' + nu;
           },
           assertValue: function(v) {
-            console.assert(
+            foam.assert(
               v !== '[[[undefined],123],456],789',
               "Cannot set to '[[[undefined],123],456],789'");
           },
           postSet: function(old, nu) {
-            console.assert(
+            foam.assert(
               this.a === nu,
               'Post set called, but nu is not the current value');
 

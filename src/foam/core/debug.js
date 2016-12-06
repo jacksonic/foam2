@@ -53,11 +53,11 @@ foam.CLASS({
     function validate(model) {
       this.SUPER();
 
-      console.assert(
+      foam.assert(
           ! this.name.endsWith('$'),
           'Illegal Property Name: Can\'t end with "$": ', this.name);
 
-      console.assert(
+      foam.assert(
           ! this.name.startsWith('__'),
           'Illegal Property Name: Names beginning with double underscore ' +
           '"__" are reserved: ', this.name);
