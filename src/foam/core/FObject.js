@@ -15,8 +15,13 @@
  * limitations under the License.
  */
 
-/*
+/**
   FObject is the root of FOAM's class hierarchy.
+
+  We define FObject twice, first as a LIB to install all of
+  the static/class methods in the top-level FObject class,
+  then with a CLASS below to define methods on the FObject
+  prototype.
 
   For details on how FObject fits in to the FOAM class system,
   see the documentation in the top of Boot.js
@@ -27,10 +32,15 @@ foam.LIB({
   constants: {
     prototype: {},
 
-    // axiomMap_ maps axiom names to the actual axiom objects that have
-    // been installed into FObject
+    // Each class has a map of Axioms added to the class.
+    // Map keys are the name of the axiom.
+    // The classes axiomMap_'s extends its parent's axiomMap_.
     axiomMap_: {},
 
+    // Each class has a map of "private" variables for use by
+    // axioms. Storing internal data in private_ instead of on the
+    // class directly avoids name conflicts with public features of
+    // the class.
     private_:  { axiomCache: {} }
   },
 
@@ -302,6 +312,10 @@ foam.CLASS({
       for ( var key in args ) this[key] = args[key];
     },
 
+    /**
+     * Returns true if this object is storing a value for a property
+     * named by the 'name' parameter.
+     */
     function hasOwnProperty(name) {
       return ! foam.Undefined.isInstance(this.instance_[name]);
     },
@@ -620,22 +634,17 @@ foam.CLASS({
       return axiom.toSlot(this);
     },
 
-    /** Returns true iff detach() has been called on this object. */
-    function isDetached() {
-      return ! this.instance_;
-    },
-
-    /**
-     * Register a function or a detachable to be called when this object is
-     * detached.
-     *
-     * A detachable is any object with a detach() method.
-     *
-     * Does nothing is the argument is falsy.
-     *
-     * Returns the input object, which can be useful for chaining.
-     */
     function onDetach(d) {
+      /**
+       * Register a function or a detachable to be called when this object is
+       * detached.
+       *
+       * A detachable is any object with a detach() method.
+       *
+       * Does nothing is the argument is falsy.
+       *
+       * Returns the input object, which can be useful for chaining.
+       */
       foam.assert(! d || foam.Function.isInstance(d.detach) ||
           foam.Function.isInstance(d),
           'Argument to onDetach() must be callable or detachable.');
@@ -643,19 +652,19 @@ foam.CLASS({
       return d;
     },
 
-    /**
-     * Detach this object.
-     * Free any referenced objects and detach any registered detachables.
-     * This object is completely unusable after being detached.
-     */
     function detach() {
-      if ( this.isDetached() || this.instance_.detaching_ ) return;
+      /**
+       * Detach this object. Free any referenced objects and destory
+       * any registered detroyables.
+       */
+      if ( this.instance_.detaching_ ) return;
 
       // Record that we're currently detaching this object,
       // to prevent infinite recursion.
       this.instance_.detaching_ = true;
       this.pub('detach');
-      this.instance_ = this.private_ = null;
+      this.instance_.detaching_ = false;
+      this.clearPrivate_('listeners');
     },
 
     /** Create a deep copy of this object. **/

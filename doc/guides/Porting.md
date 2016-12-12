@@ -18,7 +18,7 @@ Replace traits: with implements:.
 
 Replace addListener() with sub().
 
-Replace removeListener with unsub(), or better, sub() now returns a "destroyable" which can be saved and used to cancel the subscription more efficiently.  See test/browser/FOAMByExample.html for usage.
+Replace removeListener with unsub(), or better, sub() now returns a "detachable" which can be saved and used to cancel the subscription more efficiently.  See test/browser/FOAMByExample.html for usage.
 
 Replace "isMerged: 1000" with "isMerged: true, mergeDelay: 1000".
 
@@ -49,7 +49,7 @@ CSS is now specified as a CSS Axiom, rather than as a template named CSS:
         */}
       })
     ],
-    
+
 Support for specifying methods: or listeners: as maps ({}) is no longer supported. They must be specified as arrays ([]) in FOAM2.
 
 U2 renames cls() to cssClass().
@@ -60,8 +60,7 @@ The signature of property-change events have changed.
 
 In U2, 'onKeyMode' is renamed to just 'onKey'
 
-U2 no longer takes functions direction for use as dynamic values.  Instead, use obj.slot(fn[, slots]). 
+U2 no longer takes functions direction for use as dynamic values.  Instead, use obj.slot(fn[, slots]).
 X is now renamed __context__
 
 Y is now renamed __subContext__
-

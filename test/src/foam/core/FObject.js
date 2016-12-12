@@ -666,19 +666,25 @@ describe('FObject features', function() {
 
   it('supports detach and onDetach', function() {
     var obj1 = foam.lookup('foam.core.FObject').create();
-    expect(obj1.isDetached()).toBe(false);
+
+    var wasCalled = 0;
+    obj1.sub('abc', function() { wasCalled++; });
+
+    obj1.pub('abc');
+    expect(wasCalled).toBe(1);
+
     obj1.detach();
-    expect(obj1.instance_).toBe(null);
-    expect(obj1.isDetached()).toBe(true);
+
+    // Listeners were removed on detach.
+    wasCalled = 0;
+    obj1.pub('abc');
+    expect(wasCalled).toBe(0);
 
     var obj2 = foam.lookup('foam.core.FObject').create();
     var simpleCalled = false;
     var detachableCalled = false;
     obj2.onDetach(function() {
       simpleCalled = true;
-      // At this point, the object hasn't actually been detached.
-      expect(obj2.instance_).toBeDefined();
-      expect(obj2.isDetached()).toBe(false);
 
       // Detach() is protected from infinite recursion.
       expect(function() {
@@ -702,11 +708,9 @@ describe('FObject features', function() {
 
     expect(simpleCalled).toBe(false);
     expect(detachableCalled).toBe(false);
-    expect(obj2.isDetached()).toBe(false);
     obj2.detach();
     expect(simpleCalled).toBe(true);
     expect(detachableCalled).toBe(true);
-    expect(obj2.isDetached()).toBe(true);
 
     // Detaching again should be safe.
     expect(function() {
