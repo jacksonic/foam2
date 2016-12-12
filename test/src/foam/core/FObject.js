@@ -781,6 +781,25 @@ describe('Library level FObject methods', function() {
     expect(Child.hasOwnAxiom('a')).toBeFalsy();
   });
 
+  it('getSuperAxiomByName', function() {
+    foam.CLASS({
+      name: 'Parent',
+      properties: [
+        'a'
+      ]
+    });
+
+    foam.CLASS({
+      name: 'Child',
+      extends: 'Parent',
+      properties: [
+        'a'
+      ]
+    });
+
+    expect(Child.getSuperAxiomByName('a')).toBe(Parent.getAxiomByName('a'));
+  });
+
   it('toString', function() {
     foam.CLASS({
       name: 'Abc'

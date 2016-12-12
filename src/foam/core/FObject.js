@@ -52,10 +52,10 @@ foam.LIB({
       // initArgs() is the standard argument extraction method.
       obj.initArgs(args, opt_parent);
 
-      // init(), if defined, is called when object is created.
+      // init() is called when object is created.
       // This is where class-specific initialization code should
       // be put (not in initArgs).
-      obj.init && obj.init();
+      obj.init();
 
       return obj;
     },
@@ -156,6 +156,11 @@ foam.LIB({
       }
 
       return as;
+    },
+
+    /** Find an axiom by the specified name from an ancestor. */
+    function getSuperAxiomByName(name) {
+      return this.axiomMap_.__proto__[name];
     },
 
     /**
@@ -280,6 +285,12 @@ foam.CLASS({
   name: 'FObject',
 
   methods: [
+    /**
+     * Template init() method, basic FObject this is a no-op, but classes
+     * can override this to do their own per-instance initialization
+     */
+    function init() {},
+
     /**
       This is a temporary version of initArgs.
       When the bootstrap is finished, it will be replaced by a version

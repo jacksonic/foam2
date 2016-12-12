@@ -407,6 +407,11 @@ foam.CLASS({
       return slot;
     },
 
+    /** Export obj.name$ instead of just obj.name. */
+    function exportAs(obj) {
+      return this.toSlot(obj);
+    },
+
     function cloneProperty(
       /* any // The value to clone */         value,
       /* object // Add values to this map to
