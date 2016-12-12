@@ -116,28 +116,49 @@ var getFuncBodyComment = function getFuncBodyComment(node, filename) {
 };
 
 var getComment = function getComment(node, filename) {
-  var comment;
+  var propComment;
+  var bodyComment;
+  var objComment;
+  var leadingComment;
+  var commentsFound = 0;
+
   // try for FOAM documentation property/in-function comment block
   // Object expression with documentation property
-  var docProp = getNodePropertyNamed(node, 'documentation');
-  if ( docProp ) {
-    return '/** ' + docProp + ' */';
+  var propComment = getNodePropertyNamed(node, 'documentation');
+  if ( propComment ) {
+    propComment = '/** ' + propComment + ' */';
+    commentsFound++;
   }
+
   // function with potential block comment inside
-  else if ( node.type === 'FunctionExpression' ||
+  if ( node.type === 'FunctionExpression' ||
       node.type === 'CallExpression' ) {
-    comment = getFuncBodyComment(node, filename);
+    bodyComment = getFuncBodyComment(node, filename);
+    commentsFound += bodyComment ? 1 : 0;
   }
+
   // object-style method declaration with comment inside funciton code block
-  else if ( node.type === 'ObjectExpression' ) {
+  if ( node.type === 'ObjectExpression' ) {
     var codeNode = getNodePropertyNamed(node, 'code');
-    comment = getComment(codeNode, filename);
+    objComment = getComment(codeNode, filename);
+    commentsFound += objComment ? 1 : 0;
   }
-  if ( comment ) return comment;
 
   // fall back on standard JSDoc leading comment blocks
-  return getLeadingComment(node);
+  leadingComment = getLeadingComment(node);
+  if ( leadingComment ) {
+    commentsFound++;
+  }
 
+  // only allow one type of commenting
+  if ( commentsFound > 1 ) {
+    console.warn('!!! Only one type of comment allowed. Found:');
+    console.warn('  documentation property:', propComment);
+    console.warn('  function body comment:', bodyComment);
+    console.warn('  object literal (inside braces):', objComment);
+    console.warn('  leading comment:', leadingComment);
+  }
+  return propComment || bodyComment || objComment || leadingComment;
 };
 
 var getDefinitionType = function getDefinitionType(node) {
@@ -268,7 +289,7 @@ var processArgs = function processArgs(e, node) {
       }
     }
   } catch ( err ) {
-    console.log('Args not processed for ', err);
+    console.log('!!! Args not processed for ', err);
   }
 };
 
@@ -355,9 +376,21 @@ exports.astNodeVisitor = {
             }
           };
         }
-        modelComments[classRefines]
-          .append(getComment(node, currentSourceName));
+        var comment = getComment(node, currentSourceName);
+        if ( comment ) modelComments[classRefines].append(comment);
         return;
+      } else {
+        // check for existing comments, warn if found
+        var newComment = getComment(node, currentSourceName);
+        if ( newComment &&
+             modelComments[classPackage + '.' + className] &&
+             modelComments[classPackage + '.' + className].mainCommentFound ) {
+          console.warn('!!! Found multiple comment types defined for',
+            classPackage + '.' + className);
+          console.warn('  old:', modelComments[classPackage +
+            '.' + className]._queue);
+          console.warn('  new:', newComment);
+        }
       }
 
       var strBody =
@@ -412,6 +445,7 @@ exports.astNodeVisitor = {
         mc.append(mc._queue[i]);
       }
       mc._queue = [];
+      mc.mainCommentFound = true;
       // in future, look up the result for this doclet
       mc.append = function(str) {
         var r = getResult(parser,

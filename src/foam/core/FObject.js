@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-/**
+/*
   FObject is the root of FOAM's class hierarchy.
 
   For details on how FObject fits in to the FOAM class system,
@@ -23,8 +23,6 @@
  */
 foam.LIB({
   name: 'foam.core.FObject',
-
-  // documentation: "Root prototype for all classes.",
 
   constants: {
     prototype: {},
@@ -62,19 +60,18 @@ foam.LIB({
       return obj;
     },
 
-    /**
-      Used to create a sub-class of this class.  Sets up the appropriate
-      prototype chains for the class, class.prototype and axiomMap_
-     */
     function createSubClass() {
       /**
-       * The very first "subClass" that we create will be FObject itself, when
-       * we define the FObject class rather than the FObject lib that we are
-       * currently defining.
-       *
-       * So instead of actually creating a subClass, we will just return "this"
-       * and replace createSubClass on FObject to actually create create
-       * sub-classes in the future.
+        Used to create a sub-class of this class.  Sets up the appropriate
+        prototype chains for the class, class.prototype and axiomMap_
+
+        The very first "subClass" that we create will be FObject itself, when
+        we define the FObject class rather than the FObject lib that we are
+        currently defining.
+
+        So instead of actually creating a subClass, we will just return "this"
+        and replace createSubClass on FObject to actually create create
+        sub-classes in the future.
        */
       foam.core.FObject.createSubClass = function() {
         var cls = Object.create(this);
@@ -273,15 +270,14 @@ foam.LIB({
   ]
 });
 
-/** The implicit base model for the model heirarchy. If you do not
- *  explicitly extend another model, FObject is used. Most models will
- *  extend FObject and inherit its methods.
- */
+/**
+  The implicit base model for the model heirarchy. If you do not
+  explicitly extend another model, FObject is used. Most models will
+  extend FObject and inherit its methods.
+*/
 foam.CLASS({
   package: 'foam.core',
   name: 'FObject',
-
-  // documentation: 'Base model for model hierarchy.',
 
   methods: [
     /**

@@ -21,8 +21,6 @@ foam.CLASS({
   name: 'Model',
   extends: 'FObject', // Isn't the default yet.
 
-  // documenation: 'Class/Prototype description.',
-
   properties: [
     {
       name: 'id',
