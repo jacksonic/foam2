@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// jshint undef:false
 describe('foam global object context additions', function() {
   it('register', function() {
     var obj = {
@@ -80,33 +81,96 @@ describe('Context object', function() {
   });
 
   it('createSubContext', function() {
-    var named = foam.createSubContext({
-      foo: 1,
-      bar: 2
-    }, 'HELLO');
-    var unNamed = named.createSubContext();
+    var named = foam.createSubContext({}, 'HELLO');
+    var unNamed = named.createSubContext({});
 
+    // Check that that the NAME is set
+    expect(named.NAME).toBe('HELLO');
+    // And is propogated to unNamed sub contexts
+    expect(unNamed.NAME).toBe('HELLO');
+
+    // The NAME key should not be enumerable
     for ( var key in named ) {
       expect(key).not.toEqual('NAME');
     }
 
-    expect(named.foo).toBe(1);
-    expect(named.bar).toBe(2);
 
-    // Check that contexts are frozen
-    named.foo = 12;
-    expect(named.foo).toBe(1);
+    // Contexts are frozen
+    expect(named.foo).toBe(undefined);
+    named.foo = 123;
+    expect(named.foo).toBe(undefined);
 
-    expect(named.NAME).toEqual('HELLO');
-    expect(unNamed.NAME).toEqual('HELLO');
 
+    // Raw values are upgraded to constant slots.
+    var sub = named.createSubContext({
+      foo: 1,
+      bar: 2
+    });
+
+    expect(sub.foo).toBe(1);
+    expect(sub.bar).toBe(2);
+    expect(sub.foo$.get()).toBe(1);
+    expect(sub.bar$.get()).toBe(2);
+
+    // Constant slots are immutable and throw when set.
+
+    expect(function() {
+      sub.foo$.set(12);
+    }).toThrow();
+
+    // value is left unchanged after failed mutation.
+    expect(sub.foo).toBe(1);
+    expect(sub.foo$.get()).toBe(1);
+
+
+    // Exported slots add a raw key name as a getter
+    foam.CLASS({
+      name: 'SomeObject',
+      properties: [
+        'a'
+      ]
+    });
+
+    var obj = SomeObject.create({ a: 12 });
+
+    sub = named.createSubContext({
+      a: obj.a$
+    });
+
+    expect(sub.a).toBe(12);
+    expect(sub.a$.get()).toBe(12);
+
+    // Exported slots are mutable via the object
+    obj.a = 13;
+    expect(sub.a).toBe(13);
+    expect(sub.a$.get()).toBe(13);
+
+    // Or the slot directly
+    sub.a$.set(123);
+    expect(sub.a).toBe(123);
+    expect(sub.a$.get()).toBe(123);
+
+
+
+    // Registered objects are propogated to child contexts
     var foo = {
       id: 'some.packaged.Foo'
     };
 
     named.register(foo);
-
     expect(unNamed.lookup('some.packaged.Foo')).toBe(foo);
+  });
+
+  it("createSubContext doesn't include inherited values", function() {
+    var sub = foam.createSubContext({
+      __proto__: {
+        a: 1
+      },
+      b: 2
+    });
+
+    expect(sub.a$).toBe(undefined);
+    expect(sub.b$.get()).toBe(2);
   });
 
   it('__context__ is frozen', function() {

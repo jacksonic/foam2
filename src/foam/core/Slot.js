@@ -25,6 +25,7 @@
   <ul>Types of Slots include:
     <li>PropertySlot
     <li>ExpressionSlot
+    <li>ConstantSlot
 </ul>
 */
 foam.CLASS({
@@ -357,5 +358,32 @@ foam.CLASS({
         }));
       }
     }
+  ]
+});
+
+/** An immutable constant valued Slot. */
+foam.CLASS({
+  package: 'foam.core',
+  name: 'ConstantSlot',
+  extends: 'foam.core.Slot',
+
+  properties: [
+    {
+      name: 'value',
+      getter: function() { return this.value_; },
+      setter: function() {}
+    }
+  ],
+
+  methods: [
+    function initArgs(args) { this.value_ = args && args.value; },
+
+    function get() { return this.value; },
+
+    function set() {
+      throw new Error('Tried to mutate immutable ConstantSlot.');
+    },
+
+    function sub(l) { /* nop */ }
   ]
 });

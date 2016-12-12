@@ -97,7 +97,30 @@
       }
 
       for ( var key in opt_args ) {
-        sub[key] = opt_args[key];
+        if ( opt_args.hasOwnProperty(key) ) {
+          var v = opt_args[key];
+
+          if ( ! foam.core.Slot.isInstance(v) ) {
+            Object.defineProperty(sub, foam.String.toSlotName(key), {
+              value: foam.core.ConstantSlot.create({ value: v })
+            });
+
+            Object.defineProperty(sub, key, {
+              value: v
+            });
+          } else {
+            Object.defineProperty(sub, foam.String.toSlotName(key), {
+              value: v
+            });
+
+            (function(v) {
+              Object.defineProperty(sub, key, {
+                get: function() { return v.get(); },
+                enumerable: false
+              });
+            })(v);
+          }
+        }
       }
 
       Object.defineProperty(sub, '__cache__', {

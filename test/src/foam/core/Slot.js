@@ -581,3 +581,32 @@ describe('ExpressionSlot', function() {
     expect(callCount).toBe(1); // Length doesn't change!
   });
 });
+
+
+describe('ConstantSlot', function() {
+  it('coverage', function() {
+    var slot = foam.core.ConstantSlot.create({ value: 123 });
+
+    expect(slot.get()).toBe(123);
+
+    // Constant slot is immutable, throw when set
+    expect(function() {
+      slot.set(12);
+    }).toThrow();
+
+    expect(slot.get()).toBe(123);
+
+    // Users shouldn't access the "value" property directly, but we test it here
+    // for coverage.
+    expect(slot.value).toBe(123);
+    slot.value = 12;
+    expect(slot.value).toBe(123);
+    expect(slot.get()).toBe(123);
+
+
+    // .sub() is a no-op on ConstantSlot, since it can't change, the provided listener
+    // will never be fired.  Call it here to ensure coverage, but there is nothing
+    // to verify.
+    slot.sub(function() { console.log('Slot was changed!'); });
+  });
+});
