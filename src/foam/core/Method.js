@@ -129,6 +129,14 @@ foam.CLASS({
   methods: [
     function installInProto(proto) {
       proto[this.name] = this.override_(proto, this.code);
+    },
+
+    function exportAs(obj) {
+      /**
+       * Bind the method to 'this' when exported so that it still works.
+       */
+      var m = obj[this.name];
+      return function exportedMethod() { return m.apply(obj, arguments); };
     }
   ]
 });

@@ -14,6 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// jshint undef:false
 describe('Method', function() {
   foam.CLASS({
     package: 'test.method',
@@ -116,5 +118,24 @@ describe('Method', function() {
         '        this.SUPER();\n' +
         '        this.childCalls++;\n' +
         '      }');
+  });
+
+  it('Is bound when exported', function() {
+    foam.CLASS({
+      name: 'SomeClass',
+      properties: [ 'a' ],
+      exports: [ 'getA' ],
+      methods: [
+        function getA() {
+          return this.a;
+        }
+      ]
+    });
+
+
+    var obj = SomeClass.create({ a: 123 });
+    var getA = obj.__subContext__.getA;
+
+    expect(getA()).toBe(123);
   });
 });

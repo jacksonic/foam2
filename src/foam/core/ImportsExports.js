@@ -196,7 +196,7 @@ foam.CLASS({
 
                 // Axioms have an option of wrapping a value for export.
                 // This could be used to bind a method to 'this', for example.
-                m[b.exportName] = a.exportAs ? a.exportAs(this) : this[b.key] ;
+                m[b.exportName] = a.exportAs ? a.exportAs(this) : this[b.key];
               } else {
                 // Exports that don't have a key mean that we are exporting
                 // 'this'.  So if you did exports: [ 'as Bank' ], that would
