@@ -67,6 +67,7 @@ foam.CLASS({
     'as alias'.
 
   Examples:
+<pre>
     // import 'userDAO' from the Context and make available as this.dao
     imports: [ 'userDAO as dao' ]
 
@@ -76,7 +77,7 @@ foam.CLASS({
     // If the axiom to be exported isn't named, but just aliased, then 'this'
     // is exported as the named alias.  This is how objects export themselves.
     exports: [ 'as Controller' ]
-
+</pre>
   See Context.js.
  */
 foam.CLASS({
