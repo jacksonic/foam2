@@ -33,4 +33,5 @@ require('../../src/foam/core/Int.js');
 require('../../src/foam/core/Constant.js');
 require('../../src/foam/core/InnerClass.js');
 require('../../src/foam/core/ImportsExports.js');
+require('../../src/foam/core/Requires.js');
 require('../../src/foam/core/debug.js');
