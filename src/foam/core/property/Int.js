@@ -21,6 +21,7 @@ foam.CLASS({
   extends: 'Property',
 
   properties: [
+    'units',
     [ 'value', 0 ],
     [ 'adapt', function adaptInt(_, v) {
       foam.assert(foam.Number.isInstance(v),
