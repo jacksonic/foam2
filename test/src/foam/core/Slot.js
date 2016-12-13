@@ -323,7 +323,7 @@ describe('PropertySlot', function() {
     }).not.toThrow();
   });
 
-  it('supports destroy()', function() {
+  it('supports detach()', function() {
     foam.CLASS({
       name: 'Abc',
       properties: [
@@ -345,8 +345,8 @@ describe('PropertySlot', function() {
     slot1.set(3);
     expect(slot2.get()).toBe(3);
 
-    // Now if I destroy it, it stops binding.
-    sub.destroy();
+    // Now if I detach it, it stops binding.
+    sub.detach();
     slot2.set(6);
     expect(slot2.get()).toBe(6);
     expect(slot1.get()).toBe(3);
@@ -420,7 +420,7 @@ describe('PropertySlot', function() {
     expect(slot1.get()).toBe(20);
     expect(slot2.get()).toBe(20);
 
-    sub.destroy();
+    sub.detach();
 
     slot2.linkTo(slot1);
 
@@ -484,7 +484,7 @@ describe('ExpressionSlot', function() {
     isAdult.set(true);
     expect(isAdult.get()).toBe(false);
 
-    isAdult.destroy();
+    isAdult.detach();
   });
 
   it('is integrated as Property.expression', function() {

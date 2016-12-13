@@ -36,3 +36,4 @@ require('../../src/foam/core/ImportsExports.js');
 require('../../src/foam/core/Requires.js');
 require('../../src/foam/core/Window.js');
 require('../../src/foam/core/debug.js');
+require('../../src/foam/core/property/FObjectArray.js');

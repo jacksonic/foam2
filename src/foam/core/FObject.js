@@ -378,7 +378,7 @@ foam.CLASS({
       -----------------------
       next     -> {
         prev: <-,
-        sub: {src: <source object>, destroy: <destructor function> },
+        sub: {src: <source object>, detach: <destructor function> },
         l: <listener>,
         next: -> },
       children -> {
@@ -524,10 +524,10 @@ foam.CLASS({
       <p>sub(l) will match all events.
       l - the listener to call with notifications.
        <p> The first argument supplied to the listener is the "subscription",
-        which contains the "src" of the event and a destroy() method for
+        which contains the "src" of the event and a detach() method for
         cancelling the subscription.
       <p>Returns a "subscrition" which can be cancelled by calling
-        its .destroy() method.
+        its .detach() method.
     */
     function sub() { /* args..., l */
       var l = arguments[arguments.length - 1];
@@ -549,11 +549,11 @@ foam.CLASS({
         prev: listeners,
         l:    l
       };
-      node.sub.destroy = function() {
+      node.sub.detach = function() {
         if ( node.next ) node.next.prev = node.prev;
         if ( node.prev ) node.prev.next = node.next;
 
-        // Disconnect so that calling destroy more than once is harmless
+        // Disconnect so that calling detach more than once is harmless
         node.next = node.prev = null;
       };
 
@@ -565,7 +565,7 @@ foam.CLASS({
 
     /**
       Unsub a previously sub()'ed listener.
-      It is more efficient to unsubscribe by calling .destroy()
+      It is more efficient to unsubscribe by calling .detach()
       on the subscription returned from sub() (so prefer that
       method when possible).
     */
@@ -580,7 +580,7 @@ foam.CLASS({
       var node = listeners && listeners.next;
       while ( node ) {
         if ( node.l === l ) {
-          node.sub.destroy();
+          node.sub.detach();
           return;
         }
         node = node.next;
@@ -620,41 +620,41 @@ foam.CLASS({
       return axiom.toSlot(this);
     },
 
-    /** Returns true iff destroy() has been called on this object. */
-    function isDestroyed() {
+    /** Returns true iff detach() has been called on this object. */
+    function isDetached() {
       return ! this.instance_;
     },
 
     /**
-     * Register a function or a destroyable to be called when this object is
-     * destroyed.
+     * Register a function or a detachable to be called when this object is
+     * detached.
      *
-     * A destroyable is any object with a destroy() method.
+     * A detachable is any object with a detach() method.
      *
      * Does nothing is the argument is falsy.
      *
      * Returns the input object, which can be useful for chaining.
      */
-    function onDestroy(d) {
-      foam.assert(! d || foam.Function.isInstance(d.destroy) ||
+    function onDetach(d) {
+      foam.assert(! d || foam.Function.isInstance(d.detach) ||
           foam.Function.isInstance(d),
-          'Argument to onDestroy() must be callable or destroyable.');
-      if ( d ) this.sub('destroy', d.destroy ? d.destroy.bind(d) : d);
+          'Argument to onDetach() must be callable or detachable.');
+      if ( d ) this.sub('detach', d.detach ? d.detach.bind(d) : d);
       return d;
     },
 
     /**
-     * Destroy this object.
-     * Free any referenced objects and destroy any registered destroyables.
-     * This object is completely unusable after being destroyed.
+     * Detach this object.
+     * Free any referenced objects and detach any registered detachables.
+     * This object is completely unusable after being detached.
      */
-    function destroy() {
-      if ( this.isDestroyed() || this.instance_.destroying_ ) return;
+    function detach() {
+      if ( this.isDetached() || this.instance_.detaching_ ) return;
 
-      // Record that we're currently destroying this object,
+      // Record that we're currently detaching this object,
       // to prevent infinite recursion.
-      this.instance_.destroying_ = true;
-      this.pub('destroy');
+      this.instance_.detaching_ = true;
+      this.pub('detach');
       this.instance_ = this.private_ = null;
     },
 

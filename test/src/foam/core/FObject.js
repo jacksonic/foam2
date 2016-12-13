@@ -197,9 +197,9 @@ describe('FObject features', function() {
       expect(b).toBe('topic');
       expect(c).toBe('value');
 
-      // No harm calling destroy multiple times.
-      s.destroy();
-      s.destroy();
+      // No harm calling detach multiple times.
+      s.detach();
+      s.detach();
     });
 
     expect(obj.hasListeners('some')).toBe(false);
@@ -231,7 +231,7 @@ describe('FObject features', function() {
 
     count = obj.pub('some', 'topic');
 
-    // First listener destoryed itself via s.destroy();
+    // First listener destoryed itself via s.detach();
     expect(wasCalled1).toBe(false);
 
     expect(wasCalled2).toBe(true);
@@ -250,8 +250,8 @@ describe('FObject features', function() {
     expect(wasCalled3).toBe(true);
     expect(count).toBe(1);
 
-    // Can unsubscribe by destroying the returned object
-    s2.destroy();
+    // Can unsubscribe by detaching the returned object
+    s2.detach();
 
     wasCalled1 = wasCalled2 = wasCalled3 = false;
 
@@ -259,7 +259,7 @@ describe('FObject features', function() {
 
     expect(wasCalled1).toBe(false);
 
-    // Listener 2 has been unsubscribed via s2.destroy()
+    // Listener 2 has been unsubscribed via s2.detach()
     expect(wasCalled2).toBe(false);
     expect(wasCalled3).toBe(true);
 
@@ -306,14 +306,14 @@ describe('FObject features', function() {
 
     // nodes in the list are in reverse order of subscription.
 
-    // destroy the last node via unsub
+    // detach the last node via unsub
     obj.unsub('a', 'b', 'c', listener1);
 
-    // destroy first node in the list
-    s5.destroy();
+    // detach first node in the list
+    s5.detach();
 
-    // destroy a middle node
-    s3.destroy();
+    // detach a middle node
+    s3.detach();
 
     var count = obj.pub('a', 'b', 'c');
 
@@ -415,8 +415,8 @@ describe('FObject features', function() {
     expect(wasCalled1).toBe(true);
     expect(wasCalled2).toBe(true);
 
-    s1.destroy();
-    s2.destroy();
+    s1.detach();
+    s2.detach();
 
 
     // Topics are automatically turned to strings.
@@ -463,12 +463,12 @@ describe('FObject features', function() {
     var wasCalled2 = false;
 
     obj.sub('a', function(s) {
-      s.destroy();
+      s.detach();
       wasCalled1 = true;
     });
 
     obj.sub('a', function(s) {
-      s.destroy();
+      s.detach();
       wasCalled2 = true;
     });
 
@@ -664,53 +664,53 @@ describe('FObject features', function() {
     expect(wasCalled).toBe(false);
   });
 
-  it('supports destroy and onDestroy', function() {
+  it('supports detach and onDetach', function() {
     var obj1 = foam.lookup('foam.core.FObject').create();
-    expect(obj1.isDestroyed()).toBe(false);
-    obj1.destroy();
+    expect(obj1.isDetached()).toBe(false);
+    obj1.detach();
     expect(obj1.instance_).toBe(null);
-    expect(obj1.isDestroyed()).toBe(true);
+    expect(obj1.isDetached()).toBe(true);
 
     var obj2 = foam.lookup('foam.core.FObject').create();
     var simpleCalled = false;
-    var destroyableCalled = false;
-    obj2.onDestroy(function() {
+    var detachableCalled = false;
+    obj2.onDetach(function() {
       simpleCalled = true;
-      // At this point, the object hasn't actually been destroyed.
+      // At this point, the object hasn't actually been detached.
       expect(obj2.instance_).toBeDefined();
-      expect(obj2.isDestroyed()).toBe(false);
+      expect(obj2.isDetached()).toBe(false);
 
-      // Destroy() is protected from infinite recursion.
+      // Detach() is protected from infinite recursion.
       expect(function() {
-        obj2.destroy();
+        obj2.detach();
       }).not.toThrow();
     });
-    obj2.onDestroy({
-      destroy: function() { destroyableCalled = true; }
+    obj2.onDetach({
+      detach: function() { detachableCalled = true; }
     });
 
-    // onDestroy should ignore empty values.
-    obj2.onDestroy(null);
+    // onDetach should ignore empty values.
+    obj2.onDetach(null);
 
-    // onDestroy should throw if the input is not a destroyable.
+    // onDetach should throw if the input is not a detachable.
     expect(function() {
-      obj2.onDestroy({ destroy: 7 });
+      obj2.onDetach({ detach: 7 });
     }).toThrow();
     expect(function() {
-      obj2.onDestroy(7);
+      obj2.onDetach(7);
     }).toThrow();
 
     expect(simpleCalled).toBe(false);
-    expect(destroyableCalled).toBe(false);
-    expect(obj2.isDestroyed()).toBe(false);
-    obj2.destroy();
+    expect(detachableCalled).toBe(false);
+    expect(obj2.isDetached()).toBe(false);
+    obj2.detach();
     expect(simpleCalled).toBe(true);
-    expect(destroyableCalled).toBe(true);
-    expect(obj2.isDestroyed()).toBe(true);
+    expect(detachableCalled).toBe(true);
+    expect(obj2.isDetached()).toBe(true);
 
-    // Destroying again should be safe.
+    // Detaching again should be safe.
     expect(function() {
-      obj2.destroy();
+      obj2.detach();
     }).not.toThrow();
   });
 });

@@ -35,7 +35,7 @@ foam.CLASS({
   methods: [
     /**
       Link two Slots together, setting both to other's value.
-      Returns a Destroyable which can be used to break the link.
+      Returns a Detachable which can be used to break the link.
       After copying a value from one slot to the other, this implementation
       then copies the value back in case the target slot rejected the value.
     */
@@ -85,9 +85,9 @@ foam.CLASS({
       l2();
 
       return {
-        destroy: function() {
-          sub1 && sub1.destroy();
-          sub2 && sub2.destroy();
+        detach: function() {
+          sub1 && sub1.detach();
+          sub2 && sub2.detach();
           sub1 = sub2 = null;
         }
       };
@@ -100,7 +100,7 @@ foam.CLASS({
 
     /**
       Have this Slot dynamically follow other's value.
-      Returns a Destroyable which can be used to cancel the binding.
+      Returns a Detachable which can be used to cancel the binding.
     */
     function follow(other) {
       foam.assert(other && this.cls_.isInstance(other),
@@ -176,8 +176,8 @@ foam.CLASS({
         feedbackCounter--;
       };
 
-      sub.onDestroy(this.sub(l1));
-      sub.onDestroy(other.sub(l2));
+      sub.onDetach(this.sub(l1));
+      sub.onDetach(other.sub(l2));
 
       l1();
 
@@ -310,7 +310,7 @@ foam.CLASS({
       }
     },
     {
-      /** Destroyable to clean up old subs when obj changes. */
+      /** Detachable to clean up old subs when obj changes. */
       name: 'cleanup_',
       factory: function() {
         return foam.core.FObject.create();
@@ -319,11 +319,11 @@ foam.CLASS({
   ],
 
   methods: [
-    /** Always call cleanup when this expression is destroyed. */
+    /** Always call cleanup when this expression is detached. */
     function init() {
       var self = this;
-      this.onDestroy(function() {
-        self.cleanup_.destroy();
+      this.onDetach(function() {
+        self.cleanup_.detach();
       });
     },
 
@@ -348,12 +348,12 @@ foam.CLASS({
 
     /** Helper function that subscribes to each argument of the expression. */
     function subToArgs_(args) {
-      this.cleanup_.destroy();
+      this.cleanup_.detach();
       this.cleanup_ = foam.core.FObject.create();
 
       var self = this;
       for ( var i = 0 ; i < args.length ; i++ ) {
-        this.cleanup_.onDestroy(args[i].sub(function() {
+        this.cleanup_.onDetach(args[i].sub(function() {
           self.clearProperty('value');
         }));
       }
