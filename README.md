@@ -31,7 +31,7 @@ All code should folow the [style guide.](/doc/gen/tutorial-StyleGuide.html)
 Before contributing code to FOAM, you must complete the [Google Individual Contributor License Agreement](https://cla.developers.google.com/about/google-individual?csw=1).
 
 We are using codereview.cc to manage code reveiws, CI, etc. To get set up,
-[follow the directions](http://codereview.cc/w/getting_started/)
+[follow the directions](https://secure.phabricator.com/book/phabricator/article/arcanist_quick_start/)
 to install arcanist, and then visit the
 [apitokens page](http://codereview.cc/settings/panel/apitokens/)
 to manually generate a token.
