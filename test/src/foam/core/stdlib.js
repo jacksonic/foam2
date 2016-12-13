@@ -464,6 +464,48 @@ describe('foam.String', function() {
       'has changed in the slighglobal.test.'
     ));
   });
+  var pstr;
+  describe('coerce', function() {
+    beforeEach(function() {
+      var pstr = '';
+    });
+
+    it('accepts string values', function() {
+      pstr = foam.String.coerce('Hello');
+      expect(pstr).toBe('Hello');
+    });
+    it('converts null values to empty string', function() {
+      pstr = foam.String.coerce(null);
+      expect(pstr).toBe('');
+    });
+    it('converts undefined to empty string', function() {
+      pstr = foam.String.coerce();
+      expect(pstr).toBe('');
+    });
+    it('converts number values', function() {
+      pstr = foam.String.coerce(42);
+      expect(pstr).toBe('42');
+    });
+    it('toString()s objects', function() {
+      pstr = foam.String.coerce({ toString: function() {
+        return 'You called toString!';
+      } });
+      expect(pstr).toBe('You called toString!');
+    });
+    // jscs:disable
+    it('extracts multiline strings from function comments', function() {
+      pstr = foam.String.coerce(function() {/*
+multiline comment
+string
+*/});
+      expect(pstr).toBe('\nmultiline comment\nstring\n');
+    });
+    // jscs:enable
+    it('defaults to empty string for unsupported values', function() {
+      pstr = foam.String.coerce({ toString: null });
+      expect(pstr).toBe('');
+    });
+  });
 
   it('constantize', function() {
     expect(foam.String.constantize('camelCaseName'))
@@ -545,8 +587,16 @@ describe('foam.String', function() {
     */}))
       .toEqual('\n        multiline\n        function\n    ');
 
-    expect(foam.String.multiline(function() {}))
-      .toEqual('');
+    expect(function() {
+      foam.String.multiline(function() {});
+    }).toThrow();
+
+    expect(function() {
+      foam.String.multiline(function() {
+        /* fine comment with garbage */
+        var accidentally = 'a function';
+      });
+    }).toThrow();
 
   });
 

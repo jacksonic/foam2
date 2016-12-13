@@ -280,6 +280,13 @@ foam.LIB({
     function clone(o) { return o; },
     function equals(a, b) { return a === b; },
     function compare(a, b) { return b != null ? a.localeCompare(b) : 1; },
+    function coerce(a) {
+      return typeof a === 'string' ? a                        :
+       foam.Function.isInstance(a) ? foam.String.multiline(a) :
+       foam.Number.isInstance(a)   ? String(a)                :
+       a && a.toString             ? a.toString()             :
+                                     ''                       ;
+    },
     function hashCode(s) {
       var hash = 0;
 
@@ -375,7 +382,19 @@ foam.LIB({
       var s     = f.toString();
       var start = s.indexOf('/*');
       var end   = s.lastIndexOf('*/');
-      return ( start >= 0 && end >= 0 ) ? s.substring(start + 2, end) : '';
+      foam.assert(start >= 0 && end >= 0,
+        'Multiline string function must contain a /* block comment */' );
+
+      var prefix = s.substring(0, start).replace('\n', '');
+      var suffix = s.substring(end + 2, s.length).replace('\n', '');
+      foam.assert(
+          prefix.match(/\s*function\s*\(\s*\)\s*\{\s*/g) &&
+          suffix.match(/^\s*\}\s*/g),
+        'Multiline string contains invalid characters ' +
+            'outside the block comment: ' + prefix + '...' + suffix);
+
+
+      return s.substring(start + 2, end);
     },
     function startsWithIC(a, b) {
       foam.assert(typeof a === 'string' && typeof b === 'string',
