@@ -17,7 +17,7 @@
 
 /** An Array whose elements are Axioms and are added to this.axioms_. */
 foam.CLASS({
-  package: 'foam.core',
+  package: 'foam.core.property',
   name: 'AxiomArray',
   extends: 'Property',
 

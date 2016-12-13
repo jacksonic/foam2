@@ -21,7 +21,8 @@ describe('Bootstrap invariants', function() {
     expect(foam.core.Model.isInstance(foam.core.FObject.model_)).toBe(true);
     expect(foam.core.Model.isInstance(foam.core.Property.model_)).toBe(true);
     expect(foam.core.Model.isInstance(foam.core.Method.model_)).toBe(true);
-    expect(foam.core.Model.isInstance(foam.core.AxiomArray.model_)).toBe(true);
+    expect(foam.core.Model.isInstance(foam.core.property.AxiomArray.model_))
+        .toBe(true);
   });
 
   it('Check bootstrap methods have been upgraded to real methods', function() {

@@ -77,6 +77,9 @@
 
       doRegister(this.__cache__, cls.id);
       if ( cls.package === 'foam.core' ) doRegister(this.__cache__, cls.name);
+      if ( cls.package === 'foam.core.property' ) {
+        doRegister(this.__cache__, cls.name);
+      }
     },
 
     /**

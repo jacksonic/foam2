@@ -234,10 +234,21 @@ foam.LIB({
       var Model = foam.core.Model;
 
       // Update psedo-Models to real Models
-      for ( var key in foam.core ) {
-        var c = foam.core[key];
-        c.prototype.model_ = c.model_ = Model.create(c.model_);
-      }
+      var upgrade = function(pkg) {
+        for ( var key in pkg ) {
+          var c = pkg[key];
+
+          // If c.prototype is not defined, this is a subpackage, eg.
+          // foam.core.property. Recurse into it.
+          if ( ! c.prototype ) {
+            upgrade(c);
+          } else {
+            c.prototype.model_ = c.model_ = Model.create(c.model_);
+          }
+        }
+      };
+
+      upgrade(foam.core);
 
       delete foam.boot;
 
