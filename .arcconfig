@@ -1,4 +1,5 @@
 {
+  "phabricator.uri" : "http://codereview.cc/",
   "load": [
     "tools/unit"
   ],
