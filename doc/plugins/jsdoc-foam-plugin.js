@@ -390,6 +390,7 @@ exports.astNodeVisitor = {
           console.warn('  old:', modelComments[classPackage +
             '.' + className]._queue);
           console.warn('  new:', newComment);
+          return;
         }
       }
 

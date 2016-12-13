@@ -18,10 +18,10 @@
 /**
   A Property is a high-level instance variable.
 
-  Properties contain more information than typical variable declarations.
+  <p>Properties contain more information than typical variable declarations.
   Such as: label, help text, pre/post-set callbacks, default value,
-  value factory, units, etc.
-
+  value factory, units, etc.</p>
+<pre>
   When setting a Propery's value, the callback order is:
     1. adapt()
     2. preSet()
@@ -32,130 +32,141 @@
 
    Unless the user has provided a customer 'setter', in which case the order is
      1. setter()
-
-  A sub-class or refinement can include a partial Property definition which
-  will override or add meta-information to the Property.
-**/
+</pre>
+  <p>A sub-class or refinement can include a partial Property definition which
+  will override or add meta-information to the Property.</p>
+*/
 foam.CLASS({
   package: 'foam.core',
   name: 'Property',
   extends: 'FObject',
 
   properties: [
-    /**
-      The name of this property.  The name corresponds to the key used to
-      read/write this property on objects which are instances of a Class
-      on which this property exists.
-
-      There are currently no naming rules enforced for property names.
-      Certain names (such as those with spaces) will require using square
-      bracket syntax ( ex. obj['property name'] = 'foo'; ), as opposed to dot
-      style syntax ( ex. obj.property = 'foo'; ) for reading/writing the
-      property.
-     */
     {
+      /**
+        The name of this property.  The name corresponds to the key used to
+        read/write this property on objects which are instances of a Class
+        on which this property exists.
+
+        There are currently no naming rules enforced for property names.
+        Certain names (such as those with spaces) will require using square
+        bracket syntax ( ex. obj['property name'] = 'foo'; ), as opposed to dot
+        style syntax ( ex. obj.property = 'foo'; ) for reading/writing the
+        property.
+       */
       name: 'name',
       required: true
     },
-
-    /* User-level help. Could/should appear in GUI's as online help. */
-    'help',
-
-    /**
-      The default-value of this property.
-      A property which has never been set or has been cleared
-      by setting it to 'undefined' or cleared with clearProperty()
-      will have the default value.
-    */
-    'value',
-
-    /**
-      A factory is a function which initializes the property value
-      when accessed for the first time, if not already set.
-    */
-    'factory',
-
-    /**
-      A function of the form:
-        Object function(oldValue, newValue, property)
-      adapt is called whenever the property is set. It's intended
-      to adapt the value to the appropriate type if required.
-      Adapt must return a value. It can return newValue unchanged
-      if it was already the appropriate type.
-      If you attempt to set a property to "undefined" as in
-      "obj.a = undefined;", that is equivalent to calling
-      obj.clearProperty('a'); which does not trigger adapt nor preSet.
-    */
-    'adapt',
-
-    /**
-      A function of the form:
-        Object function(oldValue, newValue, property)
-      preSet is called before the propery's value is updated.
-      It can veto the value change by returning a different newValue
-      (including returning oldValue to leave the property unchanged).
-      If you attempt to set a property to "undefined" as in
-      "obj.a = undefined;", that is equivalent to calling
-      obj.clearProperty('a'); which does not trigger adapt nor preSet.
-    */
-    'preSet',
-
-    /**
-      A function of the form:
-        void function(newValue, property) throws Exception
-      assertValue can validate newValue and throw an exception if it's an
-      invalid value.
-    */
-    'assertValue',
-
-    /**
-      A function of the form:
-        void function(oldValue, newValue, property)
-      postSet is called after the Property's value has been updated.
-    */
-    'postSet',
-
-    /**
-     * A dynamic function which defines this Property's value.
-     * Similar to a 'factory', except that the function takes arguments which
-     * are named the same as other properties of this object.
-     *
-     * Whenever the values of any of the argument properties change, the value
-     * of this Property is invalidated. Like a regular factory, an invalidated
-     * property will be recalculated by calling the provided expression function
-     * when accessed. This makes expressions very efficient, because their
-     * values are only recomputed on demand.
-     */
-    'expression',
-
-    /**
-      A getter function which completely replaces the normal
-      Property getter process. Whenever the property is accessed, getter is
-      called and its value is returned.
-    */
-    'getter',
-
-    /**
-      A setter function which completely replaces the normal
-      Property setter process. Whenever the property is set, setter is
-      called.
-      A function of the form:
-        void function(newValue)
-    */
-    'setter',
-
-    /**
-      A required Property can not be set to null, undefined, 0 or "".
-     */
-    'required',
+    {
+      /* User-level help. Could/should appear in GUI's as online help. */
+      name: 'help'
+    },
+    {
+      /**
+        The default-value of this property.
+        A property which has never been set or has been cleared
+        by setting it to 'undefined' or cleared with clearProperty()
+        will have the default value.
+      */
+      name: 'value'
+    },
+    {
+      /**
+        A factory is a function which initializes the property value
+        when accessed for the first time, if not already set.
+      */
+      name: 'factory'
+    },
+    {
+      /**
+        A function of the form:
+          <code>Object function(oldValue, newValue, property)</code>
+        adapt is called whenever the property is set. It's intended
+        to adapt the value to the appropriate type if required.
+        Adapt must return a value. It can return newValue unchanged
+        if it was already the appropriate type.
+        If you attempt to set a property to "undefined" as in
+        "obj.a = undefined;", that is equivalent to calling
+        obj.clearProperty('a'); which does not trigger adapt nor preSet.
+      */
+      name: 'adapt'
+    },
+    {
+      /**
+        A function of the form:
+          <code>Object function(oldValue, newValue, property)</code>
+        preSet is called before the propery's value is updated.
+        It can veto the value change by returning a different newValue
+        (including returning oldValue to leave the property unchanged).
+        If you attempt to set a property to "undefined" as in
+        "obj.a = undefined;", that is equivalent to calling
+        obj.clearProperty('a'); which does not trigger adapt nor preSet.
+      */
+      name: 'preSet'
+    },
+    {
+      /**
+        A function of the form:
+          void function(newValue, property) throws Exception
+        assertValue can validate newValue and throw an exception if it's an
+        invalid value.
+      */
+      name: 'assertValue'
+    },
+    {
+      /**
+        A function of the form:
+          void function(oldValue, newValue, property)
+        postSet is called after the Property's value has been updated.
+      */
+      name: 'postSet'
+    },
+    {
+      /**
+       * A dynamic function which defines this Property's value.
+       * Similar to a 'factory', except that the function takes arguments which
+       * are named the same as other properties of this object.
+       *
+       * Whenever the values of any of the argument properties change, the value
+       * of this Property is invalidated. Like a regular factory, an invalidated
+       * property will be recalculated by calling the provided expression function
+       * when accessed. This makes expressions very efficient, because their
+       * values are only recomputed on demand.
+       */
+      name: 'expression'
+    },
+    {
+      /**
+        A getter function which completely replaces the normal
+        Property getter process. Whenever the property is accessed, getter is
+        called and its value is returned.
+      */
+      name: 'getter'
+    },
+    {
+      /**
+        A setter function which completely replaces the normal
+        Property setter process. Whenever the property is set, setter is
+        called.
+        A function of the form:
+          void function(newValue)
+      */
+      name: 'setter'
+    },
+    {
+      /**
+        A required Property can not be set to null, undefined, 0 or "".
+       */
+      name: 'required'
+    }
   ],
 
   methods: [
-    /**
-      Handle overriding of Property definition from parent class by
-      copying undefined values from parent Property, if it exists.
-    */
     function installInClass(c) {
+      /**
+        Handle overriding of Property definition from parent class by
+        copying undefined values from parent Property, if it exists.
+      */
       foam.assert(
         this.name[this.name.length - 1] !== '$',
         'Property names must not end with $');
@@ -180,11 +191,11 @@ foam.CLASS({
       c[cName] = prop;
     },
 
-    /**
-      Install a property onto a prototype from a Property definition.
-      (Property is 'this').
-    */
     function installInProto(proto) {
+      /**
+        Install a property onto a prototype from a Property definition.
+        (Property is 'this').
+      */
       // Take Axiom from class rather than using 'this' directly,
       // since installInClass() may have created a modified version
       // to inherit Property Properties from a super-Property.
@@ -301,8 +312,8 @@ foam.CLASS({
       });
     },
 
-    /* Validate an object which has this Property. */
     function validateInstance(o) {
+      /** Validate an object which has this Property. */
       if ( this.required && ! o[this.name] ) {
         throw 'Required property ' +
             o.cls_.id + '.' + this.name +
@@ -310,10 +321,10 @@ foam.CLASS({
       }
     },
 
-    /**
-     * Create a factory function from an expression function.
-     */
     function exprFactory(e) {
+      /**
+       * Create a factory function from an expression function.
+       */
       if ( ! e ) return null;
       foam.assert(foam.Function.isInstance(e),
           'Argument to exprFactory must be a function.');
@@ -349,26 +360,30 @@ foam.CLASS({
       };
     },
 
-    /** Returns a developer-readable description of this Property. **/
-    function toString() { return this.name; },
+    function toString() {
+      /** Returns a developer-readable description of this Property. */
+      return this.name;
+    },
 
-    /** Flyweight getter for this Property. **/
-    function get(o) { return o[this.name]; },
+    function get(o) {
+      /** Flyweight getter for this Property. */
+      return o[this.name];
+    },
 
-    /** Flyweight setter for this Property. **/
     function set(o, value) {
+      /** Flyweight setter for this Property. */
       o[this.name] = value;
       return this;
     },
 
-    /**
-     * Handles property inheritance.
-     *
-     * Builds a version of this property suitable for installation
-     * into a child class when the child class contains a property
-     * definition of the same name.
-     */
     function createChildProperty_(child) {
+      /**
+       * Handles property inheritance.
+       *
+       * Builds a version of this property suitable for installation
+       * into a child class when the child class contains a property
+       * definition of the same name.
+       */
       var prop = this.clone();
 
       /* istanbul ignore next */
@@ -387,13 +402,13 @@ foam.CLASS({
       return prop;
     },
 
-    /**
-     * Converts this axiom to a slot that represents the value
-     * of this slot on object "obj".  Since this axiom is a Property
-     * it will be converted to a PropertySlot which represents
-     * the value of the property as stored on obj.
-     */
     function toSlot(obj) {
+      /**
+       * Converts this axiom to a slot that represents the value
+       * of this slot on object "obj".  Since this axiom is a Property
+       * it will be converted to a PropertySlot which represents
+       * the value of the property as stored on obj.
+       */
       var slotName = foam.String.toSlotName(this.name);
       var slot     = obj.getPrivate_(slotName);
 
@@ -407,17 +422,19 @@ foam.CLASS({
       return slot;
     },
 
-    /** Export obj.name$ instead of just obj.name. */
     function exportAs(obj) {
+      /** Export obj.name$ instead of just obj.name. */
       return this.toSlot(obj);
     },
 
-    function cloneProperty(
-      /* any // The value to clone */         value,
-      /* object // Add values to this map to
-         have them installed on the clone. */ cloneMap
-    ) {
-      /** Override to provide special deep cloning behavior. */
+    function cloneProperty(value, cloneMap) {
+      /**
+        Override to provide special deep cloning behavior.
+
+        @param value {any} The value to clone
+        @param cloneMap {object} Add values to this map to
+                have them installed on the clone.
+      */
       cloneMap[this.name] = ( value && value.clone ) ? value.clone() : value;
     }
   ]
