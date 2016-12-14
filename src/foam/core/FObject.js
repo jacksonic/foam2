@@ -689,6 +689,44 @@ foam.CLASS({
       this.clearPrivate_('listeners');
     },
 
+    /************************************************
+     * Utility Methods: clone, equals, compareTo etc.
+     ************************************************/
+
+    function equals(other) {
+      /** Returns true if this object is equal to 'other'. */
+      return this.compareTo(other) === 0;
+    },
+
+    function compareTo(other) {
+      /**
+       * Returns -1, 0 or 1 of a comparison of the properties of this object
+       * with 'other'.
+       *
+       * If this and other are not the same type, then this does a comparison
+       * of their respective class IDs.
+       */
+      if ( other === this ) return 0;
+      if ( ! other ) return 1;
+
+      // Non FObject's are considered "less than" FObjects.
+      if ( ! foam.core.FObject.isInstance(other) ) return 1;
+
+      if ( this.cls_ !== other.cls_ ) {
+        return foam.util.compare(this.cls_.id, other.cls_.id);
+      }
+
+      // FUTURE: check 'id' first
+      // FUTURE: order properties
+      var ps = this.cls_.getAxiomsByClass(foam.core.Property);
+      for ( var i = 0 ; i < ps.length ; i++ ) {
+        var r = ps[i].compare(this, other);
+        if ( r ) return r;
+      }
+
+      return 0;
+    },
+
     function clone() {
       /** Create a deep copy of this object. */
       var m = {};

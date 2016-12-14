@@ -907,4 +907,80 @@ describe('Library level FObject methods', function() {
       ]
     });
   });
+
+  it('Comparison functions', function() {
+    foam.CLASS({
+      name: 'ClassA',
+      properties: [
+        {
+          class: 'Int',
+          name: 'intProp'
+        },
+        {
+          class: 'String',
+          name: 'stringProp'
+        }
+      ]
+    });
+
+    foam.CLASS({
+      name: 'ClassB',
+      properties: [
+        {
+          class: 'Int',
+          name: 'intProp'
+        },
+        {
+          class: 'Int',
+          name: 'otherIntProp'
+        }
+      ]
+    });
+
+    var aOne = ClassA.create({
+      intProp: 0,
+      stringProp: 'a'
+    });
+    var aTwo = ClassA.create({
+      intProp: 0,
+      stringProp: 'b'
+    });
+    var aThree = ClassA.create({
+      intProp: 1,
+      stringProp: 'a'
+    });
+    var aFour = ClassA.create({
+      intProp: 2,
+      stringProp: 'c'
+    });
+    var aFive = ClassA.create({
+      intProp: 2,
+      stringProp: 'c'
+    });
+
+    // Same object, so equals should be true.
+    expect(aOne.equals(aOne)).toBe(true);
+
+    // Different object, but properties are equal values.
+    expect(aFour.equals(aFive)).toBe(true);
+
+    expect(aOne.compareTo(aTwo) < 0).toBe(true);
+    expect(aTwo.compareTo(aThree) < 0).toBe(true);
+    expect(aThree.compareTo(aFour) < 0).toBe(true);
+    expect(aFour.compareTo(aFive) === 0).toBe(true);
+
+    var bOne = ClassB.create({
+      intProp: 0,
+      otherIntProp: 0
+    });
+
+    expect(aOne.equals(bOne)).toBe(false);
+    expect(aOne.compareTo(bOne) < 0).toBe(true);
+
+    // Objects are not equal to null.
+    expect(aOne.equals(null)).toBe(false);
+
+    // FObjects are always considered "greater than" non FObjects.
+    expect(aOne.compareTo({}) > 0).toBe(true);
+  });
 });
