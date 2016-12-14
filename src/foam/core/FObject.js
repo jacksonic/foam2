@@ -1,4 +1,4 @@
-/*
+/**
  * @license
  * Copyright 2016 Google Inc. All Rights Reserved.
  *
@@ -76,16 +76,16 @@ foam.LIB({
 
     function createSubClass() {
       /**
-        Used to create a sub-class of this class.  Sets up the appropriate
-        prototype chains for the class, class.prototype and axiomMap_
-
-        The very first "subClass" that we create will be FObject itself, when
-        we define the FObject class rather than the FObject lib that we are
-        currently defining.
-
-        So instead of actually creating a subClass, we will just return "this"
-        and replace createSubClass on FObject to actually create create
-        sub-classes in the future.
+       * Used to create a sub-class of this class.  Sets up the appropriate
+       * prototype chains for the class, class.prototype and axiomMap_
+       *
+       * The very first "subClass" that we create will be FObject itself, when
+       * we define the FObject class rather than the FObject lib that we are
+       * currently defining.
+       *
+       * So instead of actually creating a subClass, we will just return "this"
+       * and replace createSubClass() on FObject to actually create real
+       * sub-classes for all subsequent uses of FObject.createSubClass()
        */
       foam.core.FObject.createSubClass = function() {
         var cls = Object.create(this);
@@ -104,7 +104,7 @@ foam.LIB({
       /**
        * Install an Axiom into the class and prototype.
        * Invalidate the axiom-cache, used by getAxiomsByName().
-
+       *
        * FUTURE: Wait for first object to be created before creating prototype.
        * Currently it installs axioms into the protoype immediately, but it
        * should wait until the first object is created. This will provide
@@ -394,38 +394,38 @@ foam.CLASS({
      * Publish and Subscribe
      ************************************************/
 
-    /**
-      This structure represents the head of a doubly-linked list of
-      listeners. It contains 'next', a pointer to the first listener,
-      and 'children', a map of sub-topic chains.
-
-      Nodes in the list contain 'next' and 'prev' links, which lets
-      removing subscriptions be done quickly by connecting next to prev
-      and prev to next.
-
-      Note that both the head structure and the nodes themselves have a
-      'next' property. This simplifies the code because there is no
-      special case for handling when the list is empty.
-
-      Listener List Structure
-      -----------------------
-      next     -> {
-        prev: <-,
-        sub: {src: <source object>, detach: <destructor function> },
-        l: <listener>,
-        next: -> <same structure>,
-        children -> {
-          subTopic1: <same structure>,
-          ...
-          subTopicn: <same structure>
-        }
-      }
-
-      TODO: Move this structure to a foam.LIB, and add a benchmark
-      to show why we are using plain javascript objects rather than
-      modeled objects for this structure.
-    */
     function createListenerList_() {
+      /**
+       * This structure represents the head of a doubly-linked list of
+       * listeners. It contains 'next', a pointer to the first listener,
+       * and 'children', a map of sub-topic chains.
+       *
+       * Nodes in the list contain 'next' and 'prev' links, which lets
+       * removing subscriptions be done quickly by connecting next to prev
+       * and prev to next.
+       *
+       * Note that both the head structure and the nodes themselves have a
+       * 'next' property. This simplifies the code because there is no
+       * special case for handling when the list is empty.
+       *
+       * Listener List Structure
+       * -----------------------
+       * next     -> {
+       *   prev: <-,
+       *   sub: {src: <source object>, detach: <destructor function> },
+       *   l: <listener>,
+       *   next: -> <same structure>,
+       *   children -> {
+       *     subTopic1: <same structure>,
+       *     ...
+       *     subTopicn: <same structure>
+       *   }
+       * }
+       *
+       * TODO: Move this structure to a foam.LIB, and add a benchmark
+       * to show why we are using plain javascript objects rather than
+       * modeled objects for this structure.
+    */
       return { next: null };
     },
 
@@ -531,9 +531,7 @@ foam.CLASS({
     },
 
     function pub_(args) {
-      /**
-       * Internal publish method, called by pub().
-       */
+      /** Internal publish method, called by pub(). */
 
       // No listeners, so return.
       if ( ! this.hasOwnPrivate_('listeners') ) return 0;
