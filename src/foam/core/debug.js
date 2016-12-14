@@ -337,6 +337,57 @@ foam.CLASS({
   ]
 });
 
+
+// Decorate installModel() to verify that axiom names aren't duplicated.
+foam.core.FObject.installModel = (function() {
+  var superInstallModel = foam.core.FObject.installModel;
+
+  return function(m) {
+    var names = {};
+
+    for ( var i = 0; i < m.axioms_.length; i++ ) {
+      var a = m.axioms_[i];
+
+      foam.assert(! names.hasOwnProperty(a.name),
+        'Axiom name conflict in', m.id || m.refines, ':', a.name);
+
+      var prevA    = this.getAxiomByName(a.name);
+      var Property = foam.core.Property;
+      // Potential failure if:
+      //    previousAxiom class does not match newAxiom class
+      // But ignore valid cases:
+      //    base Property extended by subclass of Property
+      //    subclass of Property extended without specifying class
+      if ( prevA && prevA.cls_ !== a.cls_ &&
+          ! (prevA.cls_ === Property && Property.isSubClass(a.cls_)) &&
+          ! (Property.isSubClass(prevA.cls_) && a.cls_ === Property) ) {
+        var prevCls = prevA.cls_ ? prevA.cls_.id : 'anonymous';
+        var aCls    = a.cls_     ? a.cls_.id     : 'anonymous';
+
+        if ( Property.isSubClass(prevA.cls_) &&
+            ! Property.isSubClass(a.cls_) ) {
+          throw 'Illegal to change Property to non-Property: ' + this.id + '.' +
+            a.name + ' changed to ' + aCls;
+        // FUTURE: This case is needed when we have other method types, like
+        // Templates and Actions.
+        //} else if ( foam.core.Method.isSubClass(prevA.cls_) &&
+        //    foam.core.Method.isSubClass(a.cls_) ) {
+        //  // NOP
+        } else if ( prevA.cls_ ) {
+          // FUTURE: Make this an error when supression is supported.
+          console.warn('Change of Axiom ' + this.id + '.' + a.name +
+              ' type from ' + prevCls + ' to ' + aCls);
+        }
+      }
+
+      names[a.name] = a;
+    }
+
+    superInstallModel.call(this, m);
+  };
+})();
+
+
 foam.CLASS({
   refines: 'foam.core.FObject',
 

@@ -147,6 +147,9 @@ describe('Listener', function() {
       ]
     });
 
+    // Suppress warnings; there's a warning for changing the axiom's type from
+    // Method to Listener.
+    var cap = global.captureWarn();
     expect(function() {
       foam.CLASS({
         name: 'Child',
@@ -156,6 +159,9 @@ describe('Listener', function() {
         ]
       });
     }).toThrow();
+
+    // Restore warnings.
+    cap();
   });
 
   it('Can use SUPER', function() {

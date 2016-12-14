@@ -328,3 +328,111 @@ describe('foam.types.typeCheck', function() {
   });
 
 });
+
+/* globals test */
+describe('installModel validation', function() {
+  it('warns on changing the property type', function() {
+    var capture = global.captureWarn();
+    foam.CLASS({
+      package: 'test',
+      name: 'Parent',
+      properties: [
+        { class: 'Int', name: 'foo' }
+      ]
+    });
+
+    foam.CLASS({
+      package: 'test',
+      name: 'Child',
+      extends: 'test.Parent',
+      properties: [
+        { class: 'String', name: 'foo' }
+      ]
+    });
+
+    var t = test.Child.create();
+    var log = capture();
+    expect(global.matchingLine(log, 'Change of Axiom')).toBe(
+        'Change of Axiom test.Child.foo type from foam.core.property.Int to ' +
+        'foam.core.property.String');
+  });
+
+  it('throws when a property changes to a non-Property', function() {
+    foam.CLASS({
+      package: 'test',
+      name: 'Parent',
+      properties: [ 'foo' ]
+    });
+    expect(function() {
+      foam.CLASS({
+        package: 'test',
+        name: 'Child',
+        extends: 'test.Parent',
+        methods: [
+          function foo() {}
+        ]
+      });
+    }).toThrow();
+  });
+
+  it('throws when two axioms on the same class have the same name', function() {
+    expect(function() {
+      foam.CLASS({
+        package: 'test',
+        name: 'Child',
+        properties: [ 'foo' ],
+        methods: [
+          function foo() {}
+        ]
+      });
+    }).toThrow();
+  });
+
+  it('does not complain if the parent axiom has no class', function() {
+    expect(function() {
+      foam.CLASS({
+        package: 'test',
+        name: 'Parent',
+        axioms: [
+          {
+            name: 'foo',
+            installInClass: function() {}
+          }
+        ]
+      });
+
+      foam.CLASS({
+        package: 'test',
+        name: 'Child',
+        extends: 'test.Parent',
+        methods: [
+          function foo() {}
+        ]
+      });
+    }).not.toThrow();
+  });
+
+  it('does not complain if the child axiom has no class', function() {
+    expect(function() {
+      foam.CLASS({
+        package: 'test',
+        name: 'Parent',
+        methods: [
+          function foo() {}
+        ]
+      });
+
+      foam.CLASS({
+        package: 'test',
+        name: 'Child',
+        extends: 'test.Parent',
+        axioms: [
+          {
+            name: 'foo',
+            installInClass: function() {}
+          }
+        ]
+      });
+    }).not.toThrow();
+  });
+});
