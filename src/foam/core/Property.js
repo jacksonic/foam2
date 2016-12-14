@@ -158,6 +158,35 @@ foam.CLASS({
         A required Property can not be set to null, undefined, 0 or "".
        */
       name: 'required'
+    },
+    {
+      /** Makes Properties useful as map functions. */
+      name: 'evaluate',
+      factory: function() {
+        var name = this.name;
+        return function evaluate(o) { return o[name]; };
+      }
+    },
+    [
+      /**
+       * Compare two values taken from this property.
+       * <p>Used by Property.compare().
+       * It is a property rather than a method so that it can be configured
+       * without subclassing.
+       */
+      'comparePropertyValues',
+      function(o1, o2) { return foam.util.compare(o1, o2); }
+    ],
+    {
+      /** Function property that makes Properties useful as comparators. */
+      name: 'compare',
+      factory: function() {
+        var comparePropertyValues = this.comparePropertyValues;
+        var evaluate = this.evaluate;
+        return function compare(o1, o2) {
+          return comparePropertyValues(evaluate(o1), evaluate(o2));
+        };
+      }
     }
   ],
 
