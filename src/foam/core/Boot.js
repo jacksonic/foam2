@@ -206,26 +206,7 @@ foam.LIB({
       // Substitute FObject.installModel() ( defined in FObject.js ) with
       // the final version.  A simpler axiom-only verion.
       foam.core.FObject.installModel = function installModel(m) {
-        this.private_.axiomCache = {};
-
-        // Install Axioms in first pass so that they're available in the second-pass
-        // when axioms are actually run. This avoids some ordering issues.
-        for ( var i = 0 ; i < m.axioms_.length ; i++ ) {
-          var a = m.axioms_[i];
-          foam.assert(foam.Object.isInstance(a),
-                         'Axiom is not an object.');
-          foam.assert(a.installInClass || a.installInProto,
-                         'Axiom amust define one of installInClass or ' +
-                         'installInProto');
-
-          this.axiomMap_[a.name] = a;
-        }
-
-        for ( var i = 0 ; i < m.axioms_.length ; i++ ) {
-          var a = m.axioms_[i];
-          a.installInClass && a.installInClass(this);
-          a.installInProto && a.installInProto(this.prototype);
-        }
+        this.installAxioms(m.axioms_);
       };
     },
 

@@ -100,29 +100,47 @@ foam.LIB({
       return this;
     },
 
-    function installAxiom(a) {
+    function installAxioms(axs) {
       /**
-       * Install an Axiom into the class and prototype.
+       * Install Axioms into the class and prototype.
        * Invalidate the axiom-cache, used by getAxiomsByName().
-       *
-       * FUTURE: Wait for first object to be created before creating prototype.
-       * Currently it installs axioms into the protoype immediately, but it
-       * should wait until the first object is created. This will provide
-       * better startup performance.
        */
 
-      foam.assert(foam.Object.isInstance(a),
-                     'Axiom is not an object.');
+      // Invalidate the axiomCache.
 
-      foam.assert(a.installInClass || a.installInProto,
-                     'Axiom amust define one of installInClass or ' +
-                     'installInProto');
-
-      this.axiomMap_[a.name] = a;
       this.private_.axiomCache = {};
 
-      a.installInClass && a.installInClass(this);
-      a.installInProto && a.installInProto(this.prototype);
+      // We install in two passes to avoid ordering issues from Axioms which
+      // need to access other axioms, like ids: and exports:.
+
+      for ( var i = 0 ; i < axs.length ; i++ ) {
+        var a = axs[i];
+
+        foam.assert(foam.Object.isInstance(a), 'Axiom is not an object.');
+
+        foam.assert(a.installInClass || a.installInProto,
+                    'Axiom amust define one of installInClass or ' +
+                    'installInProto');
+
+        this.axiomMap_[a.name] = a;
+      }
+
+      for ( var i = 0 ; i < axs.length ; i++ ) {
+        var a = axs[i];
+
+        a.installInClass && a.installInClass(this);
+        a.installInProto && a.installInProto(this.prototype);
+      }
+    },
+
+    function installAxiom(a) {
+      /**
+       * Install a single axiom into the class and prototype.
+       *
+       * If you have an array of axioms to install it is better to use
+       * the more efficient installAxioms() method rather than this.
+       */
+      this.installAxioms([ a ]);
     },
 
     function isInstance(o) {

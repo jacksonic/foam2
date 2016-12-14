@@ -883,4 +883,28 @@ describe('Library level FObject methods', function() {
       obja.__context__ = foam.__context__;
     }).toThrow();
   });
+
+  it('installAxioms ordering resiliancy', function() {
+    var fooAxiom = {
+      name: 'foo',
+      installInClass: function(cls) {
+        expect(cls.getAxiomByName('bar')).toBe(barAxiom);
+      }
+    };
+
+    var barAxiom = {
+      name: 'bar',
+      installInClass: function(cls) {
+        expect(cls.getAxiomByName('foo')).toBe(fooAxiom);
+      }
+    };
+
+    foam.CLASS({
+      name: 'SomeClass',
+      axioms: [
+        fooAxiom,
+        barAxiom
+      ]
+    });
+  });
 });
