@@ -23,45 +23,8 @@ foam.CLASS({
 
   properties: [
     {
-      class: 'AxiomArray',
-      of: 'Property',
-      name: 'properties',
-      adaptArrayElement: function(o) {
-        /*
-          Properties can be defined using three formats:
-          1. Short-form String:  'firstName' or 'sex'
-
-          2. Medium-form Array:  [ 'firstName', 'John' ] or [ 'sex', 'Male' ]
-             The first element of the array is the name and the second is the
-             default value.
-
-          3. Long-form JSON:     { class: 'String', name: 'sex', value: 'Male' }
-             The long-form will support many options, but only 'name' is
-             mandatory.
-         */
-        if ( foam.String.isInstance(o) ) {
-          var p = foam.core.Property.create();
-          p.name = o;
-          return p;
-        }
-
-        if ( foam.Array.isInstance(o) ) {
-          // TODO(adamvy): Ensure that name is typechecked and validated
-          // when model validation becomes a thing.
-          var p = foam.core.Property.create();
-          p.name  = o[0];
-          p.value = o[1];
-          return p;
-        }
-
-        if ( o.class ) {
-          var m = foam.lookup(o.class);
-          return m.create(o);
-        }
-
-        return foam.core.Property.isInstance(o) ?
-          o : foam.core.Property.create(o);
-      }
+      class: 'PropertyArray',
+      name: 'properties'
     },
     {
       class: 'AxiomArray',
