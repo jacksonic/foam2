@@ -825,6 +825,44 @@ describe('Library level FObject methods', function() {
     }).toThrow();
   });
 
+  it('instance count', function() {
+    foam.CLASS({
+      name: 'SomeClass'
+    });
+
+    expect(SomeClass.count_).toBe(0);
+    SomeClass.create();
+    expect(SomeClass.count_).toBe(1);
+    SomeClass.create();
+    expect(SomeClass.count_).toBe(2);
+  });
+
+  it('refine warning', function() {
+    foam.CLASS({
+      name: 'SomeClass'
+    });
+
+    var capture = captureWarn();
+
+    foam.CLASS({
+      refines: 'SomeClass'
+    });
+
+    expect(global.matchingLine(capture(), 'Refining class')).toBe(undefined);
+
+
+    SomeClass.create();
+
+    capture = captureWarn();
+
+    foam.CLASS({
+      refines: 'SomeClass'
+    });
+
+    expect(global.matchingLine(capture(), 'Refining class')).toBe(
+        'Refining class "SomeClass", which has already created instances.');
+  });
+
   it('__context__ and __subContext___', function() {
     foam.CLASS({
       name: 'SomeClass'

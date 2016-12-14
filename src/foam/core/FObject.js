@@ -56,6 +56,9 @@ foam.LIB({
 
       var obj = Object.create(this.prototype);
 
+      // Increment number of objects created of this class.
+      this.count_++;
+
       // Properties have their values stored in instance_ instead
       // of on the object directly. This lets us defineProperty on
       // the object itself so that we can add extra behaviour
