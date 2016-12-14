@@ -306,21 +306,8 @@ describe('imports exports', function() {
 });
 
 describe('imports exports validation', function() {
-  var warnCalled = 0;
-  var oldWarn;
-
-  beforeEach(function() {
-    oldWarn = console.warn;
-    console.warn = function() {
-      warnCalled++;
-    };
-  });
-
-  afterEach(function() {
-    console.warn = oldWarn;
-  });
-
   it('missing imports', function() {
+    var log = captureWarn();
     foam.CLASS({
       name: 'Importer',
       imports: [
@@ -330,21 +317,19 @@ describe('imports exports validation', function() {
 
     var obj = Importer.create();
 
-
-    var initial = warnCalled;
-
     // Accessing a missing import does not throw an error if it was optional.
     expect(obj.a).toBe(undefined);
-    expect(warnCalled - initial).toBe(0);
+    expect(log()).toEqual([]);
 
     // Setting a missing import throws a warning
+    log = captureWarn();
     expect(function() {
       obj.a = 123;
     }).toThrow();
 
     // Value is still un-set and no warning while reading.
     expect(obj.a).toBe(undefined);
-    expect(warnCalled - initial).toBe(0);
+    expect(log()).toEqual([]);
   });
 
   it('__subContext__ not settable', function() {
@@ -397,14 +382,13 @@ describe('imports exports validation', function() {
   });
 
   it('duplicate import warnings', function() {
+    var log = global.captureWarn();
     foam.CLASS({
       name: 'ImporterA',
       imports: [
         'a'
       ]
     });
-
-    var initial = warnCalled;
 
     foam.CLASS({
       name: 'ImporterB',
@@ -414,14 +398,15 @@ describe('imports exports validation', function() {
       ]
     });
 
-    expect(warnCalled - initial).toBe(1);
-
+    expect(global.matchingLine(log(), 'already exists')).toBe(
+        'Import "a" already exists in ancestor class of ImporterB.');
 
     // There is no warning if you import the same key as your parent,
     // but you import it 'as' a different name.  There is no conflict in this
     // case, you parent will import 'a' as 'a', and you can import 'a' as 'abc'.
     // In this case, this.a and this.abc will both be referring to 'a' in your
     // context.
+    log = global.captureWarn();
     foam.CLASS({
       name: 'ImporterC',
       extends: 'ImporterA',
@@ -429,7 +414,6 @@ describe('imports exports validation', function() {
         'a as abc'
       ]
     });
-
-    expect(warnCalled - initial).toBe(1);
+    expect(log()).toEqual([]);
   });
 });

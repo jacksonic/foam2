@@ -190,9 +190,9 @@ describe('Argument.validate', function() {
   it('checks modelled types', function() {
     var params = foam.types.getFunctionArgs(fn);
 
-    console.log(global.pkg.TypeC.create());
-    console.log(foam.lookup('pkg.TypeC').create());
-    console.log(global.pkg.TypeC.isInstance(global.pkg.TypeC.create()));
+    global.pkg.TypeC.create();
+    foam.lookup('pkg.TypeC').create();
+    global.pkg.TypeC.isInstance(global.pkg.TypeC.create());
 
     expect(function() { params[0].validate(global.TypeA.create()); })
       .not.toThrow();
@@ -413,6 +413,12 @@ describe('installModel validation', function() {
   });
 
   it('does not complain if the child axiom has no class', function() {
+    // We get a warning for changing a method to an anonymous type, but we
+    // need to try this to get coverage for the "anonymous" case where the
+    // child axiom has no class.
+    // So we suppress the warning to keep it out of the test output.
+    var log = global.captureWarn();
+
     expect(function() {
       foam.CLASS({
         package: 'test',
@@ -433,6 +439,11 @@ describe('installModel validation', function() {
           }
         ]
       });
+
     }).not.toThrow();
+
+    expect(global.matchingLine(log(), 'Change of Axiom')).toBe(
+        'Change of Axiom test.Child.foo type from foam.core.Method to anonymous'
+    );
   });
 });
