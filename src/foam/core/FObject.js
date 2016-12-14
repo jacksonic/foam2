@@ -578,30 +578,6 @@ foam.CLASS({
     },
 
     /**
-      Unsub a previously sub()'ed listener.
-      It is more efficient to unsubscribe by calling .detach()
-      on the subscription returned from sub() (so prefer that
-      method when possible).
-    */
-    function unsub() { /* args..., l */
-      var l         = arguments[arguments.length - 1];
-      var listeners = this.getPrivate_('listeners');
-
-      for ( var i = 0 ; i < arguments.length - 1 && listeners ; i++ ) {
-        listeners = listeners.children && listeners.children[arguments[i]];
-      }
-
-      var node = listeners && listeners.next;
-      while ( node ) {
-        if ( node.l === l ) {
-          node.sub.detach();
-          return;
-        }
-        node = node.next;
-      }
-    },
-
-    /**
      * Publish to this.propertyChange topic if oldValue and newValue are
      * different.
      */

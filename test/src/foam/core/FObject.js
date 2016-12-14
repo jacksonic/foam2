@@ -262,18 +262,6 @@ describe('FObject features', function() {
     // Listener 2 has been unsubscribed via s2.detach()
     expect(wasCalled2).toBe(false);
     expect(wasCalled3).toBe(true);
-
-
-    // Can also unsubscribe via unsub().
-    obj.unsub('some', listener3);
-
-    wasCalled1 = wasCalled2 = wasCalled3 = false;
-
-    count = obj.pub('some', 'topic');
-    expect(wasCalled1).toBe(false);
-    expect(wasCalled2).toBe(false);
-    expect(wasCalled3).toBe(false);
-    expect(count).toBe(0);
   });
 
   // Provides coverage of all cases when a subscription is
@@ -306,8 +294,8 @@ describe('FObject features', function() {
 
     // nodes in the list are in reverse order of subscription.
 
-    // detach the last node via unsub
-    obj.unsub('a', 'b', 'c', listener1);
+    // detach the last node
+    s1.detach();
 
     // detach first node in the list
     s5.detach();
