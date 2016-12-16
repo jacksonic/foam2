@@ -845,22 +845,47 @@ describe('Library level FObject methods', function() {
     var capture = captureWarn();
 
     foam.CLASS({
-      refines: 'SomeClass'
+      refines: 'SomeClass',
+      exports: [ 'foo' ]
     });
 
     expect(global.matchingLine(capture(), 'Refining class')).toBe(undefined);
-
 
     SomeClass.create();
 
     capture = captureWarn();
 
     foam.CLASS({
-      refines: 'SomeClass'
+      refines: 'SomeClass',
+      exports: [ 'bar' ]
     });
 
     expect(global.matchingLine(capture(), 'Refining class')).toBe(
         'Refining class "SomeClass", which has already created instances.');
+
+    capture = captureWarn();
+
+    foam.CLASS({
+      refines: 'SomeClass',
+      flags: { noWarnOnRefinesAfterCreate: true },
+      exports: [ 'baz' ]
+    });
+
+    expect(global.matchingLine(capture(), 'Refining class')).toBe(undefined);
+
+    foam.CLASS({
+      refines: 'SomeClass',
+      properties: [ 'p1' ]
+    });
+
+    expect(global.matchingLine(capture(), 'Refining class')).toBe(undefined);
+
+    foam.CLASS({
+      refines: 'SomeClass',
+      methods: [ function m1() {} ]
+    });
+
+    expect(global.matchingLine(capture(), 'Refining class')).toBe(undefined);
   });
 
   it('__context__ and __subContext___', function() {

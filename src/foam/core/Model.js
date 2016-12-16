@@ -31,6 +31,10 @@ foam.CLASS({
     'package',
     'abstract',
     'name',
+    {
+      name: 'flags',
+      factory: function() { return {}; }
+    },
     [ 'extends', 'FObject' ],
     'refines',
     {

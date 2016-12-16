@@ -126,15 +126,6 @@ foam.LIB({
       if ( this.refines ) {
         cls = context.lookup(this.refines);
         foam.assert(cls, 'Unknown refinement class: ' + this.refines);
-        // TODO:
-        //   should check foam.__context__.warn instead of BOOT_TIME
-        //   should call foam.__context__.warn() isntead of console.warn().
-        if ( cls.count_ && foam._BOOT_TIME_ ) { // TODO: should check foam.__context__.warn instead
-          console.warn(
-              'Refining class "' +
-              this.refines +
-              '", which has already created instances.');
-        }
       } else {
         foam.assert(this.id, 'Missing id name.', this.name);
         foam.assert(this.name, 'Missing class name.');
