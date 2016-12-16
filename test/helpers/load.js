@@ -44,3 +44,7 @@ require('../../src/foam/core/property/FObjectArray.js');
 require('../../src/foam/core/Topic.js');
 require('../../src/foam/core/Interface.js');
 require('../../src/foam/core/Implements.js');
+require('../../src/foam/dao/Sink.js');
+require('../../src/foam/dao/DAO.js');
+require('../../src/foam/dao/ArraySink.js');
+require('../../src/foam/dao/ArrayDAO.js');

@@ -136,8 +136,9 @@ foam.CLASS({
           return foam.core.Method.create({ name: o.name, code: o });
         }
 
-        return foam.core.Method.isInstance(o) ?
-            o : foam.core.internal.InterfaceMethod.create(o);
+        return foam.core.Method.isInstance(o) ?  o :
+            o.code ? foam.core.Method.create(o) :
+            foam.core.internal.InterfaceMethod.create(o);
       }
     },
     {

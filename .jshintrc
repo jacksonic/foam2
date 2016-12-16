@@ -21,9 +21,11 @@
       "beforeEach": true,
       "afterEach": true,
       "expect": true,
+      "fail": true,
       "foam": true,
       "global": true,
       "it": true,
+      "Promise": true,
       "require": true
     }
 }
