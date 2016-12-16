@@ -412,9 +412,9 @@ foam.CLASS({
       }
     },
 
-    /************************************************
-     * Publish and Subscribe
-     ************************************************/
+    //////////////////////////////////////////////////
+    // Publish and Subscribe
+    //////////////////////////////////////////////////
 
     function createListenerList_() {
       /**
@@ -692,9 +692,9 @@ foam.CLASS({
       this.clearPrivate_('listeners');
     },
 
-    /************************************************
-     * Utility Methods: clone, equals, compareTo etc.
-     ************************************************/
+    //////////////////////////////////////////////////
+    // Utility Methods: clone, equals, compareTo etc.
+    //////////////////////////////////////////////////
 
     function equals(other) {
       /** Returns true if this object is equal to 'other'. */
