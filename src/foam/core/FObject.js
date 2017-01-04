@@ -52,6 +52,8 @@ foam.LIB({
       /**
        * Create a new instance of this class.
        * Configured from values taken from 'args', if supplifed.
+       * @param {foam.Object=} args
+       * @param {any=} opt_parent
        */
 
       var obj = Object.create(this.prototype);
@@ -107,6 +109,7 @@ foam.LIB({
       /**
        * Install Axioms into the class and prototype.
        * Invalidate the axiom-cache, used by getAxiomsByName().
+       * @param {foam.Array} axs
        */
 
       // Invalidate the axiomCache.
@@ -142,6 +145,7 @@ foam.LIB({
        *
        * If you have an array of axioms to install it is better to use
        * the more efficient installAxioms() method rather than this.
+       * @param {foam.Object} a
        */
       this.installAxioms([ a ]);
     },
@@ -150,13 +154,17 @@ foam.LIB({
       /**
        * Determine if an object is an instance of this class
        * or one of its sub-classes.
+       * @param {any=} o
        */
 
       return !! ( o && o.cls_ && this.isSubClass(o.cls_) );
     },
 
     function isSubClass(c) {
-      /** Determine if a class is either this class or a sub-class. */
+      /**
+       * Determine if a class is either this class or a sub-class.
+       * @param {any=} c
+       */
 
       if ( ! c ) return false;
 
@@ -176,6 +184,7 @@ foam.LIB({
       /**
        * Find an axiom by the specified name from either this class or an
        * ancestor.
+       * @param {foam.String} name
        */
       return this.axiomMap_[name];
     },
@@ -184,6 +193,7 @@ foam.LIB({
       /**
        * Returns all axioms defined on this class or its parent classes
        * that are instances of the specified class.
+       * @param {foam.Object} cls
        */
       // FUTURE: Add efficient support for:
       //    .where() .orderBy() .groupBy()
@@ -203,6 +213,7 @@ foam.LIB({
     function getSuperAxiomByName(name) {
       /**
        * Find an axiom by the specified name from an ancestor.
+       * @param {foam.String} name
        */
       return this.axiomMap_.__proto__[name];
     },
@@ -211,12 +222,16 @@ foam.LIB({
       /**
        * Return true if an axiom named "name" is defined on this class
        * directly, regardless of what parent classes define.
+       * @param {foam.String} name
        */
       return Object.hasOwnProperty.call(this.axiomMap_, name);
     },
 
     function getAxioms() {
-      /** Returns all axioms defined on this class or its parent classes. */
+      /**
+       * Returns all axioms defined on this class or its parent classes.
+       * @return {foam.Array}
+       */
 
       // The full axiom list is stored in the regular cache with '' as a key.
       var as = this.private_.axiomCache[''];
@@ -247,6 +262,7 @@ foam.LIB({
        *
        * However, once we've bootstrapped proper Property and Method
        * Axioms, we can remove this support and just install Axioms.
+       * @param {foam.Object} m
        */
 
 
@@ -344,6 +360,7 @@ foam.CLASS({
        * This is a temporary version of initArgs.
        * When the bootstrap is finished, it will be replaced by a version
        * that knows about a classes Properties, so it can do a better job.
+       * @param {foam.Object=} args
        */
 
       if ( ! args ) return;
@@ -355,6 +372,7 @@ foam.CLASS({
       /**
        * Returns true if this object is storing a value for a property
        * named by the 'name' parameter.
+       * @param {foam.String} name
        */
 
       return ! foam.Undefined.isInstance(this.instance_[name]);
@@ -366,6 +384,7 @@ foam.CLASS({
        * The value will revert to either the Property's 'value' or
        * 'expression' value, if they're defined or undefined if they aren't.
        * A propertyChange event will be fired, even if the value doesn't change.
+       * @param {foam.String} name
        */
 
       var prop = this.cls_.getAxiomByName(name);
@@ -387,20 +406,31 @@ foam.CLASS({
       /**
        * Private support is used to store per-object values that are not
        * instance variables.  Things like listeners and topics.
+       * @param {any=} name
+       * @param {any=} value
        */
       ( this.private_ || ( this.private_ = {} ) )[name] = value;
       return value;
     },
 
     function getPrivate_(name) {
+      /**
+       * @param {any=} name
+       */
       return this.private_ && this.private_[name];
     },
 
     function hasOwnPrivate_(name) {
+      /**
+       * @param {any=} name
+       */
       return this.private_ && ! foam.Undefined.isInstance(this.private_[name]);
     },
 
     function clearPrivate_(name) {
+      /**
+       * @param {any=} name
+       */
       if ( this.private_ ) this.private_[name] = undefined;
     },
 
@@ -447,7 +477,7 @@ foam.CLASS({
        * TODO: Move this structure to a foam.LIB, and add a benchmark
        * to show why we are using plain javascript objects rather than
        * modeled objects for this structure.
-    */
+       */
       return { next: null };
     },
 
@@ -464,6 +494,8 @@ foam.CLASS({
        * Notify all of the listeners in a listener list.
        * Pass 'a' arguments to listeners.
        * Returns the number of listeners notified.
+       * @param {any=} listeners
+       * @param {any=} a
        */
       var count = 0;
       while ( listeners ) {
@@ -494,7 +526,7 @@ foam.CLASS({
       return count;
     },
 
-    function hasListeners(/* args */) {
+    function hasListeners() {
       /**
        * Return true iff there are listeners for the supplied message.
        */
@@ -532,6 +564,14 @@ foam.CLASS({
        * Note how FObjects can be used as generic pub/subs.
        *
        * Returns the number of listeners notified.
+       * @param {any=} a1
+       * @param {any=} a2
+       * @param {any=} a3
+       * @param {any=} a4
+       * @param {any=} a5
+       * @param {any=} a6
+       * @param {any=} a7
+       * @param {any=} a8
        */
 
       // This method prevents this function not being JIT-ed because
@@ -553,7 +593,10 @@ foam.CLASS({
     },
 
     function pub_(args) {
-      /** Internal publish method, called by pub(). */
+      /**
+       * Internal publish method, called by pub().
+       * @param {any=} args
+       */
 
       // No listeners, so return.
       if ( ! this.hasOwnPrivate_('listeners') ) return 0;
@@ -573,7 +616,7 @@ foam.CLASS({
       return count;
     },
 
-    function sub() { /* args..., l */
+    function sub(args) {
       /**
        * Subscribe to pub()'ed events.
        * args - zero or more values which specify the pattern of pub()'ed
@@ -591,6 +634,7 @@ foam.CLASS({
        *   cancelling the subscription.
        * <p>Returns a "subscrition" which can be cancelled by calling
        *   its .detach() method.
+       * @param {...any} args
        */
 
       var l = arguments[arguments.length - 1];
@@ -630,6 +674,9 @@ foam.CLASS({
       /**
        * Publish to this.propertyChange topic if oldValue and newValue are
        * different.
+       * @param {any=} prop
+       * @param {any=} oldValue
+       * @param {any=} newValue
        */
       if ( Object.is(oldValue, newValue) ) return;
       if ( ! this.hasListeners('propertyChange', prop.name) ) return;
@@ -640,6 +687,7 @@ foam.CLASS({
     function slot(obj) {
       /**
        * Creates a Slot for an Axiom.
+       * @param {any=} obj
        */
       if ( typeof obj === 'function' ) {
         return foam.core.ExpressionSlot.create(
@@ -669,6 +717,7 @@ foam.CLASS({
        * Does nothing is the argument is falsy.
        *
        * Returns the input object, which can be useful for chaining.
+       * @param {any=} d
        */
       foam.assert(! d || foam.Function.isInstance(d.detach) ||
           foam.Function.isInstance(d),
@@ -697,7 +746,10 @@ foam.CLASS({
     //////////////////////////////////////////////////
 
     function equals(other) {
-      /** Returns true if this object is equal to 'other'. */
+      /**
+       * Returns true if this object is equal to 'other'.
+       * @param {any=} other
+       */
       return this.compareTo(other) === 0;
     },
 
@@ -708,6 +760,7 @@ foam.CLASS({
        *
        * If this and other are not the same type, then this does a comparison
        * of their respective class IDs.
+       * @param {any=} other
        */
       if ( other === this ) return 0;
       if ( ! other ) return 1;

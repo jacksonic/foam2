@@ -138,10 +138,16 @@ describe('ArrayDAO', function() {
     var putCalls = 0;
     var eofCalled = false;
 
-    var sink = {
-      put: function() { putCalls++; },
-      eof: function() { eofCalled = true; }
-    };
+    foam.CLASS({
+      package: 'test',
+      name: 'Sink',
+      implements: [ 'foam.dao.Sink' ],
+      methods: [
+        function put() { putCalls++; },
+        function eof() { eofCalled = true; }
+      ]
+    });
+    var sink = test.Sink.create();
 
     Promise.all(people.map(dao.put.bind(dao))).then(function() {
       return dao.select(sink);

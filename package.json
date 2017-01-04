@@ -12,7 +12,7 @@
   },
   "scripts": {
     "test": "JASMINE_CONFIG_PATH=jasmine_node.json jasmine",
-    "coverage": "JASMINE_CONFIG_PATH=jasmine_node.json istanbul cover -- jasmine && istanbul check-coverage",
+    "coverage": "JASMINE_CONFIG_PATH=jasmine_node.json istanbul cover --no-compact --preserve-comments -- jasmine && istanbul check-coverage",
     "lint": "jshint -c .jshintrc  ./src/ && jscs -c .jscsrc ./src/",
     "doc": "rm -rf doc/gen && jsdoc -c jsdoc.conf -r -t ./third_party/jsdoc/customTemplate -d ./doc/gen ./src/"
   }

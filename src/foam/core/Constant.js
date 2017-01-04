@@ -34,6 +34,7 @@ foam.CLASS({
 
   methods: [
     function installInClass(cls) {
+      /** @param {any} cls */
       var value = this.value;
       Object.defineProperty(cls, this.name, {
         get: function() { return value; },
@@ -42,6 +43,7 @@ foam.CLASS({
       });
     },
     function installInProto(proto) {
+      /** @param {any} proto */
       this.installInClass(proto);
     }
   ]
