@@ -15,26 +15,27 @@
  * limitations under the License.
  */
 
-var createTestProperties = function createTestProperties() {
-  if ( ! foam.lookup('test.StringTester', true) ) {
-    foam.CLASS({
-      name: 'StringTester',
-      package: 'test',
 
-      properties: [
-        {
-          class: 'String',
-          name: 'string',
-        },
-      ]
-    });
-  }
-
-  return global.test.StringTester.create(undefined, foam.__context__);
-};
 
 describe('String', function() {
   var p;
+  var createTestProperties = function createTestProperties() {
+    if ( ! foam.lookup('test.StringTester', true) ) {
+      foam.CLASS({
+        name: 'StringTester',
+        package: 'test',
+
+        properties: [
+          {
+            class: 'String',
+            name: 'string',
+          },
+        ]
+      });
+    }
+
+    return global.test.StringTester.create(undefined, foam.__context__);
+  };
 
   beforeEach(function() {
     p = createTestProperties();

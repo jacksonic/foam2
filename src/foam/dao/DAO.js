@@ -110,7 +110,7 @@ foam.INTERFACE({
            * provided.
            */
           name: 'sink',
-          typeName: 'foam.dao.Sink?'
+          typeName: 'foam.dao.Sink='
         }
       ]
     },

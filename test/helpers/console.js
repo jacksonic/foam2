@@ -50,3 +50,10 @@ global.matchingLine = function(output, substring) {
   }
   return undefined;
 };
+
+var oldAssert = console.assert;
+console.assert = function(cond) {
+  if ( ! cond ) {
+    throw new Error([].slice.apply(arguments).slice(1).join(' '));
+  }
+};
