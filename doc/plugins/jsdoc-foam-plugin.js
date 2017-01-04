@@ -45,6 +45,7 @@ require('../../test/helpers/load.js');
 
 var modelComments = {};
 
+/** Returns the content of the named property of the given node */
 var getNodePropertyNamed = function getNodePropertyNamed(node, propName) {
   if ( node.properties ) {
     for ( var i = 0; i < node.properties.length; ++i ) {
@@ -60,6 +61,7 @@ var getNodePropertyNamed = function getNodePropertyNamed(node, propName) {
   return '';
 };
 
+/** Finds the subnode of the named property of the given node  */
 var getNodeNamed = function getNodeNamed(node, propName) {
   if ( node.properties ) {
     for ( var i = 0; i < node.properties.length; ++i ) {
@@ -72,7 +74,8 @@ var getNodeNamed = function getNodeNamed(node, propName) {
   return '';
 };
 
-
+/** Looks up the AST to find a leading comment ahead of the
+  given node. */
 var getLeadingComment = function getLeadingComment(node) {
   // climb up the tree and look for a docs comment
   if ( node.leadingComments ) {
@@ -96,6 +99,8 @@ var getLeadingComment = function getLeadingComment(node) {
   return '';
 };
 
+/** Loads the source for a function node and finds a body comment
+  inside, if any. */
 var getFuncBodyComment = function getFuncBodyComment(node, filename) {
   // try to pull a comment from the function body
   var src = getSourceString(filename, node.range[0], node.range[1]);
@@ -115,6 +120,8 @@ var getFuncBodyComment = function getFuncBodyComment(node, filename) {
   }
 };
 
+/** Looks for a comment for the given node in a variety
+  of poential styles. Warns if more than one found. */
 var getComment = function getComment(node, filename) {
   var propComment;
   var bodyComment;
@@ -161,18 +168,22 @@ var getComment = function getComment(node, filename) {
   return propComment || bodyComment || objComment || leadingComment;
 };
 
+/** Gets the type of the definition, either: CLASS, LIB, ENUM, or INTERFACE */
 var getDefinitionType = function getDefinitionType(node) {
   if ( node.type === 'ObjectExpression' &&
       node.parent && node.parent.type === 'CallExpression' &&
       node.parent.callee && node.parent.callee.property ) {
     var name = node.parent.callee.property.name;
-    if ( name === 'CLASS' || name === 'LIB' || name === 'INTERFACE' ) {
+    if ( name === 'CLASS' || name === 'LIB' ||
+         name === 'INTERFACE' || name === 'ENUM' ) {
       return name;
     }
   }
   return '';
 };
 
+/** gets the package of a FOAM class
+  given the node of the CLASS call */
 var getCLASSPackage = function getCLASSPackage(node) {
 
   var pkg = getNodePropertyNamed(node, 'package').replace(/\./g, '/');
@@ -188,6 +199,8 @@ var getCLASSPackage = function getCLASSPackage(node) {
   return pkg;
 };
 
+/** gets the name from a FOAM class
+  given the node of the CLASS call */
 var getCLASSName = function getCLASSName(node) {
   var name = getNodePropertyNamed(node, 'name');
   var pkg = getCLASSPackage(node);
@@ -213,6 +226,8 @@ var getCLASSName = function getCLASSName(node) {
   return ( pkg ? 'module:' + pkg + '.' : '' ) + name;
 };
 
+/** gets the JSDoc compatible module path from a FOAM package
+  given the node of the CLASS call and class name */
 var getCLASSPath = function getCLASSPath(node, name) {
   var ext = getNodePropertyNamed(node, name);
   if ( ext ) {
@@ -228,11 +243,14 @@ var getCLASSPath = function getCLASSPath(node, name) {
   return ext;
 };
 
+/** Adds a tag into the end of a comment */
 var insertIntoComment = function insertIntoComment(comment, tag) {
   var idx = comment.lastIndexOf('*/');
   return comment.slice(0, idx) + ' ' + tag + ' ' + comment.slice(idx);
 };
 
+/** Replaces an @arg/@param in a function comment with the given
+  type and docs, or adds it if not present. */
 var replaceCommentArg = function replaceCommentArg(
     comment, name, type, optional, repeats, docs
   ) {
@@ -255,7 +273,9 @@ var replaceCommentArg = function replaceCommentArg(
     type + ( optional ? '=' : '' ) + '} ' + name + ' ' + docs);
 };
 
-
+/** Loads a source file and extracts the given substring from it.
+  Used to load comments that may have been stripped from the AST
+  and get functions in their original text form. */
 var files = {};
 var getSourceString = function getSourceString(filename, start, end) {
   // Load the given file and find the original unparsed source
@@ -275,12 +295,16 @@ var getSourceString = function getSourceString(filename, start, end) {
   return source;
 };
 
+/** Extracts argument types from a function, pulling the original
+  code from the source file */
 var processArgs = function processArgs(e, node) {
   // extract arg types using FOAM
   if ( ! node ) return;
   var src = getSourceString(e.filename, node.range[0], node.range[1]);
+  var f = function() {};
+  f.toString = function() { return src; };
   try {
-    var args = foam.types.getFunctionArgs(src);
+    var args = foam.Function.args(f);
     for ( var i = 0; i < args.length; ++i ) {
       var arg = args[i];
       if ( arg.typeName ) {
@@ -293,6 +317,24 @@ var processArgs = function processArgs(e, node) {
   }
 };
 
+/** For a Method declaration, axtracts arguments from the 'args' node,
+  which should be an array */
+var processExplicitArgs = function processExplicitArgs(e, node) {
+  if ( ! node ) return;
+
+  node.elements.forEach(function(elementNode) {
+    e.comment = replaceCommentArg(
+      e.comment,
+      getNodePropertyNamed(elementNode, 'name'),
+      getNodePropertyNamed(elementNode, 'typeName'),
+      !! getNodePropertyNamed(elementNode, 'optional'),
+      !! getNodePropertyNamed(elementNode, 'repeats'),
+      getComment(elementNode, e.filename)
+    );
+  });
+};
+
+/** gets an array of 'implements' entries from a class node */
 var getImplements = function getImplements(node) {
   var ret = [];
   var nodes = getNodePropertyNamed(node, 'implements');
@@ -302,7 +344,7 @@ var getImplements = function getImplements(node) {
   return ret;
 };
 
-// Looks up existing results (already had their comment processed)
+/** Looks up existing results (already had their comment processed) */
 var getResult = function getResult(parser, longname) {
   // also update .description on a result, to change the output text.
   if ( ! parser._resultBuffer ) return null;
@@ -314,6 +356,7 @@ var getResult = function getResult(parser, longname) {
   return null;
 };
 
+/** Ensures the given package name has one JSDoc module created for it. */
 var checkForPackageModule = function checkForPackageModule(parser, pkg) {
 
   if ( ! pkg ) return;
@@ -332,6 +375,8 @@ var checkForPackageModule = function checkForPackageModule(parser, pkg) {
   }
 };
 
+/** returns true if the given array property name contains methods
+  when found in a class */
 var isMethod = function isMethod(containerName) {
   return containerName === 'methods' || containerName === 'listeners';
 };
@@ -515,6 +560,7 @@ exports.astNodeVisitor = {
 
       if ( node.parent.parent.key.name === 'methods' ) {
         processArgs(e, getNodeNamed(node, 'code'));
+        processExplicitArgs(e, getNodeNamed(node, 'args'));
       }
     }
   }

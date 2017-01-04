@@ -55,6 +55,10 @@ foam.CLASS({
 
   methods: [
     function merged(l, opt_delay) {
+      /**
+       * @param {any} l
+       * @param {foam.Number=} opt_delay
+       */
       var delay = opt_delay || 16;
       var ctx    = this;
 
@@ -82,10 +86,18 @@ foam.CLASS({
     },
 
     function setTimeout(f, delay) {
+      /**
+       * @param {foam.Function} f
+       * @param {foam.Number} delay
+       * @return {foam.Number}
+       */
       return this.window.setTimeout(f, delay);
     },
 
     function clearTimeout(id) {
+      /**
+       * @param {foam.Number} id
+       */
       this.window.clearTimeout(id);
     }
   ]

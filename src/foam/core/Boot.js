@@ -176,10 +176,13 @@ foam.LIB({
 
     function phase2() {
       // Upgrade to final CLASS() definition.
-      /** Creates a Foam class from a plain-old-object definition.
-          @method CLASS
-          @memberof module:foam */
       foam.CLASS = function(m) {
+        /**
+         * Creates a Foam class from a plain-old-object definition.
+         * @method CLASS
+         * @memberof module:foam
+         * @param {foam.Object} m
+         */
         var model = foam.core.Model.create(m);
         model.validate();
         var cls = model.buildClass();

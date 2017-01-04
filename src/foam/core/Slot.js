@@ -33,16 +33,14 @@ foam.CLASS({
   name: 'Slot',
 
   methods: [
-    /**
-      Link two Slots together, setting both to other's value.
-      Returns a Detachable which can be used to break the link.
-      After copying a value from one slot to the other, this implementation
-      then copies the value back in case the target slot rejected the value.
-    */
     function linkFrom(s2) {
-      foam.assert(s2 && this.cls_.isInstance(s2),
-          'Slot.linkFrom: argument is not a Slot');
-
+      /**
+       * Link two Slots together, setting both to other's value.
+       * Returns a Detachable which can be used to break the link.
+       * After copying a value from one slot to the other, this implementation
+       * then copies the value back in case the target slot rejected the value.
+       * @param {foam.core.Slot} s2
+       */
       var s1        = this;
       var feedback1 = false;
       var feedback2 = false;
@@ -93,18 +91,20 @@ foam.CLASS({
       };
     },
 
-    /** See linkFrom. linkTo simply reverses the arguments. */
     function linkTo(other) {
+      /**
+       * See linkFrom. linkTo simply reverses the arguments.
+       * @param {foam.core.Slot} other
+       */
       return other.linkFrom(this);
     },
 
-    /**
-      Have this Slot dynamically follow other's value.
-      Returns a Detachable which can be used to cancel the binding.
-    */
     function follow(other) {
-      foam.assert(other && this.cls_.isInstance(other),
-          'Slot.follow requires Slot argument.');
+      /**
+       * Have this Slot dynamically follow other's value.
+       * Returns a Detachable which can be used to cancel the binding.
+       * @param {foam.core.Slot} other
+       */
       var self = this;
       var l = function() {
         // FUTURE(braden): Switch this to foam.util.equals when defined.
@@ -116,15 +116,12 @@ foam.CLASS({
       return other.sub(l);
     },
 
-    /**
-     * Maps values from one model to another.
-     * @param f maps values from srcValue to dstValue
-     */
     function mapFrom(other, f) {
-      foam.assert(other && this.cls_.isInstance(other),
-          'Slot.mapFrom: first argument is not a Slot');
-      foam.assert(typeof f === 'function',
-          'Slot.mapFrom: second argument is not a function');
+      /**
+       * Maps values from one model to another.
+       * @param {foam.core.Slot} other
+       * @param {foam.Function} f maps values from srcValue to dstValue
+       */
 
       var self = this;
       var l = function() { self.set(f(other.get())); };
@@ -133,25 +130,23 @@ foam.CLASS({
     },
 
     function mapTo(other, f) {
+      /**
+       * Maps values from another model to this one (reverse of MapFrom).
+       * @param {foam.core.Slot} other
+       * @param {foam.Function} f maps values from srcValue to dstValue
+       */
       return other.mapFrom(this, f);
     },
 
-    /**
-     * Relate to another Slot.
-     * @param other The other slot.
-     * @param f Map from this to other.
-     * @param fprime Map from other to this.
-     * @param expectUnstable Set this to true if you expect fPrime(f(x)) != x.
-     *    Otherwise an error is generated on divergence.
-     */
     function relateTo(other, f, fPrime, expectUnstable) {
-      foam.assert(other && this.cls_.isInstance(other),
-          'Slot.relateTo: first argument is not a Slot');
-      foam.assert(typeof f === 'function',
-          'Slot.relateTo: second argument is not a function');
-      foam.assert(typeof fPrime === 'function',
-          'Slot.relateTo: third argument is not a function');
-
+      /**
+       * Relate to another Slot.
+       * @param {foam.core.Slot} other The other slot.
+       * @param {foam.Function} f Map from this to other.
+       * @param {foam.Function} fPrime Map from other to this.
+       * @param {foam.Boolean=} expectUnstable Set this to true if you expect fPrime(f(x)) != x.
+       *    Otherwise an error is generated on divergence.
+       */
       var self     = this;
       var feedback = false;
       var feedbackCounter = 0;
@@ -184,8 +179,16 @@ foam.CLASS({
       return sub;
     },
 
-    function relateFrom(other, f, fPrime) {
-      return other.relateTo(this, fPrime, f);
+    function relateFrom(other, f, fPrime, expectUnstable) {
+      /**
+       * Relate from another Slot (reverse of relateTo).
+       * @param {foam.core.Slot} other The other slot.
+       * @param {foam.Function} f Map from other to this.
+       * @param {foam.Function} fPrime Map from this to other.
+       * @param {foam.Boolean=} expectUnstable Set this to true if you expect fPrime(f(x)) != x.
+       *    Otherwise an error is generated on divergence.
+       */
+      return other.relateTo(this, fPrime, f, expectUnstable);
     }
   ]
 });
@@ -217,10 +220,12 @@ foam.CLASS({
     },
 
     function set(value) {
+      /** @param {any=} value */
       return this.prop.set(this.obj, value);
     },
 
     function sub(l) {
+      /** @param {any} l */
       var s = this.obj.sub('propertyChange', this.prop.name, l);
       s.src = this;
       return s;
@@ -319,35 +324,39 @@ foam.CLASS({
   ],
 
   methods: [
-    /** Always call cleanup when this expression is detached. */
     function init() {
+      /** Always call cleanup when this expression is detached. */
       var self = this;
       this.onDetach(function() {
         self.cleanup_.detach();
       });
     },
 
-    /**
-     * Returns the previously computed value of this expression.
-     * If the expression has been invalidated, this will trigger value.factory
-     * and recompute the value.
-     */
     function get() {
+      /**
+       * Returns the previously computed value of this expression.
+       * If the expression has been invalidated, this will trigger value.factory
+       * and recompute the value.
+       */
       return this.value;
     },
 
-    /** Does nothing. Setting expressions is a no-op. */
     function set() {
+      /** Does nothing. Setting expressions is a no-op. */
     },
 
     function sub(l) {
+      /** @param {any} l */
       return arguments.length === 1 ?
         this.SUPER('propertyChange', 'value', l) :
         this.SUPER.apply(this, arguments);
     },
 
-    /** Helper function that subscribes to each argument of the expression. */
     function subToArgs_(args) {
+      /**
+       * Helper function that subscribes to each argument of the expression.
+       * @param {foam.Array} args
+       */
       this.cleanup_.detach();
       this.cleanup_ = foam.core.FObject.create();
 
@@ -376,7 +385,10 @@ foam.CLASS({
   ],
 
   methods: [
-    function initArgs(args) { this.value_ = args && args.value; },
+    function initArgs(args) {
+      /** @param {foam.Object=} args */
+      this.value_ = args && args.value;
+    },
 
     function get() { return this.value; },
 
@@ -384,6 +396,6 @@ foam.CLASS({
       throw new Error('Tried to mutate immutable ConstantSlot.');
     },
 
-    function sub(l) { /* nop */ }
+    function sub() {/* nop */ }
   ]
 });

@@ -72,13 +72,15 @@ foam.CLASS({
 
   methods: [
     {
-      /**
-       * Decorates a method so that it can call the method it overrides with
-       * this.SUPER().
-       */
       name: 'override_',
       usesSuper: false,
       code: function override_(proto, method) {
+        /**
+         * Decorates a method so that it can call the method it overrides with
+         * this.SUPER().
+         * @param {foam.Object} proto
+         * @param {foam.Function} method
+         */
         // Not using SUPER, so just return the original method.
         if ( ! this.usesSuper ) return method;
 
@@ -128,12 +130,15 @@ foam.CLASS({
 
   methods: [
     function installInProto(proto) {
+      /** @param {any} proto */
+
       proto[this.name] = this.override_(proto, this.code);
     },
 
     function exportAs(obj) {
       /**
        * Bind the method to 'this' when exported so that it still works.
+       * @param {foam.Object} obj The object to which to bind.
        */
       var m = obj[this.name];
       return function exportedMethod() { return m.apply(obj, arguments); };
