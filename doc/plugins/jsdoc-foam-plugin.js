@@ -270,7 +270,14 @@ var getSourceString = function getSourceString(filename, start, end) {
   // HACK to support memoize1'd function bodies
   if ( ! source.startsWith('function') ) {
     // assume anything not starting with function must have a wrapper around it
-    source = source.substring(source.indexOf('(') + 1, source.lastIndexOf(')'));
+    source = source
+      .substring(source.indexOf('(') + 1, source.lastIndexOf(')'))
+      .trim();
+    if ( ! source.startsWith('function') ) {
+      // try again, fail if no function
+      // NOTE: mmethod trips this case
+      return 'function(){}';
+    }
   }
   return source;
 };
