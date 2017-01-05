@@ -28,6 +28,7 @@ foam.CLASS({
 
   methods: [
     function installInClass(cls) {
+      /** @param {any} cls */
       var oldCreate = cls.create;
       cls.create = function() {
         return this.private_.instance_ ||
@@ -35,7 +36,7 @@ foam.CLASS({
       };
     },
     function clone() { return this; },
-    function equals(other) { return other === this; }
+    function equals(other) { /** @param {any=} other */ return other === this; }
   ]
 });
 

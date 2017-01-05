@@ -75,6 +75,7 @@ foam.CLASS({
     {
       name: '__context__',
       installInProto: function(p) {
+        /** @param {any} p */
         Object.defineProperty(p, '__context__', {
           get: function() {
             var x = this.getPrivate_('__context__');
@@ -134,11 +135,13 @@ foam.CLASS({
   ],
 
   methods: [
-    /**
-      Called to process constructor arguments.
-      Replaces simpler version defined in original FObject definition.
-    */
     function initArgs(args, opt_parent) {
+      /**
+       * Called to process constructor arguments.
+       * Replaces simpler version defined in original FObject definition.
+       * @param {Object=} args
+       * @param {any=} opt_parent
+       */
       if ( opt_parent ) this.__context__ = opt_parent;
       if ( ! args ) return;
 
@@ -155,11 +158,13 @@ foam.CLASS({
       }
     },
 
-    /**
-      Template method used to report an unknown argument passed
-      to a constructor. Is set in debug.js.
-    */
     function unknownArg(key, value) {
+      /**
+       * Template method used to report an unknown argument passed
+       * to a constructor. Is set in debug.js.
+       * @param {String} key
+       * @param {any=} value
+       */
       // NOP
     }
   ]

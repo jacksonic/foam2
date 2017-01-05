@@ -31,6 +31,6 @@ foam.CLASS({
   extends: 'Property',
 
   methods: [
-    function installInProto(proto) {}
+    function installInProto() {}
   ]
 });

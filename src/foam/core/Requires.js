@@ -50,6 +50,8 @@ foam.CLASS({
 
   methods: [
     function installInProto(proto) {
+      /** @param {any} proto */
+
       var name = this.name;
       var path = this.path;
 

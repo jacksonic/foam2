@@ -1,6 +1,9 @@
 instrumentation:
   root: ./src
   include-all-sources: true
+  compact: false
+  preserve-comments: true
+  complete-copy: true
 check:
   global:
     statements: 100

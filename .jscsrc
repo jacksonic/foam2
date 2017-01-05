@@ -28,7 +28,8 @@
   "jsDoc": {
     "checkAnnotations": "jsdoc3"
   },
-
+  "validateParameterSeparator": null,
+  
   "foamExplodedStatements": true,
   "foamRequireCurlyBraces": true,
   "additionalRules": [

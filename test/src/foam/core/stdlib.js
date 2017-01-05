@@ -256,11 +256,14 @@ describe('foam.Function', function() {
     expect(str).toBe('a, /*string?*/b, c /*array*/');
 
     // string with line break
+    // jscs:disable
     var str2 = foam.Function.argsStr(
- 'function tricky(a, c\r\n /*array*/) { ' +
- '        return [ a, b, c ]; ' +
- '      } '
+function tricky(a, c
+ /*array*/) {
+return [ a, c ];
+       }
     );
+    // jscs:enable
     expect(str2).toBe('a, c /*array*/');
 
     // empty args
@@ -273,11 +276,13 @@ describe('foam.Function', function() {
 
     // invalid function string
     expect(function() {
-      foam.Function.argsStr(
-      '  fun ction invalid(a, c\r \p\n  { ' +
-      '         return [ a, b, c ]; ' +
-      '      } '
-      );
+      var fn = function() {};
+      fn.toString = function() {
+        return '  fun ction invalid(a, c\r \p\n  { ' +
+        '         return [ a, b, c ]; ' +
+        '      } ';
+      };
+      foam.Function.argsStr(fn);
     }).toThrow();
 
   });
@@ -285,7 +290,7 @@ describe('foam.Function', function() {
   it('functionComment', function() {
     expect(foam.Function.functionComment(function() { })).toEqual('');
     expect(foam.Function.functionComment(function() {/**/ })).toEqual('');
-    expect(foam.Function.functionComment(function() {/* hello */ })).toEqual('hello ');
+    expect(foam.Function.functionComment(function() {/** hello */ })).toEqual('hello ');
 
     /* jshint -W014 */
     /* jshint laxcomma:true */
@@ -297,11 +302,24 @@ describe('foam.Function', function() {
     )).toEqual('');
 
     expect(foam.Function.functionComment(
+      function() {/***/}
+    )).toEqual('');
+
+    expect(foam.Function.functionComment(
       function() {
         var x;
         /** hello */
       }
-    )).toEqual('');
+    )).toEqual('hello ');
+
+    expect(foam.Function.functionComment(
+      function() {
+        var x;
+        /* noo! */
+        /** hello */
+        /* nope */
+      }
+    )).toEqual('hello ');
 
     expect(foam.Function.functionComment(function() /* hello */ {})).toEqual('');
     // jscs:enable
@@ -331,8 +349,8 @@ describe('foam.Function', function() {
 
     it('grabs typed argument names', function() {
       // jscs:disable
-      var fn = function(/* string */ str, /*boolean*/ bool ,
-        /* function*/ func, /*object*/obj, /* number */num, /* array*/ arr ) {
+      var fn = function(/* String */ str, /* Boolean*/ bool ,
+        /* Function*/ func, /* Object*/obj, /* Number */num, /* Array */ arr ) {
         return (true);
       };
       var args = foam.Function.formalArgs(fn);
@@ -349,6 +367,19 @@ describe('foam.Function', function() {
       var args = foam.Function.formalArgs(fn);
       expect(args).toEqual([ 'arg', 'more', 'name', 'another' ]);
       // jscs:enable
+    });
+
+    it('grabs ...rest var_args', function() {
+      var fn = function() {};
+      // Override the string for testing, as node may not support
+      //   ES2016 ...rest arguments syntax
+      fn.toString = function() {
+        return 'function(arg1, /* Number */ ...restArgs) {' +
+          '  return (true);' +
+          '};';
+      };
+      var args = foam.Function.formalArgs(fn);
+      expect(args).toEqual([ 'arg1', '...restArgs' ]);
     });
 
   });
@@ -577,9 +608,6 @@ string
   });
 
   it('multiline', function() {
-    expect(foam.String.multiline('already \na string'))
-      .toEqual('already \na string');
-
     expect(foam.String.multiline(function(
       ) {/*
         multiline

@@ -147,10 +147,21 @@
   // Create short-cuts for foam.__context__.[createSubContext, register, lookup]
   // in foam.
   foam.lookup = function(id, opt_suppress) {
+    /**
+     * @param {String} id
+     * @param {Boolean=} opt_suppress
+     */
     return foam.__context__.lookup(id, opt_suppress);
   };
-  foam.register = function(cls) { foam.__context__.register(cls); };
+  foam.register = function(cls) {
+    /** @param {any} cls */
+    foam.__context__.register(cls);
+  };
   foam.createSubContext = function(opt_args, opt_name) {
+    /**
+     * @param {Object=} opt_args
+     * @param {String=} opt_name
+     */
     return foam.__context__.createSubContext(opt_args, opt_name);
   };
 
