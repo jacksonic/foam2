@@ -307,11 +307,6 @@ var getSourceString = function getSourceString(filename, start, end) {
     source = source
       .substring(source.indexOf('(') + 1, source.lastIndexOf(')'))
       .trim();
-    if ( ! source.startsWith('function') ) {
-      // try again, fail if no function
-      // NOTE: mmethod trips this case
-      return 'function(){}';
-    }
   }
   return source;
 };

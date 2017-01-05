@@ -265,44 +265,42 @@ foam.LIB({
   foam.CLASS({
     refines: 'foam.core.Method',
 
-    properties: [
-      {
-        name: 'code',
-        adapt: function(old, nu) {
-          if ( nu ) {
-            try {
-              // this.args may be undefined
-              return foam.Function.typeCheck(nu,
-                this.args.length ? this.args : undefined);
-            } catch (e) {
-              throw new Error(
-                'Method: Failed to add type checking to method ' +
-                this.name + ':\n' + (nu && nu.toString()) + '\n' +
-                e.toString());
-            }
-          }
-          return nu;
-        },
-        postSet: function(old, nu) {
-          // load args from function comments if not already available
-          if ( nu && ( ! this.args || ! this.args.length ) ) {
-            // since we already called typeCheck in adapt(), it would have
-            // thrown if there was a problem reading args from nu.
-            var foundArgs = foam.Function.args(nu);
-            if ( foundArgs && foundArgs.length ) this.args = foundArgs;
-          }
+    methods: [
+      function installInProto(proto) {
+        /** @param {any} proto */
+
+        var code;
+
+        // add type checking
+        try {
+          // this.args may be undefined
+          code = foam.Function.typeCheck(this.code,
+            ( this.args && this.args.length ) ? this.args : undefined);
+        } catch (e) {
+          throw new Error(
+            'Method: Failed to add type checking to method ' +
+            this.name + ' of ' + proto.cls_.id + ':\n' +
+            (this.code && this.code.toString()) + '\n' +
+            e.toString());
         }
+
+        // extract args if not already set
+        if ( ! this.args || ! this.args.length ) {
+          // typeCheck succeeded, so args should not fail
+          var foundArgs = foam.Function.args(code);
+          if ( foundArgs && foundArgs.length ) this.args = foundArgs;
+        }
+
+        proto[this.name] = this.override_(proto, code);
       },
+
+    ],
+
+    properties: [
       {
         class: 'FObjectArray',
         name: 'args',
         of: 'foam.core.Argument',
-        postSet: function(old, nu) {
-          if ( ( ! old || ! old.length ) && nu && nu.length ) {
-            // redo type checking now that args is set
-            this.code = this.code;
-          }
-        }
       }
     ]
   });

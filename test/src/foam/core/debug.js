@@ -177,12 +177,15 @@ describe('foam.Function.args', function() {
     // jscs:enable
     expect(function() { foam.Function.args(fn); }).toThrow();
   });
+
   it('fails an unknown type', function() {
     fn = function(/* crazyType */ arg2) { };
-    expect(function() { foam.Function.args(fn); }).toThrow();
+    expect(function() { foam.Function.args(fn); }).not.toThrow();
+    expect(function() { foam.Function.args(fn)[0].type; }).toThrow();
 
     fn = function(/* foam.anotherCrazyLib */ arg2) { };
-    expect(function() { foam.Function.args(fn); }).toThrow();
+    expect(function() { foam.Function.args(fn); }).not.toThrow();
+    expect(function() { foam.Function.args(fn)[0].type; }).toThrow();
   });
 
 });
@@ -309,6 +312,14 @@ describe('foam.Function.typeCheck', function() {
       fn(global.TypeA.create(), global.TypeB.create());
     }).toThrow();
   });
+  it('fails invalid types for args at call time', function() {
+    var invalidFn = foam.Function.typeCheck(function(arg1) {
+      /** @param {foo.bar.wert.not.a.Type} arg1 */
+    });
+    expect(function() {
+      invalidFn();
+    }).toThrow();
+  });
   it('fails bad primitive args', function() {
     expect(function() {
       fn(global.TypeA.create(), 3, global.pkg.TypeC.create(), 99);
@@ -400,7 +411,7 @@ describe('Method type checking', function() {
     });
     test.GoodMethods;
 
-    expect(test.GoodMethods.getAxiomByName('method1').code.isTypeChecked__)
+    expect(test.GoodMethods.create().method1.isTypeChecked__)
       .toBe(true);
     capture();
   });
@@ -420,11 +431,6 @@ describe('Method type checking', function() {
       });
       test.BadMethods;
     }).toThrow();
-    //
-    // expect(test.BadMethods.getAxiomByName('method2').code.isTypeChecked__)
-    //   .toBeUndefined();
-    // expect(capture()[0].startsWith('Method: Failed'))
-    //   .toEqual(true);
   });
   it('ignores undefined methods', function() {
     var capture = global.captureWarn();
@@ -456,7 +462,7 @@ describe('Method type checking', function() {
     });
 
     var inst = test.ExpMethods.create();
-    expect(test.ExpMethods.getAxiomByName('method3').code.isTypeChecked__)
+    expect(test.ExpMethods.create().method3.isTypeChecked__)
       .toBe(true);
     // Explicit arguments
     expect(function() { inst.method3('str', 88); }).not.toThrow();

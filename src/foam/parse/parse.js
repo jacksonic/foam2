@@ -29,6 +29,10 @@ foam.INTERFACE({
        *
        * Returns <tt>undefined</tt> to signal parsing failure, or a
        * <tt>PStream</tt>, maybe with its <tt>value</tt> set, on success.
+       *
+       * For method argument typing, use {Parse} as your type to accept
+       * both foam.parse.Parser and other types that can be coerced to a
+       * parser (such as strings to Literals).
        */
       name: 'parse',
       args: [
@@ -51,6 +55,7 @@ foam.INTERFACE({
     }
   ]
 });
+
 
 /**
  * A <tt>PStream</tt> is the interface for the input stream consumed by the
@@ -220,6 +225,7 @@ foam.CLASS({
       /**
        * Sets the value parsed at this location. Returns a new <tt>PStream</tt>,
        * since they're immutable.
+       * @param {any=} value
        */
       // Force undefined values to null so that hasOwnProperty checks are faster.
       if ( value === undefined ) value = null;
@@ -234,6 +240,7 @@ foam.CLASS({
     function setString(s) {
       /**
        * Overriddes the string. Initializes this <tt>PStream</tt> if it's new.
+       * @param {String} s
        */
       this.pos = 0;
       this.value = null;
@@ -255,11 +262,19 @@ foam.LIB({
        * <ul><li>Strings are converted to <tt>Literal</tt> parsers.</li></ul>
        *
        * @param {any} x The input to be coerced to a parser.
-       * @return {foam.parse.Parser?} The parser, or undefined on failure.
+       * @return {Parser=} The parser, or undefined on failure.
        */
       return typeof x === 'string' ? foam.parse.Literal.create({ literal: x }) :
           undefined;
+    },
+    function isInstance(obj) {
+      /**
+       * Use {Parser} as your parameter type to accept both a parser or a string.
+       * @param {any=} obj
+       */
+      return foam.parse.Parser.isInstance(obj) || foam.String.isInstance(obj);
     }
+
   ]
 });
 
@@ -350,7 +365,10 @@ foam.CLASS({
 
   methods: [
     function parse(ps) {
-      /** Attempts to parse this literal out of <tt>ps</tt>. */
+      /**
+       * Attempts to parse this literal out of <tt>ps</tt>.
+       * @param {foam.parse.PStream} ps
+       */
       var str = this.literal;
       for ( var i = 0; i < str.length; i++, ps = ps.tail ) {
         if ( str.charAt(i) !== ps.head ) {
@@ -396,7 +414,10 @@ foam.CLASS({
 
   methods: [
     function parse(ps) {
-      /** Attempts to parse this literal out of <tt>ps</tt>, ignoring case. */
+      /**
+       * Attempts to parse this literal out of <tt>ps</tt>, ignoring case.
+       * @param {foam.parse.PStream} ps
+       */
       var str = this.lower;
       for ( var i = 0; i < str.length; i++, ps = ps.tail ) {
         if ( ! ps.head || str.charAt(i) !== ps.head.toLowerCase() ) {
@@ -439,6 +460,8 @@ foam.CLASS({
       /**
        * Tries each child parser in turn. If one succeeds, we return that
        * value. If all fail (or there are none) this fails too.
+       * @param {foam.parse.PStream} ps
+       * @param {any=} obj
        */
       var args = this.args;
       for ( var i = 0, p; p = args[i]; i++ ) {
@@ -473,7 +496,11 @@ foam.CLASS({
 
   methods: [
     function parse(ps, obj) {
-      /** Parses each child parser in order, collecting their results. */
+      /**
+       * Parses each child parser in order, collecting their results.
+       * @param {foam.parse.PStream} ps
+       * @param {any=} obj
+       */
       var ret = [];
       var args = this.args;
       for ( var i = 0, p; p = args[i]; i++ ) {
@@ -496,7 +523,11 @@ foam.CLASS({
   implements: [ 'foam.parse.Parser', 'foam.parse.ParserDecorator' ],
   methods: [
     function parse(ps, obj) {
-      /** Runs the inner parser, and concatenates its results. */
+      /**
+       * Runs the inner parser, and concatenates its results.
+       * @param {foam.parse.PStream} ps
+       * @param {any=} obj
+       */
       ps = this.parser.parse(ps, obj);
       return ps ? ps.setValue(ps.value.join('')) : undefined;
     }
@@ -535,6 +566,8 @@ foam.CLASS({
       /**
        * Runs all the child parsers in order, and returns the <tt>index</tt>th
        * result.
+       * @param {foam.parse.PStream} ps
+       * @param {any=} obj
        */
       var ret;
       var args = this.args;
@@ -562,7 +595,11 @@ foam.CLASS({
 
   methods: [
     function parse(ps, obj) {
-      /** Run the inner parser. If it fails, return null instead. */
+      /**
+       * Run the inner parser. If it fails, return null instead.
+       * @param {foam.parse.PStream} ps
+       * @param {any=} obj
+       */
       var res = this.parser.parse(ps, obj);
       return res || ps.setValue(null);
     }
@@ -583,7 +620,10 @@ foam.CLASS({
 
   methods: [
     function parse(ps) {
-      /** Parse any character and return it. Fails at EOF. */
+      /**
+       * Parse any character and return it. Fails at EOF.
+       * @param {foam.parse.PStream} ps
+       */
       return ps.head ? ps.tail : undefined;
     }
   ]
@@ -609,7 +649,10 @@ foam.CLASS({
 
   methods: [
     function parse(ps) {
-      /** Parses any character not in the banned string. */
+      /**
+       * Parses any character not in the banned string.
+       * @param {foam.parse.PStream} ps
+       */
       return ps.head && this.string.indexOf(ps.head) === -1 ?
         ps.tail : undefined;
     }
@@ -647,6 +690,7 @@ foam.CLASS({
        * Parses a single character that's inside the range.
        *
        * Fails on EOF, or an out-of-range character.
+       * @param {foam.parse.PStream} ps
        */
       if ( ! ps.head ) return undefined;
       return ( this.from <= ps.head && ps.head <= this.to ) ?
@@ -696,6 +740,8 @@ foam.CLASS({
       /**
        * Parses <tt>minimum</tt> or more bodies, separated by
        * <tt>delimiter</tt> if provided.
+       * @param {foam.parse.PStream} ps
+       * @param {any=} obj
        */
       var ret = [];
       var p = this.parser;
@@ -739,6 +785,8 @@ foam.CLASS({
        * Parses <tt>minimum</tt> or more bodies, separated by
        * <tt>delimiter</tt> if provided. The result is discarded and null is
        * returned.
+       * @param {foam.parse.PStream} ps
+       * @param {any=} obj
        */
       var res;
       var count = 0;
@@ -807,6 +855,10 @@ foam.CLASS({
 
   methods: [
     function parse(ps, obj) {
+      /**
+       * @param {foam.parse.PStream} ps
+       * @param {any=} obj
+       */
       var ret = [];
       while ( ps ) {
         var tps = this.terminator.parse(ps, obj);
@@ -842,6 +894,10 @@ foam.CLASS({
 
   methods: [
     function parse(ps, obj) {
+      /**
+       * @param {foam.parse.PStream} ps
+       * @param {any=} obj
+       */
       ps = this.parser.parse(ps, obj);
       return ps ?
         ps.setValue(this.action(ps.value)) :
@@ -866,6 +922,10 @@ foam.CLASS({
 
   methods: [
     function parse(ps, grammar) {
+      /**
+       * @param {foam.parse.PStream} ps
+       * @param {foam.parse.Grammar} grammar
+       */
       var p = grammar.getSymbol(this.name);
       if ( ! p ) {
         console.error('No symbol found for', this.name);
@@ -887,9 +947,7 @@ foam.CLASS({
   axioms: [ foam.pattern.Singleton.create() ],
 
   methods: [
-    function seq() {
-      // FUTURE: When the documentation generator supports variadic functions,
-      // the correct type here is {foam.parse.Parser*}.
+    function seq(parsers) {
       /**
        * Combinator that accepts a list of parsers, and runs each of them in
        * order.
@@ -899,7 +957,7 @@ foam.CLASS({
        * If they all succeed, <tt>seq()</tt> succeeds, and its value is an array
        * of the values from the inner parsers.
        *
-       * @param {any?} parsers The sequence of parsers to run.
+       * @param {...Parser} parsers The sequence of parsers to run.
        * @return {foam.parse.Parser} The combined parser.
        */
       return foam.lookup('foam.parse.Sequence').create({
@@ -913,9 +971,9 @@ foam.CLASS({
        *
        * Useful for consuming whitespace or other discarded input.
        *
-       * @param {foam.parse.Parser} p The body parser.
-       * @param {foam.parse.Parser?} delim Optional delimiter parser.
-       * @param {foam.Number?} min Optional minimum number of items to parse.
+       * @param {Parser} p The body parser.
+       * @param {Parser=} delim Optional delimiter parser.
+       * @param {Number=} min Optional minimum number of items to parse.
        *    Defaults to 0.
        * @return {foam.parse.Parser} The combined parser.
        */
@@ -948,8 +1006,8 @@ foam.CLASS({
        * lineComment: seq(literal('//', repeatUntil(anyChar(), literal('\n')))
        * </pre>
        *
-       * @param {foam.parse.Parser} parser The body parser.
-       * @param {foam.parse.Parser} terminator The terminating parser.
+       * @param {Parser} parser The body parser.
+       * @param {Parser} terminator The terminating parser.
        * @return {foam.parse.Parser} The combined parser.
        */
       return foam.lookup('foam.parse.RepeatUntil').create({
@@ -958,9 +1016,7 @@ foam.CLASS({
       });
     },
 
-    function alt() {
-      // FUTURE: When the documentation generator supports variadic functions,
-      // the correct type here is {foam.parse.Parser*}.
+    function alt(parsers) {
       /**
        * Combinator for choosing between several parsers.
        *
@@ -972,7 +1028,7 @@ foam.CLASS({
        * If none of the parsers succeeds, or the list of parsers is empty,
        * <tt>alt()</tt> fails.
        *
-       * @param {any?} parsers The sequence of parsers to try.
+       * @param {...Parser} parsers The sequence of parsers to try.
        * @return {foam.parse.Parser} The combined parser.
        */
       return foam.lookup('foam.parse.Alternate').create({
@@ -986,7 +1042,7 @@ foam.CLASS({
        *
        * The result of this parser is the same as the named parser.
        *
-       * @param {foam.String} name The other parser to call.
+       * @param {String} name The other parser to call.
        * @return {foam.parse.Parser} The parser named.
        */
       return foam.lookup('foam.parse.Symbol').create({
@@ -994,15 +1050,13 @@ foam.CLASS({
       });
     },
 
-    function seqAt(n) {
-      // FUTURE: When the documentation generator supports variadic functions,
-      // the correct type here is {foam.parse.Parser*}.
+    function seqAt(n, parsers) {
       /**
        * Variant of <tt>seq()</tt> that returns the value from one of its inner
        * parsers, rather than an array of their results.
        *
-       * @param {foam.Number} n The index of the parser whose value to return.
-       * @param {any?} parsers The sequence of parsers to run.
+       * @param {Number} n The index of the parser whose value to return.
+       * @param {...Parser} parsers The sequence of parsers to run.
        * @return {foam.parse.Parser} The combined parser.
        */
       return foam.lookup('foam.parse.SequenceAt').create({
@@ -1041,9 +1095,9 @@ foam.CLASS({
        * provided, then <tt>repeat()</tt> will <strong>succeed</strong> with an
        * empty array as its value.
        *
-       * @param {foam.parse.Parser} p The parser for the body of the repeat.
-       * @param {foam.parse.Parser?} delim Optional delimiter parser.
-       * @param {foam.Number?} min Optional minimum number of values to parse.
+       * @param {Parser} p The parser for the body of the repeat.
+       * @param {Parser=} delim Optional delimiter parser.
+       * @param {Number=} min Optional minimum number of values to parse.
        *     Defaults to 0.
        * @return {foam.parse.Parser} The combined parser.
        */
@@ -1059,8 +1113,8 @@ foam.CLASS({
        * Shorthand for <tt>repeat(p, delim, 1)</tt> to parse 1 or more, rather
        * than 0 or more.
        *
-       * @param {foam.parse.Parser} p Body parser.
-       * @param {foam.parse.Parser?} delim Optional delimiter parser.
+       * @param {Parser} p Body parser.
+       * @param {Parser=} delim Optional delimiter parser.
        * @return {foam.parse.Parser} The combined parser.
        */
       return foam.lookup('foam.parse.Plus').create({
@@ -1075,7 +1129,7 @@ foam.CLASS({
        * strings. <tt>str(p)</tt> joins <tt>p</tt>'s results into a single
        * string.
        *
-       * @param {foam.parse.Parser} p The inner parser to wrap.
+       * @param {Parser} p The inner parser to wrap.
        * @return {foam.parse.Parser} The decorated parser.
        */
       return foam.lookup('foam.parse.String').create({
@@ -1092,8 +1146,8 @@ foam.CLASS({
        *
        * Eg. <tt>range('A', 'Z')</tt> will parse one uppercase letter.
        *
-       * @param {foam.String} start The starting character of the range.
-       * @param {foam.String} end The ending character of the range.
+       * @param {String} start The starting character of the range.
+       * @param {String} end The ending character of the range.
        * @return {foam.parse.Parser} The parser.
        */
       return foam.lookup('foam.parse.Range').create({
@@ -1109,7 +1163,7 @@ foam.CLASS({
        *
        * This parser's value is a one-character string.
        *
-       * @param {foam.String} s The string of banned characters.
+       * @param {String} s The string of banned characters.
        * @return {foam.parse.Parser} Parser for a single character not in s.
        */
       return foam.lookup('foam.parse.NotChars').create({
@@ -1126,7 +1180,7 @@ foam.CLASS({
        * If <tt>p</tt> fails, <tt>optional(p)</tt> succeeds with value
        * <tt>null</tt>.
        *
-       * @param {foam.parse.Parser} p The inner parser to try optionally.
+       * @param {Parser} p The inner parser to try optionally.
        * @return {foam.parse.Parser} The combined parser.
        */
       return foam.lookup('foam.parse.Optional').create({
@@ -1146,8 +1200,8 @@ foam.CLASS({
        * <tt>literal</tt> is case-sensitive. Use <tt>literalIC</tt> instead to
        * ignore case.
        *
-       * @param {foam.String} s The string to parse.
-       * @param {any?} value A successful parse returns this value, if provided.
+       * @param {String} s The string to parse.
+       * @param {any=} value A successful parse returns this value, if provided.
        *     Otherwise the parsed string is returned.
        * @return {foam.parse.Parser} The parser for the given literal.
        */
@@ -1166,8 +1220,8 @@ foam.CLASS({
        * canonical capitalization passed to <tt>literalIC</tt>, not the input
        * capitalization.
        *
-       * @param {foam.String} s The string to parse, ignoring case.
-       * @param {any?} value Returns this on a successful parse, if provided.
+       * @param {String} s The string to parse, ignoring case.
+       * @param {any=} value Returns this on a successful parse, if provided.
        *     Otherwise the parsed string (not <tt>s</tt>) is returned.
        * @return {foam.parse.Parser} The constructed parser.
        */
@@ -1321,10 +1375,10 @@ foam.CLASS({
        * <tt>parseString</tt> returns the value of that starting parser,
        * whatever that may be, or undefined if parsing fails.
        *
-       * @param {foam.String} str The input string to parse.
-       * @param {foam.String?} opt_name Optional starting symbol. Defaults to
+       * @param {String} str The input string to parse.
+       * @param {String=} opt_name Optional starting symbol. Defaults to
        *     <tt>START</tt>.
-       * @return {any?} The value of the parser, or undefined if parsing fails.
+       * @return {any=} The value of the parser, or undefined if parsing fails.
        */
       opt_name = opt_name || 'START';
 
@@ -1339,8 +1393,8 @@ foam.CLASS({
     function getSymbol(name) {
       /**
        * Helper function that returns a parser, given its name.
-       * @param {foam.String} name The name of the parser.
-       * @return {foam.parse.Parser?} The matching parser, or undefined if not
+       * @param {String} name The name of the parser.
+       * @return {Parser=} The matching parser, or undefined if not
        *     found.
        */
       var sym = this.symbolMap_[name];
@@ -1352,7 +1406,7 @@ foam.CLASS({
        * Given a map of symbol names to actions (see <tt>addAction</tt> for
        * details), adds each action to this grammar.
        *
-       * @param {foam.Object} map Map of symbols names to actions.
+       * @param {Object} map Map of symbols names to actions.
        * @return {foam.parse.Grammar} Returns this grammar, for chaining.
        */
       for ( var key in map ) {
@@ -1407,8 +1461,8 @@ foam.CLASS({
        * and 2nd elements, which are the numbers produced by the two
        * <tt>number</tt> parsers.
        *
-       * @param {foam.String} name The symbol to attach this action to.
-       * @param {foam.Function} action The action function. The function should
+       * @param {String} name The symbol to attach this action to.
+       * @param {Function} action The action function. The function should
        *     take one argument (the parser's value) and return the new value.
        * @return {foam.parse.Grammar} Returns this grammar, for easy chaining.
        */
@@ -1427,4 +1481,3 @@ foam.CLASS({
     }
   ]
 });
-

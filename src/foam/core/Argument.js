@@ -97,7 +97,6 @@ foam.LIB({
         var arg = foam.core.Argument.create({
           name:          typeMatch[8],
           typeName:      typeMatch[3],
-          type:          this.resolveTypeString(typeMatch[3]),
           optional:      typeMatch[4] === '=',
           repeats:       typeMatch[2] === '...' || typeMatch[7] === '...',
           index:         argIdx++,
@@ -113,7 +112,6 @@ foam.LIB({
             name: 'ReturnValue',
             optional: typeMatch[11],
             typeName: typeMatch[10],
-            type: this.resolveTypeString(typeMatch[10])
           });
         }
       }
@@ -127,8 +125,7 @@ foam.LIB({
           ret.returnType = foam.core.Argument.create({
             name: 'ReturnValue',
             optional: typeMatch[2] === '=',
-            typeName: typeMatch[1],
-            type: this.resolveTypeString(typeMatch[1])
+            typeName: typeMatch[1]
           });
         } else {
           throw new SyntaxError(
@@ -165,7 +162,6 @@ foam.LIB({
               optional: optional,
               repeats: repeats,
               typeName: type,
-              type: this.resolveTypeString(type),
               documentation: docs
             });
           } else {
@@ -181,14 +177,12 @@ foam.LIB({
               retMapByName[name].optional = optional;
               retMapByName[name].repeats = repeats;
               retMapByName[name].documentation = docs;
-              retMapByName[name].type = this.resolveTypeString(type);
             } else {
               var arg = foam.core.Argument.create({
                 name:          name,
                 optional:      optional,
                 repeats:       repeats,
                 typeName:      type,
-                type:          this.resolveTypeString(type),
                 index:         argIdx++,
                 documentation: docs
               });
