@@ -40,8 +40,6 @@ foam.CLASS({
   name: 'Class',
   extends: 'Property',
 
-  imports: [ 'lookup?' ],
-
   properties: [
     {
       /**
