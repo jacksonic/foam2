@@ -26,277 +26,6 @@
  * it should not be included in production.
  */
 
-/** Describes one argument of a function or method. */
-foam.CLASS({
-  package: 'foam.core',
-  name: 'Argument',
-
-  constants: {
-    PREFIX: 'Argument',
-  },
-
-  properties: [
-    {
-      /** The name of the argument */
-      name: 'name'
-    },
-    {
-      /**
-        The string name of the type
-        (either a model name or javascript typeof name)
-      */
-      name: 'typeName'
-    },
-    {
-      /** If set, this holds the actual Model represented by typeName. */
-      name: 'type'
-    },
-    {
-      /** If true, indicates that this argument is optional. */
-      name: 'optional', value: false
-    },
-    {
-      /** If true, indicates a variable number of arguments. */
-      name: 'repeats', value: false
-    },
-    {
-      /** The index of the argument (the first argument is at index 0). */
-      name: 'index', value: -1
-    },
-    {
-      /** The documentation associated with the argument (denoted by a // ) */
-      name: 'documentation', value: ''
-    }
-  ],
-
-  methods: [
-    /**
-      Validates the given argument against this type information.
-      If any type checks are failed, a TypeError is thrown.
-     */
-    function validate(/* any // the argument value to validate. */ arg) {
-      var i = ( this.index >= 0 ) ? ' ' + this.index + ', ' : ', ';
-
-      // optional check
-      if ( ( ! arg ) && typeof arg === 'undefined' ) {
-        if ( ! this.optional ) {
-          throw new TypeError(
-              this.PREFIX + i + this.name +
-              ', is not optional, but was undefined in a function call');
-        } else {
-          return; // value is undefined, but ok with that
-        }
-      }
-
-      // type this for non-modelled types (no model, but a type name specified)
-      if ( ! this.type ) {
-        if ( this.typeName &&
-            typeof arg !== this.typeName &&
-            ! ( this.typeName === 'array' && Array.isArray(arg) ) ) {
-          throw new TypeError(
-              this.PREFIX + i + this.name +
-              ', expected type ' + this.typeName + ' but passed ' +
-              (typeof arg));
-        } // else no this: no type, no typeName
-      } else {
-        // have a modelled type
-        if ( ! this.type.isInstance(arg) ) {
-          var gotType = (arg.cls_) ? arg.cls_.name : typeof arg;
-          throw new TypeError(
-              this.PREFIX + i + this.name +
-              ', expected type ' + this.typeName + ' but passed ' + gotType);
-        }
-      }
-    }
-  ]
-});
-
-/** Describes a function return type. */
-foam.CLASS({
-  package: 'foam.core',
-  name: 'ReturnValue',
-  extends: 'foam.core.Argument',
-
-  constants: {
-    PREFIX: 'Return'
-  }
-});
-
-
-/** The types library deals with type safety. */
-foam.LIB({
-  name: 'foam.types',
-
-  methods: [
-    function getFunctionArgs(fn) {
-      /** Extracts the arguments and their types from the given function.
-         @arg {function} fn The function to extract from. The toString() of the function
-             must be accurate.
-         @return An array of Argument objects.
-       */
-      // strip newlines and find the function(...) declaration
-      var args = foam.Function.argsStr(fn);
-      if ( ! args ) return [];
-      args += ','; // easier matching
-
-      var ret = [];
-      var retMapByName = {};
-      // check each arg for types
-      // Optional commented type(incl. dots for packages), argument name,
-      // optional commented return type
-      // ws [/* ws package.type? ws */] ws argname ws [/* ws retType ws */]
-      //console.log('-----------------');
-      var argIdx = 0;
-      var argMatcher = /(\s*\/\*\s*([\w._$]+)(\?)?(\*)?\s*(\/\/\s*(.*?))?\s*\*\/)?\s*([\w_$]+)\s*(\/\*\s*([\w._$]+)\s*\*\/)?\s*\,+/g;
-      var typeMatch;
-      while ( typeMatch = argMatcher.exec(args) ) {
-        // if can't match from start of string, fail
-        if ( argIdx === 0 && typeMatch.index > 0 ) break;
-
-        if ( ret.returnType ) {
-          throw new SyntaxError("foam.types.getFunctionArgs return type '" +
-            ret.returnType.typeName +
-            "' must appear after the last argument only: " + args.toString());
-        }
-
-        // record the argument
-        var arg = foam.core.Argument.create({
-          name:          typeMatch[7],
-          typeName:      typeMatch[2],
-          type:          foam.lookup(typeMatch[2], true),
-          optional:      typeMatch[3] === '?',
-          repeats:       typeMatch[4] === '*',
-          index:         argIdx++,
-          documentation: typeMatch[6],
-        });
-        ret.push(arg);
-        retMapByName[arg.name] = arg;
-
-        // if present, record return type (if not the last arg, we fail on the
-        // next iteration)
-        if ( typeMatch[9] ) {
-          ret.returnType = foam.core.ReturnValue.create({
-            typeName: typeMatch[9],
-            type: foam.lookup(typeMatch[9], true)
-          });
-        }
-      }
-      if ( argIdx === 0 ) {
-        // check for bare return type with no args
-        typeMatch = args.match(/^\s*\/\*\s*([\w._$]+)\s*\*\/\s*/);
-        if ( typeMatch && typeMatch[1] ) {
-          ret.returnType = foam.core.ReturnValue.create({
-            typeName: typeMatch[1],
-            type: foam.lookup(typeMatch[1], true)
-          });
-        } else {
-          throw new SyntaxError(
-              'foam.types.getFunctionArgs argument parsing error: ' +
-              args.toString());
-        }
-      }
-
-      // Also pull args out of the documentation comment (if inside the body
-      // so we can access it)
-      var comment = foam.Function.functionComment(fn);
-      if ( comment ) {
-        // match @arg or @param {opt_type} arg_name
-        var commentMatcher = /.*(\@arg|\@param|\@return)\s+(?:\{(.*?)\}\s+)?(.*?)\s+(?:([^\@]*))?/g;
-        var commentMatch;
-        while ( commentMatch = commentMatcher.exec(comment) ) {
-          var name = commentMatch[3];
-          var type = commentMatch[2];
-          var docs = commentMatch[4] && commentMatch[4].trim();
-
-          if ( commentMatch[1] === '@return' ) {
-            if ( ret.returnType ) {
-              throw new SyntaxError(
-                  'foam.types.getFunctionArgs duplicate return type ' +
-                  'definition in block comment: \"' +
-                  type + '\" from ' + fn.toString());
-            }
-            ret.returnType = foam.core.ReturnValue.create({
-              typeName: type,
-              type: foam.lookup(type, true),
-              documentation: docs
-            });
-          } else {
-            // check existing args
-            if ( retMapByName[name] ) {
-              if ( retMapByName[name].typeName ) {
-                throw new SyntaxError(
-                    'foam.types.getFunctionArgs duplicate argument ' +
-                    'definition in block comment: \"' +
-                    name + '\" from ' + fn.toString());
-              }
-              retMapByName[name].typeName = type;
-              retMapByName[name].documentation = docs;
-            } else {
-              var arg = foam.core.Argument.create({
-                name:          name,
-                typeName:      type,
-                type:          foam.lookup(type, true),
-                index:         argIdx++,
-                documentation: docs
-              });
-              ret.push(arg);
-              retMapByName[arg.name] = arg;
-            }
-          }
-        }
-      }
-
-      return ret;
-    },
-
-    /** Decorates the given function with a runtime type checker.
-      * Types should be denoted before each argument:
-      * <code>function(\/\*TypeA\*\/ argA, \/\*string\*\/ argB) { ... }</code>
-      * Types are either the names of Models (i.e. declared with CLASS), or
-      * javascript primitives as returned by 'typeof'. In addition, 'array'
-      * is supported as a special case, corresponding to an Array.isArray()
-      * check.
-      * @arg fn The function to decorate. The toString() of the function must be
-      *     accurate.
-      * @return A new function that will throw errors if arguments
-      *         doesn't match the declared types, run the original function,
-      *         then type check the returned value.
-      */
-    function typeCheck(fn) {
-      // parse out the arguments and their types
-      var args = foam.types.getFunctionArgs(fn);
-      var ret = function() {
-        // check each declared argument, arguments[i] can be undefined for
-        // missing optional args, extra arguments are ok
-        for ( var i = 0 ; i < args.length ; i++ ) {
-          args[i].validate(arguments[i]);
-        }
-
-        // if last arg repeats, validate remaining arguments against lastArg
-        var lastArg = args[args.length - 1];
-        if ( lastArg && lastArg.repeats ) {
-          for ( var i = args.length ; i < arguments.length ; i++ ) {
-            lastArg.validate(arguments[i]);
-          }
-        }
-
-        // If nothing threw an exception, we are free to run the function
-        var retVal = fn.apply(this, arguments);
-
-        // check the return value
-        if ( args.returnType ) args.returnType.validate(retVal);
-
-        return retVal;
-      };
-
-      // keep the old value of toString (hide the decorator)
-      ret.toString = function() { return fn.toString(); };
-
-      return ret;
-    }
-  ]
-});
-
 /* Validating a Model should also validate all of its Axioms. */
 foam.CLASS({
   refines: 'foam.core.Model',
@@ -345,6 +74,9 @@ foam.CLASS({
 
   methods: [
     function validate(model) {
+      /**
+       * @param {FObject} model
+       */
       this.SUPER();
 
       foam.assert(
@@ -365,6 +97,7 @@ foam.core.FObject.installModel = (function() {
   var superInstallModel = foam.core.FObject.installModel;
 
   return function(m) {
+    /** @param {Object} m */
     var names = {};
 
     for ( var i = 0; i < m.axioms_.length; i++ ) {
@@ -431,6 +164,185 @@ foam.CLASS({
 });
 
 
+foam.LIB({
+  name: 'foam.Function',
+
+  methods: [
+    function typeCheck(fn, opt_args) {
+      /**
+       * Decorates the given function with a runtime type checker.
+       * Types should be denoted before each argument:
+       * <code>function(\/\*TypeA\*\/ argA, \/\*string\*\/ argB) { ... }</code>
+       * Types are either the names of Models (i.e. declared with CLASS), or
+       * javascript primitives as returned by 'typeof'. In addition, 'array'
+       * is supported as a special case, corresponding to an Array.isArray()
+       * check.
+       * @param {Function} fn The function to decorate. The toString() of the function must be
+       *     accurate.
+       * @param {Array=} opt_args In many cases the args are already parsed out or available
+       *       from Method.args, so can be provided directly.
+       * @return {Function} A new function that will throw errors if arguments
+       *         doesn't match the declared types, run the original function,
+       *         then type check the returned value.
+       */
+
+      // Multiple definitions of LIBs may trigger this multiple times
+      // on the same function
+      if ( fn.isTypeChecked__ ) return fn;
+
+      // parse out the arguments and their types, if not provided
+      var args = opt_args || foam.Function.args(fn);
+
+      // determine if there are no checkable arguments
+      var checkable = false;
+      function isArgCheckable(a) {
+        return ! (
+          ( a.typeName === '' || a.typeName === 'any' ||
+            foam.Undefined.isInstance(a.typeName) ) &&
+          ( a.optional || a.repeats )
+        );
+      }
+      for ( var i = 0 ; i < args.length ; i++ ) {
+        if ( isArgCheckable(args[i]) ) {
+          checkable = true;
+          break;
+        }
+      }
+      if ( ( ! checkable ) && args.returnType ) {
+        checkable = isArgCheckable(args.returnType);
+      }
+      if ( ! checkable ) {
+        // nothing to check, don't decorate
+        return fn;
+      }
+
+      var typeChecker = function() {
+        // check each declared argument, arguments[i] can be undefined for
+        // missing optional args, extra arguments are ok.
+        // Do not validate the last arg yet, it may be repeated.
+        var i;
+        for ( i = 0; i < ( args.length - 1 ) ; i++ ) {
+          args[i].validate(arguments[i]);
+        }
+
+        // if last arg repeats, validate remaining arguments against lastArg
+        i = args.length - 1;
+        var lastArg = args[i];
+        if ( lastArg && lastArg.repeats ) {
+          // for repeats, loop through remaining arguments passed in
+          for (  ; i < arguments.length ; i++ ) {
+            lastArg.validate(arguments[i]);
+          }
+        } else {
+          // normal validation
+          lastArg.validate(arguments[i]);
+        }
+
+        // If nothing threw an exception, we are free to run the function
+        var typeCheckerVal = fn.apply(this, arguments);
+
+        // check the return value
+        if ( args.returnType ) args.returnType.validate(typeCheckerVal);
+
+        return typeCheckerVal;
+      };
+
+      // keep the old value of toString (hide the decorator)
+      typeChecker.toString = function() { return fn.toString(); };
+      typeChecker.isTypeChecked__ = true;
+
+      return typeChecker;
+    }
+  ]
+});
+
+// Type Checking on Methods and LIBs
+(function installTypeChecking() {
+  // Access Argument now to avoid circular reference because of lazy model building.
+  foam.core.Argument;
+
+  /* Methods gain type checking. */
+  foam.CLASS({
+    refines: 'foam.core.Method',
+
+    methods: [
+      function installInProto(proto) {
+        /** @param {any} proto */
+
+        var code;
+
+        // add type checking
+        try {
+          // this.args may be undefined
+          code = foam.Function.typeCheck(this.code,
+            ( this.args && this.args.length ) ? this.args : undefined);
+        } catch (e) {
+          throw new Error(
+            'Method: Failed to add type checking to method ' +
+            this.name + ' of ' + proto.cls_.id + ':\n' +
+            (this.code && this.code.toString()) + '\n' +
+            e.toString());
+        }
+
+        // extract args if not already set
+        if ( ! this.args || ! this.args.length ) {
+          // typeCheck succeeded, so args should not fail
+          var foundArgs = foam.Function.args(code);
+          if ( foundArgs && foundArgs.length ) this.args = foundArgs;
+        }
+
+        proto[this.name] = this.override_(proto, code);
+      },
+
+    ],
+
+    properties: [
+      {
+        class: 'FObjectArray',
+        name: 'args',
+        of: 'foam.core.Argument',
+      }
+    ]
+  });
+  // Upgrade a LIBs
+  var upgradeLib = function upgradeLib(lib) {
+    for ( var key in lib ) {
+      var func = lib[key];
+      // Note: isInstance is used inside typeChecker,
+      //   so avoid infinite loops
+      if ( foam.Function.isInstance(func) &&
+            key !== 'isInstance' &&
+            key !== 'assert' ) {
+        lib[key] = foam.Function.typeCheck(func);
+      }
+    }
+  };
+
+  // Upgrade each existing LIB
+  for ( var name in foam.__LIBS__ ) {
+    upgradeLib(foam.__LIBS__[name]);
+  }
+  foam.__LIBS__ = null;
+
+  // Decorate foam.LIB to typeCheck new libs
+  var oldLIB = foam.LIB;
+  foam.LIB = function typeCheckedLIB(model) {
+    /** @param {any=} model */
+    // Create the lib normally
+    oldLIB(model);
+
+    // Find the created LIB
+    var root = global;
+    var path = model.name.split('.');
+    var i;
+    for ( i = 0 ; i < path.length ; i++ ) {
+      root = root[path[i]];
+    }
+    upgradeLib(root);
+  };
+})(); // install type checking
+
+
 foam.CLASS({
   refines: 'foam.core.Import',
 
@@ -450,6 +362,7 @@ foam.CLASS({
 
   methods: [
     function installInClass(c) {
+      /** @param {any} c */
       // Produce warning for duplicate imports
       if ( c.getSuperAxiomByName(this.name) ) {
         // TODO(adamvy): Don't warn if ancestor import is equal to this one.

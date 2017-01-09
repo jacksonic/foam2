@@ -74,6 +74,8 @@ foam.CLASS({
 
   methods: [
     function installInProto(proto) {
+      /** @param {any} proto */
+
       var name      = this.name;
       var topic     = this;
       var makeTopic = this.makeTopic;
@@ -91,11 +93,14 @@ foam.CLASS({
       });
     },
 
-    /**
-     * Constructs topic objects bound to instances of the model that owns this
-     * Topic.
-     */
     function makeTopic(topic, parent) {
+      /**
+       * Constructs topic objects bound to instances of the model that owns this
+       * Topic.
+       * @param {Object} topic
+       * @param {FObject} parent
+       */
+
       var name   = topic.name;
       var topics = topic.topics;
 

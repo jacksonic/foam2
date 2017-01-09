@@ -73,6 +73,8 @@ foam.CLASS({
       this.array$.sub(function() { this.onData.reset.pub(); }.bind(this));
     },
     function put(obj) {
+      /** @param {FObject} obj */
+
       var index = this.indexOf_(obj.id);
       if ( index >= 0 ) {
         this.array[index] = obj;
@@ -85,6 +87,7 @@ foam.CLASS({
     },
 
     function remove(obj) {
+      /** @param {FObject} obj */
       var index = this.indexOf_(obj.id);
       if ( index >= 0 ) {
         var o2 = this.array.splice(index, 1)[0];
@@ -95,6 +98,9 @@ foam.CLASS({
     },
 
     function select(sink) {
+      /**
+       * @param {foam.dao.Sink=} sink
+       */
       var resultSink = sink || this.ArraySink.create();
 
       for ( var i = 0 ; i < this.array.length ; i++ ) {
@@ -115,11 +121,13 @@ foam.CLASS({
     },
 
     function find(id) {
+      /** @param {any} id */
       var index = this.indexOf_(id);
       return Promise.resolve(index >= 0 ? this.array[index] : null);
     },
 
     function indexOf_(id) {
+      /** @param {any} id */
       for ( var i = 0; i < this.array.length; i++ ) {
         if ( this.array[i].cls_.ID.comparePropertyValues(
             this.array[i].id, id) === 0 ) {

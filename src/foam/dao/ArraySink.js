@@ -47,6 +47,7 @@ foam.CLASS({
       /**
        * Called with each value returned by the DAO. Just <tt>push()</tt>es
        * them to <tt>array</tt>.
+       * @param {any} o
        */
       this.array.push(o);
     }

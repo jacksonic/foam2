@@ -65,6 +65,8 @@ foam.CLASS({
 
   methods: [
     function installInProto(proto) {
+      /** @param {any} proto */
+
       var superAxiom = proto.cls_.getSuperAxiomByName(this.name);
 
       foam.assert(

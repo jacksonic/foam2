@@ -65,10 +65,13 @@ foam.CLASS({
 
   methods: [
     function installInClass(cls) {
+      /** @param {any} cls */
       cls[this.model.name] = this.model.buildClass();
     },
 
     function installInProto(proto) {
+      /** @param {any} proto */
+
       // Get the class already created in installInClass().
       var name = this.model.name;
       var cls = proto.cls_[name];

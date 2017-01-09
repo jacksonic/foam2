@@ -102,6 +102,8 @@ foam.CLASS({
 
   methods: [
     function installInProto(proto) {
+      /** @param {any} proto */
+
       var name     = this.name;
       var key      = foam.String.toSlotName(this.key);
       var slotName = this.slotName_;
@@ -170,6 +172,8 @@ foam.CLASS({
 
   methods: [
     function installInProto(proto) {
+      /** @param {any} proto */
+
       // Every export on a model is its own axiom, but the __subContext__
       // getter we define actually builds a subContext with all the exports
       // present. So we only need to define the __subContext__ once on the

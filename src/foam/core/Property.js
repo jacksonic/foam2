@@ -193,9 +193,11 @@ foam.CLASS({
   methods: [
     function installInClass(c) {
       /**
-        Handle overriding of Property definition from parent class by
-        copying undefined values from parent Property, if it exists.
-      */
+       * Handle overriding of Property definition from parent class by
+       * copying undefined values from parent Property, if it exists.
+       *
+       * @param {any} c
+       */
       foam.assert(
         this.name[this.name.length - 1] !== '$',
         'Property names must not end with $');
@@ -222,9 +224,10 @@ foam.CLASS({
 
     function installInProto(proto) {
       /**
-        Install a property onto a prototype from a Property definition.
-        (Property is 'this').
-      */
+       * Install a property onto a prototype from a Property definition.
+       * (Property is 'this').
+       * @param {any} proto
+       */
       // Take Axiom from class rather than using 'this' directly,
       // since installInClass() may have created a modified version
       // to inherit Property Properties from a super-Property.
@@ -342,7 +345,10 @@ foam.CLASS({
     },
 
     function validateInstance(o) {
-      /** Validate an object which has this Property. */
+      /**
+       * Validate an object which has this Property.
+       * @param {FObject} o
+       */
       if ( this.required && ! o[this.name] ) {
         throw 'Required property ' +
             o.cls_.id + '.' + this.name +
@@ -353,10 +359,9 @@ foam.CLASS({
     function exprFactory(e) {
       /**
        * Create a factory function from an expression function.
+       * @param {Function=} e
        */
       if ( ! e ) return null;
-      foam.assert(foam.Function.isInstance(e),
-          'Argument to exprFactory must be a function.');
 
       var argNames = foam.Function.formalArgs(e);
       var name = this.name;
@@ -395,12 +400,19 @@ foam.CLASS({
     },
 
     function get(o) {
-      /** Flyweight getter for this Property. */
+      /**
+       * Flyweight getter for this Property.
+       * @param {Object} o
+       */
       return o[this.name];
     },
 
     function set(o, value) {
-      /** Flyweight setter for this Property. */
+      /**
+       * Flyweight setter for this Property.
+       * @param {Object} o
+       * @param {any=} value
+       */
       o[this.name] = value;
       return this;
     },
@@ -412,6 +424,7 @@ foam.CLASS({
        * Builds a version of this property suitable for installation
        * into a child class when the child class contains a property
        * definition of the same name.
+       * @param {FObject} child
        */
       var prop = this.clone();
 
@@ -437,6 +450,7 @@ foam.CLASS({
        * of this slot on object "obj".  Since this axiom is a Property
        * it will be converted to a PropertySlot which represents
        * the value of the property as stored on obj.
+       * @param {FObject} obj
        */
       var slotName = foam.String.toSlotName(this.name);
       var slot     = obj.getPrivate_(slotName);
@@ -452,7 +466,10 @@ foam.CLASS({
     },
 
     function exportAs(obj) {
-      /** Export obj.name$ instead of just obj.name. */
+      /**
+       * Export obj.name$ instead of just obj.name.
+       * @param {FObject} obj
+       */
       return this.toSlot(obj);
     },
 
@@ -460,8 +477,8 @@ foam.CLASS({
       /**
         Override to provide special deep cloning behavior.
 
-        @param value {any} The value to clone
-        @param cloneMap {object} Add values to this map to
+        @param {any=} value The value to clone
+        @param {Object} cloneMap Add values to this map to
                 have them installed on the clone.
       */
       cloneMap[this.name] = ( value && value.clone ) ? value.clone() : value;

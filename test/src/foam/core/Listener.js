@@ -122,7 +122,7 @@ describe('Listener', function() {
 
             // The listener should be delayed by at lest 100ms which is
             // the requested merge delay.
-            expect((this.calledAt - start) >= 100).toBe(true);
+            expect(this.calledAt - start).toBeGreaterThan(99);
 
             done();
           }

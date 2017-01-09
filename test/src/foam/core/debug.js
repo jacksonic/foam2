@@ -15,6 +15,13 @@
  * limitations under the License.
  */
 
+var suppressWarn;
+global.beforeAll(function() {
+  suppressWarn = global.captureWarn();
+});
+global.afterAll(function() {
+  suppressWarn();
+});
 
 /* jshint -W014 */
 /* jshint laxcomma:true */
@@ -25,46 +32,46 @@ function makeTestFn() {
   foam.CLASS({ name: 'TypeBB', extends: 'TypeB' });
   foam.CLASS({ name: 'TypeC', package: 'pkg' });
   foam.CLASS({ name: 'RetType' });
-  return function test(/* TypeA // docs for, pA */ paramA, /*TypeB?*/ paramB
+  return function test(/* TypeA */ paramA, /*TypeB=*/ paramB
       , /* pkg.TypeC*/ paramC, noType /* RetType */ ) {
     return (global.RetType.create());
   };
 }
 
 function makePrimitiveTestFn() { // multiline parsing, ha
-  return function(/* string */ str, /*boolean*/ bool ,
-  /* function*/ func, /*object*/obj, /* number */num, /* array*/ arr ) {
+  return function(/* String */ str, /* Boolean*/ bool ,
+  /* Function*/ func, /* Object*/obj, /* Number */num, /* Array */ arr ) {
     return ( true );
   };
 }
 
 function makeBodyCommentTestFn() { // multiline parsing, ha
   return function(str, bool) {
-    /*
+    /**
       A method
-      @param {boolean} bool Is a nice boolean
-      @arg {string} str Is a nice string
-      @arg {number} another Additional arg
-      @return {boolean} Returns true
+      @param {Boolean} bool Is a nice boolean
+      @arg {String} str Is a nice string
+      @arg {Number} another Additional arg
+      @return {Boolean} Returns true
     */
     return ( true );
   };
 }
 
 function makeInvalidBodyCommentTestFn() { // multiline parsing, ha
-  return function(/*number*/str, bool) {
-    /*
+  return function(/*Number*/str, bool) {
+    /**
       A method
-      @arg {string} str Dupe arg
+      @arg {String} str Dupe arg
     */
     return ( true );
   };
 }
 function makeInvalidReturnBodyCommentTestFn() { // multiline parsing, ha
-  return function(str, bool /*number*/) {
-    /*
+  return function(str, bool /*Number*/) {
+    /**
       A method
-      @return {string} Dupe return
+      @return {String} Dupe return
     */
     return ( true );
   };
@@ -74,7 +81,7 @@ function makeInvalidReturnBodyCommentTestFn() { // multiline parsing, ha
 /* jshint laxcomma:false */
 /* jshint +W014 */
 
-describe('foam.types.getFunctionArgs', function() {
+describe('foam.Function.args', function() {
   var fn;
 
   beforeEach(function() {
@@ -85,12 +92,11 @@ describe('foam.types.getFunctionArgs', function() {
   });
 
   it('returns the types of arguments', function() {
-    var params = foam.types.getFunctionArgs(fn);
+    var params = foam.Function.args(fn);
 
     expect(params[0].name).toEqual('paramA');
     expect(params[0].typeName).toEqual('TypeA');
     expect(params[0].optional).toBe(false);
-    expect(params[0].documentation).toEqual('docs for, pA');
 
     expect(params[1].name).toEqual('paramB');
     expect(params[1].typeName).toEqual('TypeB');
@@ -109,64 +115,77 @@ describe('foam.types.getFunctionArgs', function() {
   });
 
   it('accepts body comments', function() {
-    var params = foam.types.getFunctionArgs(makeBodyCommentTestFn());
+    var params = foam.Function.args(makeBodyCommentTestFn());
 
     expect(params[0].name).toEqual('str');
-    expect(params[0].typeName).toEqual('string');
+    expect(params[0].typeName).toEqual('String');
     expect(params[0].documentation).toEqual('Is a nice string');
 
     expect(params[1].name).toEqual('bool');
-    expect(params[1].typeName).toEqual('boolean');
+    expect(params[1].typeName).toEqual('Boolean');
     expect(params[1].documentation).toEqual('Is a nice boolean');
 
     expect(params[2].name).toEqual('another');
-    expect(params[2].typeName).toEqual('number');
+    expect(params[2].typeName).toEqual('Number');
     expect(params[2].documentation).toEqual('Additional arg');
 
-    expect(params.returnType.typeName).toEqual('boolean');
+    expect(params.returnType.typeName).toEqual('Boolean');
   });
 
   it('rejects invalid duplicate body comment args', function() {
     expect(function() {
-      foam.types.getFunctionArgs(makeInvalidBodyCommentTestFn());
+      foam.Function.args(makeInvalidBodyCommentTestFn());
     }).toThrow();
 
     expect(function() {
-      foam.types.getFunctionArgs(makeInvalidReturnBodyCommentTestFn());
+      foam.Function.args(makeInvalidReturnBodyCommentTestFn());
     }).toThrow();
 
   });
 
   it('accepts a return with no args', function() {
-    var params = foam.types.getFunctionArgs(function(/*RetType*/) { });
-
+    var params = foam.Function.args(function(/*RetType*/) { });
     expect(params.returnType.typeName).toEqual('RetType');
+
+    params = foam.Function.args(function(/* RetType= */) { });
+    expect(params.returnType.typeName).toEqual('RetType');
+    expect(params.returnType.optional).toEqual(true);
   });
 
   it('reports parse failures', function() {
     fn = function(/*RetType*/) { };
     fn.toString = function() { return 'some garbage string!'; };
 
-    expect(function() { foam.types.getFunctionArgs(fn); }).toThrow();
+    expect(function() { foam.Function.args(fn); }).toThrow();
   });
   it('reports arg parse failures', function() {
     fn = function(/* */ arg) { };
-    expect(function() { foam.types.getFunctionArgs(fn); }).toThrow();
+    expect(function() { foam.Function.args(fn); }).toThrow();
   });
   it('reports return parse failures', function() {
     fn = function(/* */) { };
-    expect(function() { foam.types.getFunctionArgs(fn); }).toThrow();
+    expect(function() { foam.Function.args(fn); }).toThrow();
   });
   it('parses no args', function() {
     fn = function() { };
 
-    expect(function() { foam.types.getFunctionArgs(fn); }).not.toThrow();
+    expect(function() { foam.Function.args(fn); }).not.toThrow();
   });
   it('fails a return before the last arg', function() {
     // jscs:disable
     fn = function(arg1 /* RetType */, arg2) { };
     // jscs:enable
-    expect(function() { foam.types.getFunctionArgs(fn); }).toThrow();
+    expect(function() { foam.Function.args(fn); }).toThrow();
+  });
+
+  it('fails an unknown type', function() {
+    fn = function(/* crazyType */ arg2) { };
+    expect(function() { foam.Function.args(fn); }).not.toThrow();
+    expect(function() { foam.Function.args(fn)[0].type; }).toThrow();
+
+    fn = function(/* foam.anotherCrazyLib */ arg2) { };
+    expect(function() { foam.Function.args(fn); }).not.toThrow();
+    expect(function() { foam.Function.args(fn)[0].type; }).toThrow();
   });
 
 });
@@ -182,13 +201,13 @@ describe('Argument.validate', function() {
   });
 
   it('allows optional args to be omitted', function() {
-    var params = foam.types.getFunctionArgs(fn);
+    var params = foam.Function.args(fn);
 
     expect(function() { params[1].validate(undefined); }).not.toThrow();
     expect(function() { params[2].validate(undefined); }).toThrow();
   });
   it('checks modelled types', function() {
-    var params = foam.types.getFunctionArgs(fn);
+    var params = foam.Function.args(fn);
 
     global.pkg.TypeC.create();
     foam.lookup('pkg.TypeC').create();
@@ -212,7 +231,7 @@ describe('Argument.validate', function() {
       .not.toThrow();
   });
   it('rejects wrong modelled types', function() {
-    var params = foam.types.getFunctionArgs(fn);
+    var params = foam.Function.args(fn);
 
     expect(function() { params[0].validate(global.TypeB.create()); })
       .toThrow();
@@ -226,9 +245,9 @@ describe('Argument.validate', function() {
     }).toThrow();
   });
   it('checks primitive types', function() {
-    var params = foam.types.getFunctionArgs(makePrimitiveTestFn());
+    var params = foam.Function.args(makePrimitiveTestFn());
 
-    // /* string */ str, /*boolean*/ bool , /* function*/ func, /*object*/obj, /* number */num
+    // /* String */ str, /* Boolean*/ bool , /* Function*/ func, /* Object*/obj, /* Number */num
     expect(function() { params[0].validate('hello'); }).not.toThrow();
     expect(function() { params[1].validate(true); }).not.toThrow();
     expect(function() { params[2].validate(function() {}); }).not.toThrow();
@@ -237,9 +256,9 @@ describe('Argument.validate', function() {
     expect(function() { params[5].validate([ 'hello' ]); }).not.toThrow();
   });
   it('rejects wrong primitive types', function() {
-    var params = foam.types.getFunctionArgs(makePrimitiveTestFn());
+    var params = foam.Function.args(makePrimitiveTestFn());
 
-    // /* string */ str, /*boolean*/ bool , /* function*/ func, /*object*/obj, /* number */num
+    // /* String */ str, /* Boolean*/ bool , /* Function*/ func, /* Object*/obj, /* Number */num
     expect(function() { params[0].validate(78); }).toThrow();
     expect(function() { params[1].validate('nice'); }).toThrow();
     expect(function() { params[2].validate({}); }).toThrow();
@@ -249,10 +268,10 @@ describe('Argument.validate', function() {
   });
 
   it('parses empty args list with tricky function body', function() {
-    var params = foam.types.getFunctionArgs(
+    var params = foam.Function.args(
       function() { (3 + 4); return (1); });
 
-    // /* string */ str, /*boolean*/ bool , /* function*/ func, /*object*/obj, /* number */num
+    // /* String */ str, /* Boolean*/ bool , /* Function*/ func, /* Object*/obj, /* Number */num
     expect(function() { params[0].validate(78); }).toThrow();
     expect(function() { params[1].validate('nice'); }).toThrow();
     expect(function() { params[2].validate({}); }).toThrow();
@@ -264,13 +283,13 @@ describe('Argument.validate', function() {
 });
 
 
-describe('foam.types.typeCheck', function() {
+describe('foam.Function.typeCheck', function() {
   var fn;
   var orig;
 
   beforeEach(function() {
     orig = makeTestFn();
-    fn = foam.types.typeCheck(orig);
+    fn = foam.Function.typeCheck(orig);
   });
   afterEach(function() {
     fn = null;
@@ -293,6 +312,14 @@ describe('foam.types.typeCheck', function() {
       fn(global.TypeA.create(), global.TypeB.create());
     }).toThrow();
   });
+  it('fails invalid types for args at call time', function() {
+    var invalidFn = foam.Function.typeCheck(function(arg1) {
+      /** @param {foo.bar.wert.not.a.Type} arg1 */
+    });
+    expect(function() {
+      invalidFn();
+    }).toThrow();
+  });
   it('fails bad primitive args', function() {
     expect(function() {
       fn(global.TypeA.create(), 3, global.pkg.TypeC.create(), 99);
@@ -306,25 +333,164 @@ describe('foam.types.typeCheck', function() {
   });
 
   it('fails bad return type', function() {
-    var rfn = foam.types.typeCheck(function(arg /* object */) {
+    var rfn = foam.Function.typeCheck(function(arg /* Object */) {
       return arg;
     });
     expect(function() { rfn({}); }).not.toThrow();
     expect(function() { rfn(99); }).toThrow();
   });
   it('covers no return type', function() {
-    var rfn = foam.types.typeCheck(function() { return 1; });
+    var rfn = foam.Function.typeCheck(function() { return 1; });
     expect(function() { rfn({}); }).not.toThrow();
   });
   it('does not affect the toString() of the function', function() {
     expect(orig.toString()).toEqual(fn.toString());
   });
   it('allows repeated args', function() {
-    var rfn = foam.types.typeCheck(function(/* number* */ num) { return 1; });
+    var rfn = foam.Function
+      .typeCheck(function(/* ...Number */ num) { return 1; });
+    expect(function() { rfn(); }).not.toThrow();
     expect(function() { rfn(1); }).not.toThrow();
     expect(function() { rfn(1, 2); }).not.toThrow();
     expect(function() { rfn(1, 3, 4); }).not.toThrow();
     expect(function() { rfn(1, 'a'); }).toThrow();
+  });
+  it('allows repeated ES2016 ...rest arguments', function() {
+    var restFn = function() {};
+    // Support old node by faking the toString
+    restFn.toString = function() {
+      return 'function(arg1, /*Number*/ ...num) { return 1; }';
+    };
+    var rfn = foam.Function.typeCheck(restFn);
+
+    expect(function() { rfn('arg1'); }).not.toThrow();
+    expect(function() { rfn('arg1', 2); }).not.toThrow();
+    expect(function() { rfn('arg1', 3, 4); }).not.toThrow();
+    expect(function() { rfn('arg1', 2, 'a'); }).toThrow();
+  });
+  it('avoids double-checking', function() {
+    expect(foam.Function.typeCheck(fn)).toBe(fn);
+  });
+  it('avoids installing checker when nothing to check', function() {
+    var nofn = function(/* any= */ one, /* ...any */two) { return 1; };
+    expect(foam.Function.typeCheck(nofn)).toBe(nofn);
+
+    var nofnret = function(/* any= */) { return 1; };
+    expect(foam.Function.typeCheck(nofnret)).toBe(nofnret);
+  });
+
+  it('accepts explicit arguments list', function() {
+    var args = [ foam.core.Argument.create({
+      name: 'str',
+      typeName: 'String',
+      index: 0
+    }) ];
+
+    var rfn = foam.Function
+      .typeCheck(function(/* Number */ num) { return 1; }, args);
+
+    expect(rfn.isTypeChecked__).toBe(true);
+    expect(function() { rfn(22); }).toThrow();
+    expect(function() { rfn('1, 2'); }).not.toThrow();
+  });
+});
+
+describe('Method type checking', function() {
+
+  it('accepts valid methods', function() {
+    var capture = global.captureWarn();
+    foam.CLASS({
+      name: 'GoodMethods',
+      package: 'test',
+      methods: [
+        {
+          name: 'method1',
+          code: makePrimitiveTestFn()
+        }
+      ]
+    });
+    test.GoodMethods;
+
+    expect(test.GoodMethods.create().method1.isTypeChecked__)
+      .toBe(true);
+    capture();
+  });
+  it('rejects invalid methods', function() {
+    var capture = global.captureWarn();
+
+    expect(function() {
+      foam.CLASS({
+        name: 'BadMethods',
+        package: 'test',
+        methods: [
+          {
+            name: 'method2',
+            code: makeInvalidBodyCommentTestFn()
+          }
+        ]
+      });
+      test.BadMethods;
+    }).toThrow();
+  });
+  it('ignores undefined methods', function() {
+    var capture = global.captureWarn();
+    var m = foam.core.Method.create({ name: 'undefCode', code: null });
+    expect(m.code).toBe(null);
+    capture();
+  });
+  it('accepts explicit args methods', function() {
+    //var capture = global.captureWarn();
+    foam.CLASS({
+      name: 'ExpMethods',
+      package: 'test',
+      methods: [
+        {
+          name: 'method3',
+          code: function() {},
+          args: [
+            {
+              name: 'arg1',
+              typeName: 'String'
+            },
+            {
+              name: 'arg2',
+              typeName: 'Number'
+            }
+          ]
+        }
+      ]
+    });
+
+    var inst = test.ExpMethods.create();
+    expect(test.ExpMethods.create().method3.isTypeChecked__)
+      .toBe(true);
+    // Explicit arguments
+    expect(function() { inst.method3('str', 88); }).not.toThrow();
+    expect(function() { inst.method3(99, 'not number'); }).toThrow();
+
+
+  });
+
+  it('rejects bad implicit args', function() {
+    //var capture = global.captureWarn();
+    expect(function() {
+      foam.CLASS({
+        name: 'ExpMethods',
+        package: 'test',
+        methods: [
+          {
+            name: 'method3',
+            code: function(/*String.wee*/arg1) {
+              /**
+                @param {Number} arg1
+              */
+            }
+          }
+        ]
+      });
+      test.ExpMethods;
+    }).toThrow();
+
   });
 
 });

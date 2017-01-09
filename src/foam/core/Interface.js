@@ -164,63 +164,69 @@ foam.CLASS({
   ],
 
   methods: [
-    /**
-     * Fetches an axiom (property, method, topic, etc.) by name.
-     *
-     * For compatibility with classes.
-     */
     function getAxiomByName(name) {
+      /**
+       * Fetches an axiom (property, method, topic, etc.) by name.
+       *
+       * For compatibility with classes.
+       * @param {String} name
+       */
       return this.axioms_.filter(function(a) {
         return a.name === name;
       })[0];
     },
 
-    /**
-     * Fetches a list of axioms (property, method, topic, etc.) by their class.
-     *
-     * For compatibility with classes.
-     */
     function getAxiomsByClass(cls) {
+      /**
+       * Fetches a list of axioms (property, method, topic, etc.) by their class.
+       *
+       * For compatibility with classes.
+       * @param {any} cls
+       */
       return this.axioms_.filter(function(a) {
         return cls.isInstance(a);
       });
     },
 
-    /**
-     * Fetches a list of axioms (property, method, topic, etc.) by their class.
-     * Restricts the search to this interface only, not any interfaces it
-     * extends.
-     *
-     * For compatibility with classes.
-     */
     function getOwnAxiomsByClass(cls) {
+      /**
+       * Fetches a list of axioms (property, method, topic, etc.) by their class.
+       * Restricts the search to this interface only, not any interfaces it
+       * extends.
+       *
+       * For compatibility with classes.
+       * @param {any} cls
+       */
       return this.getAxiomsByClass(cls);
     },
 
-    /**
-     * Returns true if this interface supports an axiom with the given name.
-     *
-     * For compatibility with classes.
-     */
     function hasOwnAxiom(name) {
+      /**
+       * Returns true if this interface supports an axiom with the given name.
+       *
+       * For compatibility with classes.
+       * @param {String} name
+       */
       return this.axioms_.some(function(a) { return a.name === name; });
     },
 
-    /**
-     * Returns true if the input object's class implements this interface
-     * (transitively).
-     */
     function isInstance(o) {
+      /**
+       * Returns true if the input object's class implements this interface
+       * (transitively).
+       * @param {any=} o
+       */
       return !! (
         o && o.cls_ && o.cls_.getAxiomByName('implements_' + this.id)
       );
     },
 
-    /**
-     * Returns true if the input object's class implements this interface
-     * (transitively).
-     */
     function isSubClass(c) {
+      /**
+       * Returns true if the input object's class implements this interface
+       * (transitively).
+       * @param {any=} c
+       */
       if ( ! c || ! c.id ) return false;
       return c.getAxiomByName && !! c.getAxiomByName('implements_' + this.id);
     }
@@ -232,10 +238,11 @@ foam.LIB({
   name: 'foam',
 
   methods: [
-    /**
-     * Top-level function for defining a new interface, like foam.CLASS().
-     */
     function INTERFACE(m) {
+      /**
+       * Top-level function for defining a new interface, like foam.CLASS().
+       * @param {Object} m
+       */
       var model = foam.core.Interface.create(m);
       foam.register(model);
       foam.package.registerClass(model);
