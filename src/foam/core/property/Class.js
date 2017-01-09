@@ -63,7 +63,7 @@ foam.CLASS({
         if ( foam.String.isInstance(c) ) {
           // if a lookup override had to be added, use it, otherwise
           // just use normal lookup() if the user imported it.
-          c = ( this.class_lookup__ || this.lookup )(c, true);
+          c = this.__context__.lookup(c, true);
           if ( c ) this.instance_[prop.name] = c;
         }
 
@@ -75,23 +75,5 @@ foam.CLASS({
       value: function(value) { return value.id; }
     }
   ],
-
-  methods: [
-    function installInClass(cls) {
-      /**
-       * Ensures that a 'lookup' import is available in the host class.
-       * If not, adds one named class_lookup__ to avoid conflicts.
-       *
-       * @param {any} cls A FOAM Class, during load.
-       */
-      var existingAx = cls.getAxiomByName('lookup');
-      if ( ! existingAx || existingAx.key !== 'lookup' ) {
-        cls.installAxiom(foam.core.Import.create({
-          key: 'lookup',
-          name: 'class_lookup__'
-        }));
-      }
-    }
-  ]
 
 });

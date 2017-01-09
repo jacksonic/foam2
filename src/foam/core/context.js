@@ -144,20 +144,6 @@
     enumerable: false
   });
 
-  Object.defineProperty(__context__, 'lookup$', {
-    get: function ctxGetLookup_() {
-      var context = this;
-      return {
-        // fake slot to allow imports:['lookup'] to work
-        get: function lookupSlotGet_() {
-          return function lookup_() {
-            return context.lookup.apply(context, arguments);
-          };
-        }
-      };
-    }
-  });
-
   // Create short-cuts for foam.__context__.[createSubContext, register, lookup]
   // in foam.
   foam.lookup = function(id, opt_suppress) {
