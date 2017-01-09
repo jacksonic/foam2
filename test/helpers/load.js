@@ -52,3 +52,5 @@ require('../../src/foam/dao/ArrayDAO.js');
 require('../../src/foam/core/property/Unsafe.js');
 require('../../src/foam/pattern/Singleton.js');
 require('../../src/foam/parse/parse.js');
+require('../../src/foam/core/property/Class.js');
+

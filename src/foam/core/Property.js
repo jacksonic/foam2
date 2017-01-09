@@ -277,7 +277,7 @@ foam.CLASS({
       // If not set, return value from 'factory', 'expression' or
       // (default) 'value', if provided.
       var getter =
-        prop.getter ? prop.getter :
+        prop.getter ? function() { return prop.getter.call(this, prop); } :
         factory ? function factoryGetter() {
           return this.hasOwnProperty(name) ?
             this.instance_[name] :
