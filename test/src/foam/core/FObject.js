@@ -1067,7 +1067,7 @@ describe('Library level FObject methods', function() {
       p = ClassA.create();
     });
 
-    it('iterates all properties with values', function() {
+    it('iterates all properties', function() {
       p.intProp = 4;
       p.stringProp = 'helllo';
 
@@ -1080,7 +1080,7 @@ describe('Library level FObject methods', function() {
       expect(results.stringProp).toBe('helllo');
     });
 
-    it('skips unset values', function() {
+    it('iterates unset values', function() {
       p.intProp = 4;
 
       var results = {};
@@ -1089,9 +1089,33 @@ describe('Library level FObject methods', function() {
       });
 
       expect(results.intProp).toBe(4);
-      expect(results.stringProp).toBeUndefined();
+      expect(results.stringProp).toBe('wee');
     });
 
+  });
+
+  it('hasDefaultValue', function() {
+    foam.CLASS({
+      name: 'ClassA',
+      properties: [
+        {
+          name: 'a',
+          value: 1
+        }
+      ]
+    });
+
+    var a = ClassA.create();
+    expect(a.hasDefaultValue('a')).toBe(true);
+
+    a.a = 4;
+    expect(a.hasDefaultValue('a')).toBe(false);
+
+    a.a = 1;
+    expect(a.hasDefaultValue('a')).toBe(true);
+
+    a.clearProperty('a');
+    expect(a.hasDefaultValue('a')).toBe(true);
   });
 
   describe('copyFrom', function() {
@@ -1132,7 +1156,8 @@ describe('Library level FObject methods', function() {
         name: 'ClassB',
         properties: [
           {
-            name: 'c'
+            name: 'c',
+            value: 33
           },
           {
             name: 'd',
@@ -1176,31 +1201,33 @@ describe('Library level FObject methods', function() {
 
     it('copies from FObjects of the same type', function() {
       var obj = ClassA.create({
-        a: 2
+        c: 3
       });
 
       var obj2 = ClassA.create({
-        c: 3
+        a: 1
       });
 
       obj.copyFrom(obj2);
 
       // Default value not copied
+      expect(obj.hasOwnProperty('a')).toBe(false);
+      expect(obj2.hasOwnProperty('a')).toBe(true);
       expect(obj2.a).toBe(1);
-      expect(obj.a).toBe(2);
+      expect(obj.a).toBe(1);
 
       // Expression value not copied
       expect(obj.hasOwnProperty('b')).toBe(false);
       expect(obj2.hasOwnProperty('b')).toBe(false);
-      expect(obj.b).toBe(4);
+      expect(obj.b).toBe(2);
       expect(obj2.b).toBe(2);
 
       expect(obj.c).toBe(3);
-      expect(obj2.c).toBe(3);
+      expect(obj2.c).toBeUndefined();
 
       expect(obj.hasOwnProperty('d')).toBe(false);
       expect(obj.d).toBe(5);
-      expect(obj2.d).toBe(5);
+      expect(obj2.d).toBeNaN();
 
       // Factory runs independently
       expect(obj.e).not.toBe(obj2.e);

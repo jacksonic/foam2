@@ -378,6 +378,21 @@ foam.CLASS({
       return ! foam.Undefined.isInstance(this.instance_[name]);
     },
 
+    function hasDefaultValue(name) {
+      /**
+       * Returns true if this object is storing a value for a property
+       * named by the 'name' parameter that matches the default value for that
+       * property, or is not storing that property (thus would return the
+       * default value).
+       * @param {String} name
+       */
+
+      if ( ! this.hasOwnProperty(name) ) return true;
+
+      var axiom = this.cls_.getAxiomByName(name);
+      return axiom.isDefaultValue(this[name]);
+    },
+
     function clearProperty(name) {
       /**
        * Undefine a Property's value.
@@ -849,7 +864,14 @@ foam.CLASS({
           // for each object since they are of the exact same
           // type.
           if ( o.hasOwnProperty(name) ) {
-            this[name] = o[name];
+            // if the source object has a value set that happens to be
+            // exactly the default value, clear the target's property
+            // instead of storing the redundant value.
+            if ( props[i].isDefaultValue(o[name]) ) {
+              this.clearProperty(name);
+            } else {
+              this[name] = o[name];
+            }
           }
         }
         return this;
