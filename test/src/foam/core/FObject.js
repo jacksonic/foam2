@@ -1046,4 +1046,47 @@ describe('Library level FObject methods', function() {
     // FObjects are always considered "greater than" non FObjects.
     expect(aOne.compareTo({}) > 0).toBe(true);
   });
+
+  describe('copyFrom', function() {
+    var p;
+    beforeEach(function() {
+      foam.CLASS({
+        name: 'ClassA',
+        properties: [
+          {
+            class: 'Int',
+            name: 'intProp'
+          },
+          {
+            class: 'String',
+            name: 'stringProp'
+          }
+        ]
+      });
+      p = ClassA.create();
+    });
+
+    it('copies from plain objects', function() {
+      p.copyFrom({
+        intProp: 12
+      });
+      expect(p.intProp).toBe(12);
+      p.copyFrom({
+        stringProp: 'boo'
+      }, true);
+      expect(p.stringProp).toBe('boo');
+    });
+
+    it('copies from plain objects, warns for bad args', function() {
+      var capture = captureWarn();
+
+      p.copyFrom({
+        kazoo: 12
+      }, true);
+
+      expect(capture()[0].indexOf('Unknown') > -1).toBe(true);
+    });
+  });
 });
+
+

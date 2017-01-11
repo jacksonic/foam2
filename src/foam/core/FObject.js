@@ -793,6 +793,83 @@ foam.CLASS({
       return this.cls_.create(m);
     },
 
+    /**
+     * Copy property values from the supplied object or map.
+     *
+     *  Ex.
+     * <pre>
+     *   person.copyFrom({fName: 'John', lName: 'Smith', age: 42})
+     *   or
+     *   person.copyFrom(otherPerson);
+     * </pre>
+     *      The first example is short-form for:
+     * <pre>
+     *   person.fName = 'John';
+     *   person.lName = 'Smith';
+     *   person.age   = 42;
+     * </pre>
+     * If an FObject is supplied, it doesn't need to be the same class as 'this'.
+     * Only properties that the two classes have in common will be copied.
+     */
+    function copyFrom(o, opt_warn) {
+      // When copying from a plain map, just enumerate the keys
+      if ( foam.Object.isInstance(o) ) {
+        for ( var key in o ) {
+          var a = this.cls_.getAxiomByName(key);
+          if ( a && foam.core.Property.isInstance(a) ) {
+            this[key] = o[key];
+          } else if ( opt_warn ) {
+            this.unknownArg(key, o[key]);
+          }
+        }
+        return this;
+      }
+
+      var props = this.cls_.getAxiomsByClass(foam.core.Property);
+
+      // When copying from an object of the same class
+      // We don't copy default values or the values of expressions
+      // so that the unset state of those properties is preserved
+      if ( o.cls_ && ( o.cls_ === this.cls_ || o.cls_.isSubClass(this.cls_) ) ) {
+        for ( var i = 0 ; i < props.length ; i++ ) {
+          var name = props[i].name;
+
+          // Only copy values that are set or have a factory.
+          // Any default values or expressions will be the same
+          // for each object since they are of the exact same
+          // type.
+          if ( o.hasOwnProperty(name) || props[i].factory ) {
+            this[name] = o[name];
+          }
+        }
+        return this;
+      }
+
+      // If the source is an FObject, copy any properties
+      // that we have in common.
+      if ( foam.core.FObject.isInstance(o) ) {
+        for ( var i = 0 ; i < props.length ; i++ ) {
+          var name = props[i].name;
+          var otherProp = o.cls_.getAxiomByName(name);
+          if ( otherProp && foam.core.Property.isInstance(otherProp) ) {
+            this[name] = o[name];
+          }
+        }
+        return this;
+      }
+
+      // If the source is some unknown object, we do our best
+      // to copy any values that are not undefined.
+      for ( var i = 0 ; i < props.length ; i++ ) {
+        var name = props[i].name;
+        if ( ! foam.Undefined.isInstance(o[name]) ) {
+          this[name] = o[name];
+        }
+      }
+      return this;
+    },
+
+
     function toString() {
       // Distinguish between prototypes and instances.
       return this.cls_.id + (

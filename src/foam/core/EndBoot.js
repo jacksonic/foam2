@@ -145,17 +145,7 @@ foam.CLASS({
       if ( opt_parent ) this.__context__ = opt_parent;
       if ( ! args ) return;
 
-      // If args are just a simple {} map, just copy
-      if ( args.__proto__ === Object.prototype || ! args.__proto__ ) {
-        for ( var key in args ) {
-          var a = this.cls_.getAxiomByName(key);
-          if ( a && foam.core.Property.isInstance(a) ) {
-            this[key] = args[key];
-          } else {
-            this.unknownArg(key, args[key]);
-          }
-        }
-      }
+      this.copyFrom(args);
     },
 
     function unknownArg(key, value) {

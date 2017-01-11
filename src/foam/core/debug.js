@@ -164,6 +164,21 @@ foam.CLASS({
 });
 
 
+foam.CLASS({
+  refines: 'foam.core.FObject',
+
+  documentation: 'Provide an implementation for unknownArg()',
+
+  methods: [
+    function unknownArg(key, value) {
+      console.warn('Unknown argument ' + key + ': \"' + value + '\" at ' +
+        (new Error()).stack);
+      //throw new Error('Unknown argument ' + key + ': \"' + value);
+    }
+  ]
+});
+
+
 foam.LIB({
   name: 'foam.Function',
 
