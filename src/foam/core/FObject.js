@@ -830,7 +830,8 @@ foam.CLASS({
       // When copying from an object of the same class
       // We don't copy default values or the values of expressions
       // so that the unset state of those properties is preserved
-      if ( o.cls_ && ( o.cls_ === this.cls_ || o.cls_.isSubClass(this.cls_) ) ) {
+      if ( o.cls_ && ( o.cls_ === this.cls_ ||
+           o.cls_.isSubClass(this.cls_) ) ) {
         for ( var i = 0 ; i < props.length ; i++ ) {
           var name = props[i].name;
 
@@ -852,7 +853,7 @@ foam.CLASS({
           var name = props[i].name;
           var otherProp = o.cls_.getAxiomByName(name);
           if ( otherProp && foam.core.Property.isInstance(otherProp) &&
-               o.hasOwnProperty(name)) {
+               o.hasOwnProperty(name) ) {
             this[name] = o[name];
           }
         }
