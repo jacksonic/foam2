@@ -316,8 +316,8 @@ foam.LIB({
        * Hello adam
        *
        * @param {Function} fn
-       * @param {Object} source
-       * @param {Object=} opt_self
+       * @param {AnyMap} source
+       * @param {AnyMap=} opt_self
        * @return {any=}
        */
       var argNames = foam.Function.formalArgs(fn);
@@ -782,7 +782,10 @@ foam.LIB({
     },
     function isInstance(o) {
       /** @param {any=} o */
-      return o !== null && typeof o === 'object' && ! Array.isArray(o);
+      return o !== null &&
+        typeof o === 'object' &&
+        ( ! Array.isArray(o) ) &&
+        ( ! o.cls_ );
     },
     function clone(o) { /** @param {any=} o */ return o; },
     function equals(a, b) {
@@ -810,6 +813,60 @@ foam.LIB({
   ]
 });
 
+foam.LIB({
+  name: 'foam.core.FObject',
+  methods: [
+    function forEach(obj, f) {
+      /**
+       * @param {FObject} obj
+       * @param {Function} f that accepts f(value, key) arguments
+       */
+      var ps = obj.cls_.getAxiomsByClass(foam.core.Property);
+      for ( var i = 0; i < ps.length; i++ ) {
+        var key = ps[i].name;
+        if ( obj.hasOwnProperty(key) ) f(obj[key], key);
+      }
+    },
+    function clone(o) {
+      /** @param {FObject} o */
+      return o.clone();
+    },
+    function equals(a, b) {
+      /**
+       * @param {FObject} a
+       * @param {any=} b
+       */
+      return a.equals(b);
+    },
+    function compare(a, b) {
+      /**
+       * @param {FObject} a
+       * @param {any=} b
+       */
+      return a.compareTo(b);
+    },
+    function hashCode(a) {
+      /**
+       * @param {FObject} a
+       */
+      return a.hashCode();
+    },
+  ]
+});
+
+/**
+ * Use to denote an argument that takes any object-like type, such as
+ * foam.Object or foam.core.FObject.
+ */
+foam.LIB({
+  name: 'foam.AnyMap',
+  methods: [
+    function isInstance(o) {
+      /** @param {any=} o */
+      return foam.Object.isInstance(o) || foam.core.FObject.isInstance(o);
+    }
+  ]
+});
 
 /**
   Return the flyweight 'type object' for the provided object.
@@ -823,9 +880,7 @@ foam.typeOf = (function() {
   var tBoolean   = foam.Boolean;
   var tArray     = foam.Array;
   var tDate      = foam.Date;
-  // FUTURE: Make FObject available during this phase of boot
-  //         and capture here.
-  //var tFObject   = foam.core.FObject;
+  var tFObject   = foam.core.FObject;
   var tFunction  = foam.Function;
   var tContext   = foam.Context;
   var tObject    = foam.Object;
@@ -841,8 +896,7 @@ foam.typeOf = (function() {
     if ( tDate.isInstance(o) )      return tDate;
     if ( tFunction.isInstance(o) )  return tFunction;
     if ( tContext.isInstance(o) )   return tContext;
-    // FUTURE: tFObject here
-    //if ( tFObject.isInstance(o) )   return tFObject;
+    if ( tFObject.isInstance(o) )   return tFObject;
     return tObject;
   };
 })();
@@ -898,7 +952,7 @@ foam.LIB({
        * If the given class has an id of 'some.package.MyClass'
        * then the class object will be made available globally at
        * global.some.package.MyClass.
-       * @param {Object} cls
+       * @param {AnyMap} cls
        */
       foam.assert(typeof cls.name === 'string' && cls.name !== '',
           'cls must have a non-empty string name');
@@ -917,7 +971,7 @@ foam.LIB({
        * each part being a JS object.
        *
        * Returns root if path is null or undefined.
-       * @param {Object} root
+       * @param {AnyMap} root
        * @param {String=} path
        */
 

@@ -1047,6 +1047,53 @@ describe('Library level FObject methods', function() {
     expect(aOne.compareTo({}) > 0).toBe(true);
   });
 
+  describe('forEach', function() {
+    var p;
+    beforeEach(function() {
+      foam.CLASS({
+        name: 'ClassA',
+        properties: [
+          {
+            class: 'Int',
+            name: 'intProp'
+          },
+          {
+            class: 'String',
+            name: 'stringProp',
+            value: 'wee'
+          }
+        ]
+      });
+      p = ClassA.create();
+    });
+
+    it('iterates all properties with values', function() {
+      p.intProp = 4;
+      p.stringProp = 'helllo';
+
+      var results = {};
+      foam.core.FObject.forEach(p, function(v, k) {
+        results[k] = v;
+      });
+
+      expect(results.intProp).toBe(4);
+      expect(results.stringProp).toBe('helllo');
+    });
+
+    it('skips unset values', function() {
+      p.intProp = 4;
+
+      var results = {};
+      foam.core.FObject.forEach(p, function(v, k) {
+        results[k] = v;
+      });
+
+      expect(results.intProp).toBe(4);
+      expect(results.stringProp).toBeUndefined();
+    });
+
+  });
+
   describe('copyFrom', function() {
     var p;
     beforeEach(function() {
@@ -1059,11 +1106,37 @@ describe('Library level FObject methods', function() {
           },
           {
             class: 'String',
-            name: 'stringProp'
+            name: 'stringProp',
+            value: 'wee'
           }
         ]
       });
       p = ClassA.create();
+
+      foam.CLASS({
+        name: 'ClassASub',
+        extends: 'ClassA',
+        properties: [
+          {
+            class: 'String',
+            name: 'stringProp',
+            value: 'woo'
+          }
+        ]
+      });
+
+      foam.CLASS({
+        name: 'ClassB',
+        properties: [
+          {
+            class: 'Int',
+            name: 'intProp'
+          },
+          {
+            name: 'otherProp'
+          }
+        ]
+      });
     });
 
     it('copies from plain objects', function() {
@@ -1086,7 +1159,72 @@ describe('Library level FObject methods', function() {
 
       expect(capture()[0].indexOf('Unknown') > -1).toBe(true);
     });
+
+    it('copies from FObjects of the same type', function() {
+      var capture = captureWarn();
+
+      var q = ClassA.create();
+      q.intProp = 3;
+      q.stringProp = 'hello';
+
+      p.copyFrom(q);
+
+      expect(p.intProp).toBe(3);
+      expect(p.stringProp).toBe('hello');
+    });
+
+    it('copies from FObjects of the a subclass type', function() {
+      var capture = captureWarn();
+
+      var q = ClassASub.create();
+      q.intProp = 3;
+      q.stringProp = 'hello';
+
+      p.copyFrom(q);
+
+      expect(p.intProp).toBe(3);
+      expect(p.stringProp).toBe('hello');
+    });
+
+    it('copies from FObjects of the a different type', function() {
+      var capture = captureWarn();
+
+      var q = ClassB.create();
+      q.intProp = 3;
+      q.otherProp = 'Not copied';
+
+      p.copyFrom(q);
+
+      expect(p.intProp).toBe(3);
+      expect(p.stringProp).toBe('wee');
+    });
+
+    it('copies from unknown objects', function() {
+      var capture = captureWarn();
+
+      var q = [];
+      q.intProp = 3;
+
+      p.copyFrom(q);
+
+      expect(p.intProp).toBe(3);
+    });
+
+    it('skips unset FObject values', function() {
+      var capture = captureWarn();
+
+      var q = ClassASub.create();
+      q.intProp = 3;
+
+      p.copyFrom(q);
+
+      expect(p.intProp).toBe(3);
+      expect(p.stringProp).toBe('wee'); //default
+      expect(q.stringProp).toBe('woo'); //default
+    });
+
   });
+
 });
 
 

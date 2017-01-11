@@ -99,7 +99,7 @@ foam.LIB({
          * See foam.core.Model
          * @method CLASS
          * @memberof module:foam
-         * @param {Object} m
+         * @param {AnyMap} m
          */
         var model = foam.core.Model.create(m);
         model.validate();

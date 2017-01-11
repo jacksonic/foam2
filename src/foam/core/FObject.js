@@ -52,7 +52,7 @@ foam.LIB({
       /**
        * Create a new instance of this class.
        * Configured from values taken from 'args', if supplifed.
-       * @param {Object=} args
+       * @param {AnyMap=} args
        * @param {any=} opt_parent
        */
 
@@ -122,7 +122,7 @@ foam.LIB({
       for ( var i = 0 ; i < axs.length ; i++ ) {
         var a = axs[i];
 
-        foam.assert(foam.Object.isInstance(a), 'Axiom is not an object.');
+        foam.assert(foam.AnyMap.isInstance(a), 'Axiom is not an object.');
 
         foam.assert(a.installInClass || a.installInProto,
                     'Axiom amust define one of installInClass or ' +
@@ -145,7 +145,7 @@ foam.LIB({
        *
        * If you have an array of axioms to install it is better to use
        * the more efficient installAxioms() method rather than this.
-       * @param {Object} a
+       * @param {AnyMap} a
        */
       this.installAxioms([ a ]);
     },
@@ -193,7 +193,7 @@ foam.LIB({
       /**
        * Returns all axioms defined on this class or its parent classes
        * that are instances of the specified class.
-       * @param {Object} cls
+       * @param {AnyMap} cls
        */
       // FUTURE: Add efficient support for:
       //    .where() .orderBy() .groupBy()
@@ -262,7 +262,7 @@ foam.LIB({
        *
        * However, once we've bootstrapped proper Property and Method
        * Axioms, we can remove this support and just install Axioms.
-       * @param {Object} m
+       * @param {AnyMap} m
        */
 
 
@@ -851,7 +851,8 @@ foam.CLASS({
         for ( var i = 0 ; i < props.length ; i++ ) {
           var name = props[i].name;
           var otherProp = o.cls_.getAxiomByName(name);
-          if ( otherProp && foam.core.Property.isInstance(otherProp) ) {
+          if ( otherProp && foam.core.Property.isInstance(otherProp) &&
+               o.hasOwnProperty(name)) {
             this[name] = o[name];
           }
         }
@@ -869,6 +870,22 @@ foam.CLASS({
       return this;
     },
 
+    function hashCode() {
+      /**
+       * Create an integer hash code value based on all properties of
+       * this object.
+       */
+      var hash = 17;
+
+      var ps = this.cls_.getAxiomsByClass(foam.core.Property);
+      for ( var i = 0 ; i < ps.length ; i++ ) {
+        var prop = this[ps[i].name];
+        hash = ((hash << 5) - hash) + foam.util.hashCode(prop);
+        hash &= hash; // forces 'hash' back to a 32-bit int
+      }
+
+      return hash;
+    },
 
     function toString() {
       // Distinguish between prototypes and instances.

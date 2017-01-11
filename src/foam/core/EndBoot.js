@@ -148,6 +148,7 @@ foam.CLASS({
       this.copyFrom(args);
     },
 
+    /* istanbul ignore next */
     function unknownArg(key, value) {
       /**
        * Template method used to report an unknown argument passed

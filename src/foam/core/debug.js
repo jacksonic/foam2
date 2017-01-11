@@ -97,7 +97,7 @@ foam.core.FObject.installModel = (function() {
   var superInstallModel = foam.core.FObject.installModel;
 
   return function(m) {
-    /** @param {Object} m */
+    /** @param {AnyMap} m */
     var names = {};
 
     for ( var i = 0; i < m.axioms_.length; i++ ) {

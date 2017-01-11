@@ -35,14 +35,14 @@
 
 (function() {
   var __context__ = {
-    /**
-     * Lookup a class in the context.  Throws an exception if the value
-     * couldn't be found, unless opt_suppress is true.
-     *
-     * @param id The id of the class to lookup.
-     * @param opt_suppress Suppress throwing an error.
-     **/
     lookup: function(id, opt_suppress) {
+      /**
+       * Lookup a class in the context.  Throws an exception if the value
+       * couldn't be found, unless opt_suppress is true.
+       *
+       * @param id The id of the class to lookup.
+       * @param opt_suppress Suppress throwing an error.
+       **/
       var ret = foam.String.isInstance(id) && this.__cache__[id];
 
       if ( ! opt_suppress ) {
@@ -53,15 +53,15 @@
       return ret;
     },
 
-    /**
-     * Register a class into the given context.  After registration
-     * the class can be found again by calling foam.lookup('com.foo.SomeClass');
-     *
-     * @param cls The class to register.
-     */
     register: function(cls) {
+      /**
+       * Register a class into the given context.  After registration
+       * the class can be found again by calling foam.lookup('com.foo.SomeClass');
+       *
+       * @param {AnyMap} cls The class to register.
+       */
       foam.assert(
-        foam.Object.isInstance(cls),
+        foam.AnyMap.isInstance(cls),
         'Cannot register non-objects into a context.');
       foam.assert(
         foam.String.isInstance(cls.id),
@@ -82,12 +82,12 @@
       }
     },
 
-    /**
-     * Creates a sub context of the context that this is called upon.
-     * @param opt_args A map of bindings to set up in the sub context.
-     *     Currently unused.
-     */
     createSubContext: function createSubContext(opt_args, opt_name) {
+      /**
+       * Creates a sub context of the context that this is called upon.
+       * @param {AnyMap} opt_args A map of bindings to set up in the sub context.
+       *     Currently unused.
+       */
       foam.assert(opt_name === undefined || foam.String.isInstance(opt_name),
                      'opt_name must be left undefined or be a string.');
 
@@ -154,12 +154,12 @@
     return foam.__context__.lookup(id, opt_suppress);
   };
   foam.register = function(cls) {
-    /** @param {any} cls */
+    /** @param {AnyMap} cls */
     foam.__context__.register(cls);
   };
   foam.createSubContext = function(opt_args, opt_name) {
     /**
-     * @param {Object=} opt_args
+     * @param {AnyMap=} opt_args
      * @param {String=} opt_name
      */
     return foam.__context__.createSubContext(opt_args, opt_name);

@@ -241,7 +241,7 @@ foam.LIB({
     function INTERFACE(m) {
       /**
        * Top-level function for defining a new interface, like foam.CLASS().
-       * @param {Object} m
+       * @param {AnyMap} m
        */
       var model = foam.core.Interface.create(m);
       foam.register(model);
