@@ -1095,32 +1095,35 @@ describe('Library level FObject methods', function() {
   });
 
   describe('copyFrom', function() {
-    var p;
+
     beforeEach(function() {
       foam.CLASS({
         name: 'ClassA',
         properties: [
           {
-            class: 'Int',
-            name: 'intProp'
+            name: 'a',
+            value: 1
           },
           {
-            class: 'String',
-            name: 'stringProp',
-            value: 'wee'
-          }
-        ]
-      });
-      p = ClassA.create();
-
-      foam.CLASS({
-        name: 'ClassASub',
-        extends: 'ClassA',
-        properties: [
+            name: 'b',
+            expression: function(a) {
+              return a * 2;
+            }
+          },
           {
-            class: 'String',
-            name: 'stringProp',
-            value: 'woo'
+            name: 'c'
+          },
+          {
+            name: 'd',
+            expression: function(c) {
+              return c + 2;
+            }
+          },
+          {
+            name: 'e',
+            factory: function() {
+              return {};
+            }
           }
         ]
       });
@@ -1129,31 +1132,42 @@ describe('Library level FObject methods', function() {
         name: 'ClassB',
         properties: [
           {
-            class: 'Int',
-            name: 'intProp'
+            name: 'c'
           },
           {
-            name: 'otherProp'
+            name: 'd',
+            factory: function() { return 99; }
+          },
+          {
+            name: 'e'
+          },
+          {
+            name: 'f'
           }
         ]
       });
+
     });
 
     it('copies from plain objects', function() {
-      p.copyFrom({
-        intProp: 12
+      var obj = ClassA.create(undefined);
+      obj.copyFrom({
+        a: 2,
+        c: 3,
+        d: 5
       });
-      expect(p.intProp).toBe(12);
-      p.copyFrom({
-        stringProp: 'boo'
-      }, true);
-      expect(p.stringProp).toBe('boo');
+
+      expect(obj.a).toBe(2);
+      expect(obj.b).toBe(4);
+      expect(obj.c).toBe(3);
+      expect(obj.d).toBe(5);
     });
 
     it('copies from plain objects, warns for bad args', function() {
       var capture = captureWarn();
 
-      p.copyFrom({
+      var obj = ClassA.create(undefined);
+      obj.copyFrom({
         kazoo: 12
       }, true);
 
@@ -1161,66 +1175,73 @@ describe('Library level FObject methods', function() {
     });
 
     it('copies from FObjects of the same type', function() {
-      var capture = captureWarn();
+      var obj = ClassA.create({
+        a: 2
+      });
 
-      var q = ClassA.create();
-      q.intProp = 3;
-      q.stringProp = 'hello';
+      var obj2 = ClassA.create({
+        c: 3
+      });
 
-      p.copyFrom(q);
+      obj.copyFrom(obj2);
 
-      expect(p.intProp).toBe(3);
-      expect(p.stringProp).toBe('hello');
+      // Default value not copied
+      expect(obj2.a).toBe(1);
+      expect(obj.a).toBe(2);
+
+      // Expression value not copied
+      expect(obj.hasOwnProperty('b')).toBe(false);
+      expect(obj2.hasOwnProperty('b')).toBe(false);
+      expect(obj.b).toBe(4);
+      expect(obj2.b).toBe(2);
+
+      expect(obj.c).toBe(3);
+      expect(obj2.c).toBe(3);
+
+      expect(obj.hasOwnProperty('d')).toBe(false);
+      expect(obj.d).toBe(5);
+      expect(obj2.d).toBe(5);
+
+      // Factory runs independently
+      expect(obj.e).not.toBe(obj2.e);
     });
 
-    it('copies from FObjects of the a subclass type', function() {
-      var capture = captureWarn();
+    it('copies from FObjects of a different type', function() {
 
-      var q = ClassASub.create();
-      q.intProp = 3;
-      q.stringProp = 'hello';
+      var obj1 = ClassA.create({ a: 2, c: 4, d: false });
+      var obj2 = ClassB.create({ c: 5, f: 6 });
 
-      p.copyFrom(q);
+      obj1.copyFrom(obj2);
 
-      expect(p.intProp).toBe(3);
-      expect(p.stringProp).toBe('hello');
-    });
-
-    it('copies from FObjects of the a different type', function() {
-      var capture = captureWarn();
-
-      var q = ClassB.create();
-      q.intProp = 3;
-      q.otherProp = 'Not copied';
-
-      p.copyFrom(q);
-
-      expect(p.intProp).toBe(3);
-      expect(p.stringProp).toBe('wee');
+      expect(obj1.a).toBe(2);
+      expect(obj1.b).toBe(4);
+      expect(obj1.c).toBe(5);
+      expect(obj1.d).toBe(99); // factory on obj2 triggered
+      expect(obj1.f).toBe(undefined);
     });
 
     it('copies from unknown objects', function() {
-      var capture = captureWarn();
+      var SomeProto = {};
+      var someObj = Object.create(SomeProto);
 
-      var q = [];
-      q.intProp = 3;
+      someObj.a = 10;
+      someObj.c = undefined;
+      someObj.d = true;
 
-      p.copyFrom(q);
+      var obj = ClassA.create({
+        a: 1,
+        c: 2,
+        d: false
+      });
 
-      expect(p.intProp).toBe(3);
-    });
+      obj.copyFrom(someObj);
 
-    it('skips unset FObject values', function() {
-      var capture = captureWarn();
+      expect(obj.a).toBe(10);
 
-      var q = ClassASub.create();
-      q.intProp = 3;
+      // undefined values are not copied
+      expect(obj.c).toBe(2);
 
-      p.copyFrom(q);
-
-      expect(p.intProp).toBe(3);
-      expect(p.stringProp).toBe('wee'); //default
-      expect(q.stringProp).toBe('woo'); //default
+      expect(obj.d).toBe(true);
     });
 
   });

@@ -171,6 +171,11 @@ foam.CLASS({
 
   methods: [
     function unknownArg(key, value) {
+      /**
+       * Fires a warning when unknown args are referenced.
+       * @param {String} key
+       * @param {any=} value
+       */
       console.warn('Unknown argument ' + key + ': \"' + value + '\" at ' +
         (new Error()).stack);
       //throw new Error('Unknown argument ' + key + ': \"' + value);
