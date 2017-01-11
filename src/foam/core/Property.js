@@ -167,16 +167,24 @@ foam.CLASS({
         return function evaluate(o) { return o[name]; };
       }
     },
-    [
+    {
       /**
        * Compare two values taken from this property.
        * <p>Used by Property.compare().
        * It is a property rather than a method so that it can be configured
        * without subclassing.
        */
-      'comparePropertyValues',
-      function(o1, o2) { return foam.util.compare(o1, o2); }
-    ],
+      name: 'comparePropertyValues',
+      value: function(o1, o2) { return foam.util.compare(o1, o2); }
+    },
+    {
+      /**
+       * A function that returns true if the given value matches the default
+       * for this property.
+       */
+      name: 'isDefaultValue',
+      value: function(v) { return ! this.comparePropertyValues(this.value, v); }
+    },
     {
       /** Function property that makes Properties useful as comparators. */
       name: 'compare',

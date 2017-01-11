@@ -824,7 +824,7 @@ foam.LIB({
       var ps = obj.cls_.getAxiomsByClass(foam.core.Property);
       for ( var i = 0; i < ps.length; i++ ) {
         var key = ps[i].name;
-        if ( obj.hasOwnProperty(key) ) f(obj[key], key);
+        f(obj[key], key);
       }
     },
     function clone(o) {
