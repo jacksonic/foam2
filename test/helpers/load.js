@@ -40,6 +40,7 @@ require('../../src/foam/core/property/String.js');
 require('../../src/foam/core/property/StringArray.js');
 require('../../src/foam/core/Listener.js');
 require('../../src/foam/core/property/FObjectArray.js');
+require('../../src/foam/core/property/FObjectProperty.js');
 require('../../src/foam/core/Argument.js');
 require('../../src/foam/core/debug.js');
 require('../../src/foam/core/Topic.js');
