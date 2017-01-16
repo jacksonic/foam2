@@ -77,7 +77,7 @@ describe('FObjectProperty', function() {
       p.fobj = 4;
     }).toThrow();
     expect(function() {
-      p.fobj = "Not an object";
+      p.fobj = 'Not an object';
     }).toThrow();
   });
 
