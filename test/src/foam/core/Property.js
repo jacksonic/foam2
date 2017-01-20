@@ -128,4 +128,65 @@ describe('Property', function() {
     // OTHER_PROP gives objA === objB
     expect(SomeClass.OTHER_PROP.compare(objA, objB) === 0).toBe(true);
   });
+
+  it('shadowing parent to child', function() {
+    foam.CLASS({
+      name: 'ParentClass',
+      properties: [
+        {
+          name: 'a',
+          factory: function() {
+            return 1;
+          }
+        }
+      ]
+    });
+
+    foam.CLASS({
+      name: 'ChildClass',
+      extends: 'ParentClass',
+      properties: [
+        {
+          name: 'a',
+          value: 123
+        }
+      ]
+    });
+
+    var parent = ParentClass.create();
+    var child = ChildClass.create();
+
+    expect(parent.a).toBe(1);
+    expect(child.a).toBe(123);
+  });
+
+
+  beforeEach(function() {
+  });
+
+  afterEach(function() {
+  });
+
+  it('shadowing in same class warns', function() {
+    var capture = global.captureWarn();
+
+    foam.CLASS({
+      name: 'SomeClass',
+      properties: [
+        {
+          name: 'a',
+          getter: function() { return 1; },
+          value: 2
+        }
+      ]
+    });
+
+    global.matchingLine(capture(),
+      'Property SomeClass.a "value" hidden by "getter"');
+
+    var obj = SomeClass.create();
+
+    // getter takes precedence
+    expect(obj.a).toBe(1);
+  });
 });
