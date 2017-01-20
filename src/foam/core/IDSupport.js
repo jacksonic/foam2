@@ -23,8 +23,8 @@
  * <pre>
  *   foam.CLASS({
  *     name: 'Person',
- *     ids: [ 'firstName', 'lastName' ],
- *     properties: [ 'firstName', 'lastName', 'age', 'sex' ]
+ *     ids: ['firstName', 'lastName'],
+ *     properties: ['firstName', 'lastName', 'age', 'sex']
  *   });
  *
  *   > var p = Person.create({firstName: 'Kevin', lastName: 'Greer'});
@@ -38,9 +38,9 @@ foam.CLASS({
   extends: 'foam.core.Property',
 
   properties: [
-    [ 'name', 'id' ],
-//    [ 'transient', true ],
-//    [ 'hidden', true ],
+    ['name', 'id'],
+//    ['transient', true],
+//    ['hidden', true],
     'propNames',
     'props',
     {
@@ -110,7 +110,7 @@ foam.CLASS({
         foam.assert(value.length, '"ids" must contain at least one property.');
       },
       postSet: function(_, ids) {
-        this.axioms_.push(foam.core.MultiPartID.create({ propNames: ids }));
+        this.axioms_.push(foam.core.MultiPartID.create({propNames: ids}));
       }
     }
   ]

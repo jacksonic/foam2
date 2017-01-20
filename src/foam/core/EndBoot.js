@@ -25,10 +25,10 @@
  * Not defined as a constant, because they haven't been defined yet.
  */
 foam.core.Property.SHADOW_MAP = {
-  setter:     [ 'adapt', 'preSet', 'postSet' ],
-  getter:     [ 'factory', 'expression', 'value' ],
-  factory:    [ 'expression', 'value' ],
-  expression: [ 'value' ]
+  setter:     ['adapt', 'preSet', 'postSet'],
+  getter:     ['factory', 'expression', 'value'],
+  factory:    ['expression', 'value'],
+  expression: ['value']
 };
 
 /** Add new Axiom types (Implements, Constants, Topics, Properties, Methods and Listeners) to Model. */
