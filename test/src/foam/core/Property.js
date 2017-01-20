@@ -25,7 +25,7 @@ describe('Property', function() {
       ]
     });
 
-    var obj = Abc.create({ camelCaseName: 1 });
+    var obj = Abc.create({camelCaseName: 1});
 
     expect(Abc.CAMEL_CASE_NAME.get(obj)).toBe(1);
 

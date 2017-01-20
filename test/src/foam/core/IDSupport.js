@@ -20,7 +20,7 @@ describe('IDSupport tests', function() {
   it('Single part IDs', function() {
     foam.CLASS({
       name: 'SomeClass',
-      ids: [ 'a' ],
+      ids: ['a'],
       properties: [
         {
           class: 'Int',
@@ -29,8 +29,8 @@ describe('IDSupport tests', function() {
       ]
     });
 
-    var objA = SomeClass.create({ a: 12 });
-    var objB = SomeClass.create({ a: 13 });
+    var objA = SomeClass.create({a: 12});
+    var objB = SomeClass.create({a: 13});
 
     expect(objA.id).toBe(12);
 
@@ -43,7 +43,7 @@ describe('IDSupport tests', function() {
   it('Multipart IDs', function() {
     foam.CLASS({
       name: 'SomeClass',
-      ids: [ 'a', 'b' ],
+      ids: ['a', 'b'],
       properties: [
         {
           class: 'Int',
@@ -56,11 +56,11 @@ describe('IDSupport tests', function() {
       ]
     });
 
-    var objA = SomeClass.create({ a: 1, b: 2 });
-    var objB = SomeClass.create({ a: 1, b: 2 });
-    var objC = SomeClass.create({ a: 2, b: 1 });
+    var objA = SomeClass.create({a: 1, b: 2});
+    var objB = SomeClass.create({a: 1, b: 2});
+    var objC = SomeClass.create({a: 2, b: 1});
 
-    var objD = SomeClass.create({ a: 1, b: 3 });
+    var objD = SomeClass.create({a: 1, b: 3});
 
     expect(objA.id.length).toBe(2);
     expect(objA.id[0]).toBe(1);
