@@ -102,10 +102,12 @@ foam.INTERFACE({
     // No types are given here, so that they can be Unsafe properties.
     {
       /** Index into the input stream. */
+      class: 'Unsafe',
       name: 'pos'
     },
     {
       /** The input string, wrapped in an array to simulate a pointer. */
+      class: 'Unsafe',
       name: 'str'
     },
     {
