@@ -76,7 +76,7 @@ describe('Inner classes', function() {
       name: 'InnerClassTest3',
       classes: [
         foam.core.InnerClass.create({
-          model: { name: 'IC', properties: ['b'] }
+          model: {name: 'IC', properties: ['b']}
         })
       ]
     });

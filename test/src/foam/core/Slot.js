@@ -363,7 +363,7 @@ describe('PropertySlot', function() {
     foam.CLASS({
       name: 'Def',
       properties: [
-        { name: 'b', adapt: function(old, nu) { return Math.ceil(nu); } }
+        {name: 'b', adapt: function(old, nu) { return Math.ceil(nu);}}
       ]
     });
 
@@ -396,7 +396,7 @@ describe('PropertySlot', function() {
     foam.CLASS({
       name: 'Def',
       properties: [
-        { name: 'b', adapt: function(old, nu) { return nu > 20 ? 20 : nu; } }
+        {name: 'b', adapt: function(old, nu) { return nu > 20 ? 20 : nu;}}
       ]
     });
 

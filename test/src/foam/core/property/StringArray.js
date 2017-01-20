@@ -66,7 +66,7 @@ describe('StringArray', function() {
     var golden = '' + d;
 
     p.stringArray = [
-      { a: 1 },
+      {a: 1},
       2,
       true,
       d,

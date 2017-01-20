@@ -276,7 +276,7 @@ describe('Model properties', function() {
         {
           name: 'withFactory',
           factory: function() {
-            return { a: 456 };
+            return {a: 456};
           }
         }
       ]

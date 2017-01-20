@@ -71,7 +71,7 @@ describe('Requires', function() {
       package: 'test',
       name: 'BankTest2',
       requires: [
-        { name: 'ACT', path: 'bank.Account' }
+        {name: 'ACT', path: 'bank.Account'}
       ],
       properties: [
         {

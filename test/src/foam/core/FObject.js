@@ -867,7 +867,7 @@ describe('Library level FObject methods', function() {
 
     foam.CLASS({
       refines: 'SomeClass',
-      flags: { noWarnOnRefinesAfterCreate: true },
+      flags: {noWarnOnRefinesAfterCreate: true},
       exports: ['baz']
     });
 

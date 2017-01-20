@@ -26,7 +26,7 @@ describe('interfaces', function() {
           name: 'foo',
           returns: 'Number',
           args: [
-            { name: 'bar' }
+            {name: 'bar'}
           ]
         }
       ]
@@ -39,7 +39,7 @@ describe('interfaces', function() {
     foam.INTERFACE({
       name: 'IThing',
       methods: [
-        { name: 'foo' }
+        {name: 'foo'}
       ]
     });
 
@@ -84,7 +84,7 @@ describe('interfaces', function() {
       package: 'test',
       name: 'Int1',
       properties: [
-        { name: 'foo', value: 7 },
+        {name: 'foo', value: 7},
         ['defaulting', 4],
         'bare',
         prop
@@ -99,7 +99,7 @@ describe('interfaces', function() {
 
       topics: [
         'event',
-        { name: 'otherThing' }
+        {name: 'otherThing'}
       ],
 
       methods: [
@@ -205,7 +205,7 @@ describe('interfaces', function() {
       foam.CLASS({
         package: 'test',
         name: 'User',
-        implements: [{ path: 'test.Mixin' }],
+        implements: [{path: 'test.Mixin'}],
         properties: ['bar']
       });
     }).toThrow();
@@ -216,14 +216,14 @@ describe('interfaces', function() {
       package: 'test',
       name: 'Int1',
       properties: [
-        { class: 'String', name: 'baz' }
+        {class: 'String', name: 'baz'}
       ]
     });
     foam.INTERFACE({
       package: 'test',
       name: 'Int2',
       properties: [
-        { class: 'Int', name: 'baz' }
+        {class: 'Int', name: 'baz'}
       ]
     });
 

@@ -248,7 +248,7 @@ describe('imports exports', function() {
     });
 
     var context = foam.createSubContext({a: 12});
-    var obj = ImporterExporter.create({ someProperty: 'hello' }, context);
+    var obj = ImporterExporter.create({someProperty: 'hello'}, context);
 
     expect(obj.a).toBe(12);
     expect(obj.__subContext__.someProperty$.get()).toBe('hello');

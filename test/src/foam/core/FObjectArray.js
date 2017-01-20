@@ -58,8 +58,8 @@ describe('FObjectArray', function() {
 
     var t = test.FOATest.create({
       arr: [
-        { foo: 2 },
-        { foo: 'bar' },
+        {foo: 2},
+        {foo: 'bar'},
         payload
       ]
     });

@@ -380,11 +380,11 @@ describe('foam.Function.typeCheck', function() {
   });
 
   it('accepts explicit arguments list', function() {
-    var args = [ foam.core.Argument.create({
+    var args = [foam.core.Argument.create({
       name: 'str',
       typeName: 'String',
       index: 0
-    }) ];
+    })];
 
     var rfn = foam.Function
       .typeCheck(function(/* Number */ num) { return 1; }, args);
@@ -503,7 +503,7 @@ describe('installModel validation', function() {
       package: 'test',
       name: 'Parent',
       properties: [
-        { class: 'Int', name: 'foo' }
+        {class: 'Int', name: 'foo'}
       ]
     });
 
@@ -512,7 +512,7 @@ describe('installModel validation', function() {
       name: 'Child',
       extends: 'test.Parent',
       properties: [
-        { class: 'String', name: 'foo' }
+        {class: 'String', name: 'foo'}
       ]
     });
 
